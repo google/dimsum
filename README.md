@@ -18,7 +18,7 @@ of features from P0214, including but not limited to:
 * simd\_abi::fixed\_size<>
 * simd\_abi::compatible<>
 * Non-power-of-two sizes
-* SIMD version of <cmath>
+* SIMD version of \<cmath\>
 
 Dimsum provides an extra set of opreations, mostly as free functions
 in the namespace "dimsum" and namespace "dimsum::x86". The extra operations in
@@ -72,8 +72,8 @@ For example:
 
 Cross compilation is a bit tricky, but we found the following working, as long as
 the toolchains support cross compilation:
-* CC=clang bazel build --copt='-target' --copt='powerpc64le-linux-gnu' \
-      --copt='-maltivec' --linkopt='-target' --linkopt='powerpc64le-linux-gnu' \
+* CC=clang bazel build --copt='-target' --copt='powerpc64le-linux-gnu'
+      --copt='-maltivec' --linkopt='-target' --linkopt='powerpc64le-linux-gnu'
       ... # x86 host
 
 For fuzzing, link the fuzz library against fuzz engines like libFuzzer, then run
