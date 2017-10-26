@@ -1038,15 +1038,19 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, kArity>, 1, kArity> reduce_add_widened(
   return reduce_add<kArity>(static_simd_cast<ScaleBy<T, kArity>>(simd));
 }
 
-// Equivalent to reduce_add<2>(mul_widened(lhs, rhs)), but possibly faster.
+// Equivalent to acc + reduce_add<2>(mul_widened(lhs, rhs)), but probably faster.
 //
-// TODO(chenzhi): ppc has an addend parameter in the multiply-add function
-// (vec_msum). We currently just zero this parameter for the considered
-// operation. We may want to extend this function to use the addend.
+// e.g. mul_sum(Simd128<int16>, Simd128<int16>, Simd128<int32>)
+// computes 8 int16*int16 products ({s[0], ..., s[7]}) first, then does pairwise
+// horizontal summation and gets {s[0]+s[1], s[2]+s[3], s[4]+s[5], s[6]+s[7]}),
+// so that the result is still 128-bit, finally returns {acc[0]+s[0]+s[1],
+// acc[1]+s[2]+s[3], acc[2]+s[4]+s[5], acc[3]+s[6]+s[7]}.
 template <typename T, typename Abi>
-ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(Simd<T, Abi> lhs,
-                                                     Simd<T, Abi> rhs) {
-  return reduce_add<2>(mul_widened(lhs, rhs));
+ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
+    Simd<T, Abi> lhs, Simd<T, Abi> rhs,
+    ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> acc =
+        ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>(0)) {
+  return acc + reduce_add<2>(mul_widened(lhs, rhs));
 }
 
 }  // namespace dimsum

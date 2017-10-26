@@ -387,14 +387,15 @@ inline Simd<uint16, detail::NEON> packu_saturated(
 // each part are multiplied and summed pairwisely before being concatenated.
 template <>
 inline Simd<int32, detail::NEON> mul_sum(Simd<int16, detail::NEON> lhs,
-                                         Simd<int16, detail::NEON> rhs) {
+                                         Simd<int16, detail::NEON> rhs,
+                                         Simd<int32, detail::NEON> acc) {
   int16x8_t lhs_raw = lhs;
   int16x8_t rhs_raw = rhs;
   int32x4_t mullo = vmull_s16(vget_low_s16(lhs_raw), vget_low_s16(rhs_raw));
   int32x4_t mulhi = vmull_s16(vget_high_s16(lhs_raw), vget_high_s16(rhs_raw));
   int32x2_t addlo = vpadd_s32(vget_low_s32(mullo), vget_high_s32(mullo));
   int32x2_t addhi = vpadd_s32(vget_low_s32(mulhi), vget_high_s32(mulhi));
-  return vcombine_s32(addlo, addhi);
+  return vpaddq_s32(acc, vcombine_s32(addlo, addhi));
 }
 
 // vrndnq_f{32,64} translate to VRINTN.F{16,32}, which round floating points

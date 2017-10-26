@@ -321,8 +321,9 @@ inline Simd<int32, detail::XMM> reduce_add_widened<2>(
 
 template <>
 inline Simd<int32, detail::XMM> mul_sum(Simd<int16, detail::XMM> lhs,
-                                        Simd<int16, detail::XMM> rhs) {
-  return _mm_madd_epi16(lhs, rhs);
+                                        Simd<int16, detail::XMM> rhs,
+                                        Simd<int32, detail::XMM> acc) {
+  return _mm_add_epi32(acc.raw(), _mm_madd_epi16(lhs.raw(), rhs.raw()));
 }
 
 // _MM_FROUND_TO_NEAREST_INT specifies round-to-even.

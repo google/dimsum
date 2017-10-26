@@ -639,9 +639,10 @@ typename std::enable_if<N == 8>::type TestPacku() {
 TEST(DimsumTest, Packu) { TestPacku<NativeSimd<int32>::size()>(); }
 
 TEST(DimsumTest, MulSum) {
-  EXPECT_EQ((Simd128<int32>::list(1, 13, 41, 85)),
+  EXPECT_EQ((Simd128<int32>::list(1, 14, 43, 88)),
             (mul_sum(Simd128<int16>::list(0, 1, 2, 3, 4, 5, 6, 7),
-                     Simd128<int16>::list(0, 1, 2, 3, 4, 5, 6, 7))));
+                     Simd128<int16>::list(0, 1, 2, 3, 4, 5, 6, 7),
+                     Simd128<int32>::list(0, 1, 2, 3))));
 }
 
 TEST(DimsumTest, Max) {

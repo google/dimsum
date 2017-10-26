@@ -64,11 +64,9 @@ struct LoadImpl<T, detail::Abi<detail::StoragePolicy::kVsxReg, kNumBytes>,
   static Simd<T, detail::Abi<detail::StoragePolicy::kVsxReg, kNumBytes>> Apply(
       const T* buffer) {
     Simd<T, detail::Abi<detail::StoragePolicy::kVsxReg, kNumBytes>> ret;
-    __vector long long ret1[sizeof(ret) / 16];
-    for (int i = 0; i < sizeof(ret) / 16; i++) {
-      ret1[i] = vec_vsx_ld(
-          0, reinterpret_cast<const __vector long long*>(buffer) + i);
-    }
+    __vector int ret1[sizeof(ret) / 16];
+    for (int i = 0; i < sizeof(ret) / 16; i++)
+      ret1[i] = reinterpret_cast<const __vector int*>(buffer)[i];
     memcpy(&ret.storage_, &ret1, sizeof(ret1));
     return ret;
   }
@@ -77,32 +75,8 @@ struct LoadImpl<T, detail::Abi<detail::StoragePolicy::kVsxReg, kNumBytes>,
 template <typename T>
 struct LoadImpl<T, detail::VSX, flags::vector_aligned_tag> {
   static Simd<T, detail::VSX> Apply(const T* buffer) {
-    Simd<T, detail::VSX> ret;
-    auto value = vec_vsx_ld(0, buffer);
-    memcpy(&ret.storage_, &value, sizeof(ret));
-    return ret;
-  }
-};
-
-template <>
-struct LoadImpl<int64, detail::VSX, flags::vector_aligned_tag> {
-  static Simd<int64, detail::VSX> Apply(const int64* buffer) {
-    Simd<int64, detail::VSX> ret;
-    auto value =
-        vec_vsx_ld(0, reinterpret_cast<const __vector long long*>(buffer));
-    memcpy(&ret.storage_, &value, sizeof(ret));
-    return ret;
-  }
-};
-
-template <>
-struct LoadImpl<uint64, detail::VSX, flags::vector_aligned_tag> {
-  static Simd<uint64, detail::VSX> Apply(const uint64* buffer) {
-    Simd<uint64, detail::VSX> ret;
-    auto value = vec_vsx_ld(
-        0, reinterpret_cast<const __vector unsigned long long*>(buffer));
-    memcpy(&ret.storage_, &value, sizeof(ret));
-    return ret;
+    return *reinterpret_cast<
+        const typename Simd<T, detail::VSX>::Traits::ExternalType*>(buffer);
   }
 };
 
@@ -233,14 +207,16 @@ inline Simd<int32, detail::VSX> reduce_add_widened<2>(
 
 template <>
 inline Simd<int32, detail::VSX> mul_sum(Simd<int16, detail::VSX> lhs,
-                                        Simd<int16, detail::VSX> rhs) {
-  return vec_msum(lhs.raw(), rhs.raw(), vec_splat_s32(0));
+                                        Simd<int16, detail::VSX> rhs,
+                                        Simd<int32, detail::VSX> acc) {
+  return vec_msum(lhs.raw(), rhs.raw(), acc.raw());
 }
 
 template <>
 inline Simd<uint32, detail::VSX> mul_sum(Simd<uint16, detail::VSX> lhs,
-                                         Simd<uint16, detail::VSX> rhs) {
-  return vec_msum(lhs.raw(), rhs.raw(), vec_splat_u32(0));
+                                         Simd<uint16, detail::VSX> rhs,
+                                         Simd<uint32, detail::VSX> acc) {
+  return vec_msum(lhs.raw(), rhs.raw(), acc.raw());
 }
 
 // vec_rint calls XVR[SD]PIC which round floating points according to the

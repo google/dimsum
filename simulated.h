@@ -430,8 +430,10 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, kArity>, 1, kArity> reduce_add_widened(
 }
 
 template <typename T, typename Abi>
-ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(Simd<T, Abi> lhs,
-                                                     Simd<T, Abi> rhs) {
+ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
+    Simd<T, Abi> lhs, Simd<T, Abi> rhs,
+    ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> acc =
+        ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>(0)) {
   using DestType = ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>;
   using DestElem = typename DestType::value_type;
   DestType ret{};
@@ -439,9 +441,11 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(Simd<T, Abi> lhs,
   // for each signed type: e.g. INT32_MIN * INT32_MIN + INT32_MIN * INT32_MIN =
   // 2**63 is not representable by int64.
   for (size_t i = 0; i < lhs.size(); i += 2) {
-    ret.set(i / 2, static_cast<typename std::make_unsigned<DestElem>::type>(
-                       DestElem{lhs[i]} * rhs[i]) +
-                       DestElem{lhs[i + 1]} * rhs[i + 1]);
+    ret.set(
+        i / 2,
+        acc[i / 2] + (static_cast<typename std::make_unsigned<DestElem>::type>(
+                          DestElem{lhs[i]} * rhs[i]) +
+                      DestElem{lhs[i + 1]} * rhs[i + 1]));
   }
   return ret;
 }

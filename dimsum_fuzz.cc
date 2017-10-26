@@ -154,22 +154,29 @@ void TestReduceAddWidened(const uint8_t* data) {
                  dimsum::reduce_add_widened<kArity>(input));
 }
 
-template <typename T>
+template <typename T, typename Acc>
 void TestMulSum(const uint8_t* data) {
   NativeSimd<T> lhs, rhs;
+  NativeSimd<Acc> acc;
   LoadFromRaw(data, &lhs);
   LoadFromRaw(data + sizeof(lhs), &rhs);
+  LoadFromRaw(data + sizeof(lhs) + sizeof(rhs), &acc);
 
   auto products = dimsum::mul_widened(lhs, rhs);
   for (int i = 0; i < products.size(); i += 2) {
     if (dimsum::detail::CheckAddOverflow(products[i], products[i + 1]) !=
-        OverflowType::kNoOverflow) {
+            OverflowType::kNoOverflow &&
+        dimsum::detail::CheckAddOverflow(products[i] + products[i + 1],
+                                         acc[i / 2]) !=
+            OverflowType::kNoOverflow) {
       return;
     }
   }
 
   TrapIfNotEqual(dimsum::simulated::mul_sum<T>(lhs, rhs),
                  dimsum::mul_sum<T>(lhs, rhs));
+  TrapIfNotEqual(dimsum::simulated::mul_sum<T>(lhs, rhs, acc),
+                 dimsum::mul_sum<T>(lhs, rhs, acc));
 }
 
 void TestMaddubs(const uint8_t* data) {
@@ -463,8 +470,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     TestMin<float>(data);
     TestMin<double>(data);
 
-    TestMulSum<int16>(data);
-
     TestMulWidened<int8>(data);
     TestMulWidened<int16>(data);
     TestMulWidened<int32>(data);
@@ -474,6 +479,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     // ----- dimsum::x86::*
     TestMaddubs(data);
+  }
+
+  if (size >= dimsum::detail::kMachineWidth * 3) {
+    TestMulSum<int16, int32>(data);
   }
 
   return 0;
