@@ -162,17 +162,6 @@ void TestMulSum(const uint8_t* data) {
   LoadFromRaw(data + sizeof(lhs), &rhs);
   LoadFromRaw(data + sizeof(lhs) + sizeof(rhs), &acc);
 
-  auto products = dimsum::mul_widened(lhs, rhs);
-  for (int i = 0; i < products.size(); i += 2) {
-    if (dimsum::detail::CheckAddOverflow(products[i], products[i + 1]) !=
-            OverflowType::kNoOverflow &&
-        dimsum::detail::CheckAddOverflow(products[i] + products[i + 1],
-                                         acc[i / 2]) !=
-            OverflowType::kNoOverflow) {
-      return;
-    }
-  }
-
   TrapIfNotEqual(dimsum::simulated::mul_sum<T>(lhs, rhs),
                  dimsum::mul_sum<T>(lhs, rhs));
   TrapIfNotEqual(dimsum::simulated::mul_sum<T>(lhs, rhs, acc),
