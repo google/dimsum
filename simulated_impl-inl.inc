@@ -18,58 +18,6 @@
 
 namespace dimsum {
 
-namespace simulated {
-
-// TODO(maskray) the forward declarations are used here because of a circular
-// dependency limitation. dimsum.h should be separated to dimsum_types.h and
-// dimsum_specializations.h and only dimsum_types.h should be included by
-// simulated.h .
-
-template <typename T, typename Abi>
-Simd<detail::Number<sizeof(T) / 2, detail::NumberKind::kSInt>, Abi>
-pack_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
-
-template <typename T, typename Abi>
-Simd<detail::Number<sizeof(T) / 2, detail::NumberKind::kUInt>, Abi>
-packu_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
-
-template <typename T, typename Abi>
-typename std::enable_if<std::is_integral<T>::value, Simd<T, Abi>>::type abs(
-    Simd<T, Abi> simd);
-
-template <typename T, typename Abi>
-typename std::enable_if<std::is_floating_point<T>::value, Simd<T, Abi>>::type
-abs(Simd<T, Abi> simd);
-
-template <typename T, typename Abi>
-Simd<T, Abi> reciprocal_estimate(Simd<T, Abi> simd);
-
-template <typename T, typename Abi>
-Simd<T, Abi> sqrt(Simd<T, Abi> simd);
-
-template <typename T, typename Abi>
-Simd<T, Abi> reciprocal_sqrt_estimate(Simd<T, Abi> simd);
-
-template <typename T, typename Abi>
-Simd<T, Abi> round(Simd<T, Abi> simd);
-
-template <typename Dest, typename T, typename Abi>
-Simd<Dest, Abi> round_to_integer(Simd<T, Abi> simd);
-
-template <typename T, typename Abi>
-Simd<T, Abi> add_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
-
-template <typename T, typename Abi>
-Simd<T, Abi> sub_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
-
-template <typename T, typename Abi>
-Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
-
-template <typename T, typename Abi>
-Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
-
-}  // namespace simulated
-
 namespace detail {
 
 // Simulated (16 bytes)
