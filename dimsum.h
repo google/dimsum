@@ -179,6 +179,7 @@ DestType saturated_convert(SrcType val) {
 }
 
 enum class StoragePolicy {
+  kSimulated,
   kXmm,
   kYmm,
   kVsxReg,
@@ -835,8 +836,9 @@ packu_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs) DIMSUM_DELETE;
 // same amount of elements as lhs/rhs.
 template <typename T, typename Abi>
 ScaleElemBy<Simd<T, Abi>, 2> mul_widened(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return concat(mul_widened(split(lhs)[0], split(rhs)[0]),
-                mul_widened(split(lhs)[1], split(rhs)[1]));
+  auto ls = split<2>(lhs);
+  auto rs = split<2>(rhs);
+  return concat(mul_widened(ls[0], rs[0]), mul_widened(ls[1], rs[1]));
 }
 
 // Returns the element-wise min result. Elements should not contain NaN.
@@ -1093,18 +1095,22 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
   SIMD_SPECIALIZATION(int8, STORAGE, 1, InternalType)           \
   SIMD_SPECIALIZATION(uint8, STORAGE, 1, InternalType)
 
-#if defined(__SSE4_1__)
-# include "x86_sse_impl-inl.inc"
-# ifdef __AVX2__
-#  include "x86_avx_impl-inl.inc"
-# endif
-#elif defined(__ALTIVEC__)
-# include "ppc_impl-inl.inc"
-#elif defined(__aarch64__)
-# include "arm_impl-inl.inc"
+#ifdef DIMSUM_USE_SIMULATED
+# include "simulated_impl-inl.inc"
 #else
-# error "Unspported platform"
-#endif  // defined(__SSE4_1__)
+# if defined(__SSE4_1__)
+#  include "x86_sse_impl-inl.inc"
+#  ifdef __AVX2__
+#   include "x86_avx_impl-inl.inc"
+#  endif  // __AVX2__
+# elif defined(__ALTIVEC__)
+#  include "ppc_impl-inl.inc"
+# elif defined(__aarch64__)
+#  include "arm_impl-inl.inc"
+# else
+#  include "simulated_impl-inl.inc"
+# endif  // defined(__SSE4_1__)
+#endif  // DIMSUM_USE_SIMULATED
 
 #undef SIMD_SPECIALIZATION
 #undef DIMSUM_DELETE

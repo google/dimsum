@@ -11,6 +11,7 @@ cc_library(
         "dimsum.h",
         "index_sequence.h",
         "ppc_impl-inl.inc",
+        "simulated_impl-inl.inc",
         "x86_avx_impl-inl.inc",
         "x86_sse_impl-inl.inc",
     ],
