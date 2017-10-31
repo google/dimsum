@@ -83,32 +83,32 @@ int movemask(Simd<T, Abi> simd) {
 
 template <>
 inline int movemask<int8, detail::XMM>(Simd<int8, detail::XMM> simd) {
-  return _mm_movemask_epi8(simd);
+  return _mm_movemask_epi8(simd.raw());
 }
 
 template <>
 inline int movemask<uint8, detail::XMM>(Simd<uint8, detail::XMM> simd) {
-  return _mm_movemask_epi8(simd);
+  return _mm_movemask_epi8(simd.raw());
 }
 
 template <>
 inline int movemask<int32, detail::XMM>(Simd<int32, detail::XMM> simd) {
-  return _mm_movemask_ps(simd);
+  return _mm_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
 inline int movemask<uint32, detail::XMM>(Simd<uint32, detail::XMM> simd) {
-  return _mm_movemask_ps(simd);
+  return _mm_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
 inline int movemask<int64, detail::XMM>(Simd<int64, detail::XMM> simd) {
-  return _mm_movemask_pd(simd);
+  return _mm_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 template <>
 inline int movemask<uint64, detail::XMM>(Simd<uint64, detail::XMM> simd) {
-  return _mm_movemask_pd(simd);
+  return _mm_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 # ifdef __AVX2__
@@ -119,27 +119,27 @@ inline int movemask<int8, detail::YMM>(Simd<int8, detail::YMM> simd) {
 
 template <>
 inline int movemask<uint8, detail::YMM>(Simd<uint8, detail::YMM> simd) {
-  return _mm256_movemask_epi8(simd);
+  return _mm256_movemask_epi8(simd.raw());
 }
 
 template <>
 inline int movemask<int32, detail::YMM>(Simd<int32, detail::YMM> simd) {
-  return _mm256_movemask_ps(simd);
+  return _mm256_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
 inline int movemask<uint32, detail::YMM>(Simd<uint32, detail::YMM> simd) {
-  return _mm256_movemask_ps(simd);
+  return _mm256_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
 inline int movemask<int64, detail::YMM>(Simd<int64, detail::YMM> simd) {
-  return _mm256_movemask_pd(simd);
+  return _mm256_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 template <>
 inline int movemask<uint64, detail::YMM>(Simd<uint64, detail::YMM> simd) {
-  return _mm256_movemask_pd(simd);
+  return _mm256_movemask_pd(bit_cast<double>(simd).raw());
 }
 #endif  // __AVX2__
 #endif  // __SSE4_1__
