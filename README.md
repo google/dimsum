@@ -46,7 +46,7 @@ performance, due to prioritization.
 Build system:
 * Bazel
 
-The following compilers are planed to be supported:
+Compiler:
 * Clang 3.8 or newer
 
 The following sub-architectures are planed to be supported:
@@ -76,5 +76,9 @@ the toolchains support cross compilation:
       --copt='-maltivec' --linkopt='-target' --linkopt='powerpc64le-linux-gnu'
       ... # x86 host
 
-For fuzzing, link the fuzz library against fuzz engines like libFuzzer, then run
-the result binary.
+## Fuzzing
+
+Link dimsum\_fuzz against fuzz engines like libFuzzer, then run the result
+binary.
+
+(TODO) Add it to [OSS-Fuzz](https://github.com/google/oss-fuzz)
