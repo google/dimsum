@@ -11,6 +11,8 @@ cc_library(
         "dimsum.h",
         "index_sequence.h",
         "ppc_impl-inl.inc",
+        "simd.h",
+        "simulated.h",
         "simulated_impl-inl.inc",
         "x86_avx_impl-inl.inc",
         "x86_sse_impl-inl.inc",
@@ -28,23 +30,12 @@ cc_library(
 )
 
 cc_library(
-    name = "simulated",
-    hdrs = [
-        "simulated.h",
-    ],
-    deps = [
-        "dimsum",
-    ],
-)
-
-cc_library(
     name = "x86",
     hdrs = [
         "dimsum_x86.h",
     ],
     deps = [
         "dimsum",
-        "simulated",
     ],
 )
 
@@ -53,7 +44,6 @@ cc_test(
     srcs = ["dimsum_test.cc"],
     deps = [
         ":dimsum",
-        ":simulated",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -63,7 +53,6 @@ cc_test(
     srcs = ["dimsum_x86_test.cc"],
     deps = [
         ":dimsum",
-        ":simulated",
         ":x86",
         "@com_google_googletest//:gtest_main",
     ],
@@ -74,7 +63,6 @@ cc_library(
     srcs = ["dimsum_fuzz.cc"],
     deps = [
         ":dimsum",
-        ":simulated",
         ":x86",
     ],
     alwayslink = 1,

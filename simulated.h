@@ -21,7 +21,7 @@
 #include <cmath>
 #include <limits>
 
-#include "dimsum.h"
+#include "simd.h"
 
 namespace dimsum {
 namespace detail {
