@@ -346,7 +346,7 @@ inline Simd<int32, detail::XMM> round_to_integer(
 template <typename T>
 Simd<ScaleBy<T, 2>, detail::XMM> mul_widened(Simd<T, detail::HalfXMM> lhs,
                                              Simd<T, detail::HalfXMM> rhs) {
-  return convert<ScaleBy<T, 2>>(lhs) * convert<ScaleBy<T, 2>>(rhs);
+  return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
 }  // namespace dimsum

@@ -420,7 +420,7 @@ inline Simd<int32, detail::NEON> round_to_integer(
 template <typename T>
 Simd<ScaleBy<T, 2>, detail::NEON> mul_widened(Simd<T, detail::HalfNEON> lhs,
                                               Simd<T, detail::HalfNEON> rhs) {
-  return convert<ScaleBy<T, 2>>(lhs) * convert<ScaleBy<T, 2>>(rhs);
+  return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
 }  // namespace dimsum

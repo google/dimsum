@@ -69,12 +69,12 @@ inline Simd<int32, detail::Simulated> abs(Simd<int32, detail::Simulated> simd) {
 }
 
 template <>
-inline Simd<float, detail::Simulated> abs(Simd<float, detail::Simulated> simd) {
+inline Simd<int64, detail::Simulated> abs(Simd<int64, detail::Simulated> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<int64, detail::Simulated> abs(Simd<int64, detail::Simulated> simd) {
+inline Simd<float, detail::Simulated> abs(Simd<float, detail::Simulated> simd) {
   return simulated::abs(simd);
 }
 
@@ -318,7 +318,7 @@ inline Simd<int32, detail::Simulated> round_to_integer(
 template <typename T>
 Simd<ScaleBy<T, 2>, detail::Simulated> mul_widened(
     Simd<T, detail::HalfSimulated> lhs, Simd<T, detail::HalfSimulated> rhs) {
-  return convert<ScaleBy<T, 2>>(lhs) * convert<ScaleBy<T, 2>>(rhs);
+  return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
 }  // namespace dimsum

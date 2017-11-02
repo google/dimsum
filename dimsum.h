@@ -219,7 +219,8 @@ template <typename T, typename Abi, typename Flags>
 struct LoadImpl;
 
 template <typename To, typename From>
-constexpr auto IsNarrowingConversionImpl(From a) -> decltype(To{a}, false) {
+constexpr auto IsNarrowingConversionImpl(From a[[gnu::unused]])
+    -> decltype(To{a}, false) {
   return false;
 }
 
@@ -937,7 +938,7 @@ ChangeElemTo<Simd<Src, Abi>, Dest> static_simd_cast(Simd<Src, Abi> simd) {
 // possible value of the element type can be represented with Dest.
 template <typename Dest, typename Src, typename Abi>
 ChangeElemTo<Simd<Src, Abi>, Dest> simd_cast(Simd<Src, Abi> simd) {
-  static_assert(!detail::IsNarrowingConversion<Dest, Src>,
+  static_assert(!detail::IsNarrowingConversion<Dest, Src>(),
                 "simd_cast does not support narrowing cast. Use "
                 "static_simd_cast instead.");
   return static_simd_cast<Dest, Src, Abi>(simd);
