@@ -39,7 +39,7 @@
 #ifdef __SSE4_1__
 # include <smmintrin.h>
 # ifdef __AVX2__
-#  include <avx2intrin.h>
+#  include <immintrin.h>
 # endif
 #endif
 
@@ -56,6 +56,7 @@ Simd<int16, Abi> maddubs(Simd<uint8, Abi> lhs, Simd<int8, Abi> rhs) {
   return simulated::maddubs(lhs, rhs);
 }
 
+#ifndef DIMSUM_USE_SIMULATED
 #ifdef __SSE4_1__
 template <>
 inline Simd<int16, detail::XMM> maddubs(Simd<uint8, detail::XMM> lhs,
@@ -70,6 +71,7 @@ inline Simd<int16, detail::YMM> maddubs(Simd<uint8, detail::YMM> lhs,
 }
 #endif  // __AVX2__
 #endif  // __SSE4_1__
+#endif  // DIMSUM_USE_SIMULATED
 
 // TODO(maskray) {int,uint}{8,32,64} specializations are provided.
 // Provide float/double specializations if there are use cases to check sign
@@ -79,6 +81,7 @@ int movemask(Simd<T, Abi> simd) {
   return simulated::movemask(simd);
 }
 
+#ifndef DIMSUM_USE_SIMULATED
 #ifdef __SSE4_1__
 
 template <>
@@ -182,7 +185,8 @@ template <>
 inline int movemask<int8, detail::VSX>(Simd<int8, detail::VSX> simd) {
   return movemask<uint8, detail::VSX>(bit_cast<uint8>(simd));
 }
-#endif
+#endif  // __VSX__
+#endif  // DIMSUM_USE_SIMULATED
 
 }  // namespace x86
 
