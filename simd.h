@@ -944,14 +944,6 @@ ChangeElemTo<Simd<Src, Abi>, Dest> simd_cast(Simd<Src, Abi> simd) {
   return static_simd_cast<Dest, Src, Abi>(simd);
 }
 
-template <typename Dest, typename Src, typename Abi>
-__attribute__((
-    deprecated("simd_cast for non-narrowing cast and static_simd_cast for "
-               "narrowing cast."))) ChangeElemTo<Simd<Src, Abi>, Dest>
-convert(Simd<Src, Abi> simd) {
-  return static_simd_cast<Dest, Src, Abi>(simd);
-}
-
 // Overloaded operators.
 template <typename T, typename Abi>
 Simd<T, Abi> operator-(Simd<T, Abi> a) {
