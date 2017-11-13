@@ -659,17 +659,17 @@ TEST(DimsumTest, Min) {
 
 TEST(DimsumTest, HorizontalSum) {
   EXPECT_EQ((Simd128<int64>::list(3, 7)),
-            reduce_add_widened<2>(Simd128<int32>::list(1, 2, 3, 4)));
+            (reduce_add<int64, 2>(Simd128<int32>::list(1, 2, 3, 4))));
   EXPECT_EQ((Simd128<int64>::list(1, 1)),
-            reduce_add_widened<2>(Simd128<int32>::list(-1, 2, -3, 4)));
+            (reduce_add<int64, 2>(Simd128<int32>::list(-1, 2, -3, 4))));
   EXPECT_EQ((Simd128<int64>::list(-3, 7)),
-            reduce_add_widened<2>(Simd128<int32>::list(-1, -2, 3, 4)));
+            (reduce_add<int64, 2>(Simd128<int32>::list(-1, -2, 3, 4))));
   EXPECT_EQ((Simd128<uint64>::list(60, 220)),
-            reduce_add_widened<8>(Simd128<uint8>::list(
-                1, 2, 3, 4, 11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34)));
+            (reduce_add<uint64, 2>(Simd128<uint8>::list(
+                1, 2, 3, 4, 11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34))));
   EXPECT_EQ((Simd128<uint32>::list(10, 50, 90, 130)),
-            reduce_add_widened<4>(Simd128<uint8>::list(
-                1, 2, 3, 4, 11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34)));
+            (reduce_add<uint32, 4>(Simd128<uint8>::list(
+                1, 2, 3, 4, 11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34))));
 }
 
 TEST(DimsumTest, Fma) {
@@ -1017,28 +1017,30 @@ TEST(DimsumTest, ReduceAdd) {
   EXPECT_EQ(36, reduce_add(Simd128<int16>::list(1, 2, 3, 4, 5, 6, 7, 8))[0]);
   EXPECT_EQ(10, reduce_add(Simd128<int32>::list(1, 2, 3, 4))[0]);
   EXPECT_EQ(Simd128<int32>::list(3, 7, 11, 15),
-            reduce_add<2>(concat(Simd128<int32>::list(1, 2, 3, 4),
-                                 Simd128<int32>::list(5, 6, 7, 8))));
+            (reduce_add<int32, 4>(concat(Simd128<int32>::list(1, 2, 3, 4),
+                                         Simd128<int32>::list(5, 6, 7, 8)))));
 
-  EXPECT_EQ(Simd128<int32>::list(10, 26, 42, 58),
-            reduce_add<4>(concat(Simd128<int32>::list(1, 2, 3, 4),
-                                 Simd128<int32>::list(5, 6, 7, 8),
-                                 Simd128<int32>::list(9, 10, 11, 12),
-                                 Simd128<int32>::list(13, 14, 15, 16))));
+  EXPECT_EQ(
+      Simd128<int32>::list(10, 26, 42, 58),
+      (reduce_add<int32, 4>(concat(Simd128<int32>::list(1, 2, 3, 4),
+                                   Simd128<int32>::list(5, 6, 7, 8),
+                                   Simd128<int32>::list(9, 10, 11, 12),
+                                   Simd128<int32>::list(13, 14, 15, 16)))));
 
   EXPECT_EQ(36, simulated::reduce_add(
                     Simd128<int16>::list(1, 2, 3, 4, 5, 6, 7, 8))[0]);
   EXPECT_EQ(10, simulated::reduce_add(Simd128<int32>::list(1, 2, 3, 4))[0]);
   EXPECT_EQ(Simd128<int32>::list(3, 7, 11, 15),
-            simulated::reduce_add<2>(concat(Simd128<int32>::list(1, 2, 3, 4),
-                                            Simd128<int32>::list(5, 6, 7, 8))));
+            (simulated::reduce_add<int32, 4>(
+                concat(Simd128<int32>::list(1, 2, 3, 4),
+                       Simd128<int32>::list(5, 6, 7, 8)))));
 
   EXPECT_EQ(
       Simd128<int32>::list(10, 26, 42, 58),
-      simulated::reduce_add<4>(concat(Simd128<int32>::list(1, 2, 3, 4),
-                                      Simd128<int32>::list(5, 6, 7, 8),
-                                      Simd128<int32>::list(9, 10, 11, 12),
-                                      Simd128<int32>::list(13, 14, 15, 16))));
+      (simulated::reduce_add<int32, 4>(concat(
+          Simd128<int32>::list(1, 2, 3, 4), Simd128<int32>::list(5, 6, 7, 8),
+          Simd128<int32>::list(9, 10, 11, 12),
+          Simd128<int32>::list(13, 14, 15, 16)))));
 }
 
 #undef SIMD_BINARY_OP_ASSIGN_TEST

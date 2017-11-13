@@ -126,11 +126,12 @@ void TestStaticSimdCast(const uint8_t* data) {
                  dimsum::static_simd_cast<To>(simd));
 }
 
-template <typename SimdType, size_t kArity>
-void TestReduceAdd(const uint8_t* data) {
+template <typename SimdType, size_t NewSize>
+void TestSameTypeReduceAdd(const uint8_t* data) {
   SimdType input;
   LoadFromRaw(data, &input);
 
+  constexpr size_t kArity = SimdType::size() / NewSize;
   for (int i = 0; i < input.size(); i += kArity) {
     typename SimdType::value_type sum = 0;
     for (int j = 0; j < kArity; j++) {
@@ -142,16 +143,20 @@ void TestReduceAdd(const uint8_t* data) {
     }
   }
 
-  TrapIfNotEqual(dimsum::simulated::reduce_add<kArity>(input),
-                 dimsum::reduce_add<kArity>(input));
+  TrapIfNotEqual(
+      dimsum::simulated::reduce_add<typename SimdType::value_type, NewSize>(
+          input),
+      dimsum::reduce_add<typename SimdType::value_type, NewSize>(input));
 }
 
-template <typename SrcType, size_t kArity>
-void TestReduceAddWidened(const uint8_t* data) {
+template <typename SrcType, typename NewType>
+void TestSameTotalWidthReduceAdd(const uint8_t* data) {
   NativeSimd<SrcType> input;
   LoadFromRaw(data, &input);
-  TrapIfNotEqual(dimsum::simulated::reduce_add_widened<kArity>(input),
-                 dimsum::reduce_add_widened<kArity>(input));
+  constexpr size_t kArity = sizeof(NewType) / sizeof(SrcType);
+  constexpr size_t NewSize = input.size() / kArity;
+  TrapIfNotEqual(dimsum::simulated::reduce_add<NewType, NewSize>(input),
+                 dimsum::reduce_add<NewType, NewSize>(input));
 }
 
 template <typename T, typename Acc>
@@ -396,47 +401,47 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     TestRound<double>(data);
     TestRoundToInteger<float, int32>(data);
 
-    TestReduceAdd<Simd128<int8>, 2>(data);
-    TestReduceAdd<Simd128<int8>, 4>(data);
-    TestReduceAdd<Simd128<int8>, 8>(data);
-    TestReduceAdd<Simd128<int8>, 16>(data);
-    TestReduceAdd<Simd128<int16>, 2>(data);
-    TestReduceAdd<Simd128<int16>, 4>(data);
-    TestReduceAdd<Simd128<int16>, 8>(data);
-    TestReduceAdd<Simd128<int32>, 2>(data);
-    TestReduceAdd<Simd128<int32>, 4>(data);
-    TestReduceAdd<Simd128<int64>, 2>(data);
-    TestReduceAdd<Simd128<uint8>, 2>(data);
-    TestReduceAdd<Simd128<uint8>, 4>(data);
-    TestReduceAdd<Simd128<uint8>, 8>(data);
-    TestReduceAdd<Simd128<uint8>, 16>(data);
-    TestReduceAdd<Simd128<uint16>, 2>(data);
-    TestReduceAdd<Simd128<uint16>, 4>(data);
-    TestReduceAdd<Simd128<uint16>, 8>(data);
-    TestReduceAdd<Simd128<uint32>, 2>(data);
-    TestReduceAdd<Simd128<uint32>, 4>(data);
-    TestReduceAdd<Simd128<uint64>, 2>(data);
-    TestReduceAdd<NativeSimd<int8>, NativeSimd<int8>::size()>(data);
-    TestReduceAdd<NativeSimd<int16>, NativeSimd<int16>::size()>(data);
-    TestReduceAdd<NativeSimd<int32>, NativeSimd<int32>::size()>(data);
-    TestReduceAdd<NativeSimd<int64>, NativeSimd<int64>::size()>(data);
-    TestReduceAdd<NativeSimd<uint8>, NativeSimd<uint8>::size()>(data);
-    TestReduceAdd<NativeSimd<uint16>, NativeSimd<uint16>::size()>(data);
-    TestReduceAdd<NativeSimd<uint32>, NativeSimd<uint32>::size()>(data);
-    TestReduceAdd<NativeSimd<uint64>, NativeSimd<uint64>::size()>(data);
+    TestSameTypeReduceAdd<Simd128<int8>, 8>(data);
+    TestSameTypeReduceAdd<Simd128<int8>, 4>(data);
+    TestSameTypeReduceAdd<Simd128<int8>, 2>(data);
+    TestSameTypeReduceAdd<Simd128<int8>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<int16>, 4>(data);
+    TestSameTypeReduceAdd<Simd128<int16>, 2>(data);
+    TestSameTypeReduceAdd<Simd128<int16>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<int32>, 2>(data);
+    TestSameTypeReduceAdd<Simd128<int32>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<int64>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<uint8>, 8>(data);
+    TestSameTypeReduceAdd<Simd128<uint8>, 4>(data);
+    TestSameTypeReduceAdd<Simd128<uint8>, 2>(data);
+    TestSameTypeReduceAdd<Simd128<uint8>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<uint16>, 4>(data);
+    TestSameTypeReduceAdd<Simd128<uint16>, 2>(data);
+    TestSameTypeReduceAdd<Simd128<uint16>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<uint32>, 2>(data);
+    TestSameTypeReduceAdd<Simd128<uint32>, 1>(data);
+    TestSameTypeReduceAdd<Simd128<uint64>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<int8>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<int16>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<int32>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<int64>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<uint8>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<uint16>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<uint32>, 1>(data);
+    TestSameTypeReduceAdd<NativeSimd<uint64>, 1>(data);
 
-    TestReduceAddWidened<int8, 2>(data);
-    TestReduceAddWidened<int8, 4>(data);
-    TestReduceAddWidened<int8, 8>(data);
-    TestReduceAddWidened<int16, 2>(data);
-    TestReduceAddWidened<int16, 4>(data);
-    TestReduceAddWidened<int32, 2>(data);
-    TestReduceAddWidened<uint8, 2>(data);
-    TestReduceAddWidened<uint8, 4>(data);
-    TestReduceAddWidened<uint8, 8>(data);
-    TestReduceAddWidened<uint16, 2>(data);
-    TestReduceAddWidened<uint16, 4>(data);
-    TestReduceAddWidened<uint32, 2>(data);
+    TestSameTotalWidthReduceAdd<int8, int16>(data);
+    TestSameTotalWidthReduceAdd<int8, int32>(data);
+    TestSameTotalWidthReduceAdd<int8, int64>(data);
+    TestSameTotalWidthReduceAdd<int16, int32>(data);
+    TestSameTotalWidthReduceAdd<int16, int64>(data);
+    TestSameTotalWidthReduceAdd<int32, int64>(data);
+    TestSameTotalWidthReduceAdd<uint8, uint16>(data);
+    TestSameTotalWidthReduceAdd<uint8, uint32>(data);
+    TestSameTotalWidthReduceAdd<uint8, uint64>(data);
+    TestSameTotalWidthReduceAdd<uint16, uint32>(data);
+    TestSameTotalWidthReduceAdd<uint16, uint64>(data);
+    TestSameTotalWidthReduceAdd<uint32, uint64>(data);
 
     // ----- dimsum::x86::*
     TestMovemask<int8>(data);

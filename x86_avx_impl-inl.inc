@@ -322,13 +322,13 @@ inline Simd<uint16, detail::YMM> packu_saturated(Simd<int32, detail::YMM> lhs,
 }
 
 template <>
-inline Simd<uint64, detail::YMM> reduce_add_widened<8>(
+inline Simd<uint64, detail::YMM> reduce_add<uint64, 4>(
     Simd<uint8, detail::YMM> simd) {
   return _mm256_sad_epu8(simd, Simd<uint8, detail::YMM>(0));
 }
 
 template <>
-inline Simd<int32, detail::YMM> reduce_add_widened<2>(
+inline Simd<int32, detail::YMM> reduce_add<int32, 8>(
     Simd<int16, detail::YMM> simd) {
   return _mm256_madd_epi16(simd, Simd<int16, detail::YMM>(1));
 }

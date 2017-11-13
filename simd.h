@@ -811,27 +811,6 @@ struct ReduceAddImpl {
 
 }  // namespace detail
 
-// Perform a kArity-way summation.
-//
-// Put every adjacent kArity elements into a group, and calculate the sum of
-// such a group. Return all sums in a Simd object.
-//
-// Formally, for the result a,
-//     a[i] = sum(simd[i * kArity ... (i + 1) * kArity - 1])
-template <size_t kArity, typename T, typename Abi>
-ResizeBy<Simd<T, Abi>, 1, kArity> reduce_add(Simd<T, Abi> simd) {
-  static_assert(std::is_integral<T>::value,
-                "The element types needs to be integrals.");
-  static_assert(simd.size() % kArity == 0, "");
-  return detail::ReduceAddImpl<kArity>::Apply(simd);
-}
-
-// Equivalent to reduce_add<simd.size()>. The result is always by size 1.
-template <typename T, typename Abi>
-ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
-  return reduce_add<simd.size()>(simd);
-}
-
 // Narrows elements of the input Simd objects by half, and concatenate them
 // together. Always produce a signed result.
 template <typename T, typename Abi>
@@ -1037,16 +1016,50 @@ Simd<T, Abi> operator~(Simd<T, Abi> a) {
 template <typename Dest, typename T, typename Abi>
 Simd<Dest, Abi> round_to_integer(Simd<T, Abi>) DIMSUM_DELETE;
 
-// Equivalent to reduce_add<kArity>(static_simd_cast<ScaleBy<T, kArity>>(simd)),
-// but possibly faster.
-template <size_t kArity, typename T, typename Abi>
-ResizeBy<ScaleElemBy<Simd<T, Abi>, kArity>, 1, kArity> reduce_add_widened(
-    Simd<T, Abi> simd) {
-  return reduce_add<kArity>(static_simd_cast<ScaleBy<T, kArity>>(simd));
+// Partitions the input elements into NewSize groups. For each group, sums up
+// the elements in it, and produces a NewType. Return all sums in a Simd object.
+template <typename NewType, size_t NewSize, typename T, typename Abi>
+typename std::enable_if<
+    std::is_same<NewType, T>::value,
+    ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize>>::type
+reduce_add(Simd<T, Abi> simd) {
+  static_assert(simd.size() % NewSize == 0, "");
+  constexpr size_t kArity = simd.size() / NewSize;
+  static_assert(std::is_integral<T>::value,
+                "The element types needs to be integrals.");
+  return detail::ReduceAddImpl<kArity>::Apply(simd);
 }
 
-// Equivalent to acc + reduce_add<2>(mul_widened(lhs, rhs)), but probably
-// faster.
+template <typename NewType, size_t NewSize, typename T, typename Abi>
+typename std::enable_if<
+    !std::is_same<NewType, T>::value,
+    ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize>>::type
+reduce_add(Simd<T, Abi> simd) {
+  return reduce_add<NewType, NewSize>(static_simd_cast<NewType>(simd));
+}
+
+// Equivalent to reduce_add<T, 1>.
+template <typename T, typename Abi>
+ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
+  return reduce_add<T, 1>(simd);
+}
+
+// Perform a kArity-way summation.
+//
+// Put every adjacent kArity elements into a group, and calculate the sum of
+// such a group. Return all sums in a Simd object.
+//
+// Formally, for the result a,
+//     a[i] = sum(simd[i * kArity ... (i + 1) * kArity - 1])
+template <size_t kArity, typename T, typename Abi>
+__attribute__((deprecated("Use reduce_add<NewType, NewSize>() instead")))
+ResizeBy<Simd<T, Abi>, 1, kArity>
+reduce_add(Simd<T, Abi> simd) {
+  return reduce_add<T, simd.size() / kArity>(simd);
+}
+
+// Equivalent to acc + reduce_add<..., lhs.size() / 2>(mul_widened(lhs, rhs)),
+// but probably faster.
 //
 // e.g. mul_sum(Simd128<int16>, Simd128<int16>, Simd128<int32>)
 // computes 8 int16*int16 products ({s[0], ..., s[7]}) first, then does pairwise
@@ -1058,7 +1071,7 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
     Simd<T, Abi> lhs, Simd<T, Abi> rhs,
     ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> acc =
         ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>(0)) {
-  return acc + reduce_add<2>(mul_widened(lhs, rhs));
+  return acc + reduce_add<ScaleBy<T, 2>, lhs.size() / 2>(mul_widened(lhs, rhs));
 }
 
 // Element-wise fused multiply-add a * b + c.

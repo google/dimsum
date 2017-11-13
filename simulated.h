@@ -415,9 +415,11 @@ Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_ge(
       a, flags::element_aligned);
 }
 
-template <size_t kArity, typename T, typename Abi>
-ResizeBy<Simd<T, Abi>, 1, kArity> reduce_add(Simd<T, Abi> simd) {
-  ResizeBy<Simd<T, Abi>, 1, kArity> ret = {};
+template <typename NewType, size_t NewSize, typename T, typename Abi>
+ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize> reduce_add(
+    Simd<T, Abi> simd) {
+  ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize> ret = {};
+  constexpr size_t kArity = simd.size() / NewSize;
   for (size_t i = 0; i < simd.size(); i++) {
     ret.set(i / kArity, ret[i / kArity] + simd[i]);
   }
@@ -426,18 +428,7 @@ ResizeBy<Simd<T, Abi>, 1, kArity> reduce_add(Simd<T, Abi> simd) {
 
 template <typename T, typename Abi>
 ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
-  return simulated::reduce_add<simd.size()>(simd);
-}
-
-template <size_t kArity, typename T, typename Abi>
-ResizeBy<ScaleElemBy<Simd<T, Abi>, kArity>, 1, kArity> reduce_add_widened(
-    Simd<T, Abi> simd) {
-  using DestType = ResizeBy<ScaleElemBy<Simd<T, Abi>, kArity>, 1, kArity>;
-  DestType ret{};
-  for (size_t i = 0; i < simd.size(); i++) {
-    ret.set(i / kArity, ret[i / kArity] + simd[i]);
-  }
-  return ret;
+  return simulated::reduce_add<T, 1>(simd);
 }
 
 template <typename T, typename Abi>

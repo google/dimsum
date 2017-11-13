@@ -188,19 +188,19 @@ inline Simd<uint16, detail::VSX> packu_saturated(Simd<int32, detail::VSX> lhs,
 }
 
 template <>
-inline Simd<int32, detail::VSX> reduce_add_widened<4>(
+inline Simd<int32, detail::VSX> reduce_add<int32, 4>(
     Simd<int8, detail::VSX> simd) {
   return vec_sum4s(simd.raw(), Simd<int32, detail::VSX>(0).raw());
 }
 
 template <>
-inline Simd<uint32, detail::VSX> reduce_add_widened<4>(
+inline Simd<uint32, detail::VSX> reduce_add<uint32, 4>(
     Simd<uint8, detail::VSX> simd) {
   return vec_sum4s(simd.raw(), Simd<uint32, detail::VSX>(0).raw());
 }
 
 template <>
-inline Simd<int32, detail::VSX> reduce_add_widened<2>(
+inline Simd<int32, detail::VSX> reduce_add<int32, 4>(
     Simd<int16, detail::VSX> simd) {
   return vec_sum4s(simd.raw(), Simd<int32, detail::VSX>(0).raw());
 }
