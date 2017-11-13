@@ -672,6 +672,13 @@ TEST(DimsumTest, HorizontalSum) {
                 1, 2, 3, 4, 11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34)));
 }
 
+TEST(DimsumTest, Fma) {
+  EXPECT_EQ((Simd128<float>::list(2, -2, 2, 8)),
+            fma(Simd128<float>::list(1, 2, -1, -2),
+                Simd128<float>::list(1, -2, 1, -2),
+                Simd128<float>::list(1, 2, 3, 4)));
+}
+
 TEST(DimsumTest, RoundToEven) {
   EXPECT_EQ(NativeSimd<float>(-1.0), round(NativeSimd<float>(-1.499)));
   EXPECT_EQ(NativeSimd<float>(-2.0), round(NativeSimd<float>(-1.5)));

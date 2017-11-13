@@ -168,6 +168,17 @@ void TestMulSum(const uint8_t* data) {
                  dimsum::mul_sum<T>(lhs, rhs, acc));
 }
 
+template <typename T>
+void TestFma(const uint8_t* data) {
+  NativeSimd<T> a, b, c;
+  LoadFromRaw(data, &a);
+  LoadFromRaw(data + sizeof(a), &b);
+  LoadFromRaw(data + sizeof(a) + sizeof(b), &c);
+
+  NativeSimd<T> s = dimsum::simulated::fma(a, b, c);
+  if (IsNormal(s)) TrapIfNotEqual(s, dimsum::fma(a, b, c));
+}
+
 void TestMaddubs(const uint8_t* data) {
   NativeSimd<uint8> lhs;
   NativeSimd<int8> rhs;
@@ -473,6 +484,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   if (size >= dimsum::detail::kMachineWidth * 3) {
     TestMulSum<int16, int32>(data);
+
+    TestFma<float>(data);
+    TestFma<double>(data);
   }
 
   return 0;

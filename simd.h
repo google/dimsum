@@ -1061,6 +1061,25 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
   return acc + reduce_add<2>(mul_widened(lhs, rhs));
 }
 
+// Element-wise fused multiply-add a * b + c.
+//
+// On x86, GCC 4.8.1 onwards/clang 4.0.0 onwards can compile to fmsub, fnmadd or
+// fnmsub variants when negatvie forms are passed to a, b, or c.
+template <typename T, typename Abi>
+Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
+  // clang has -ffp-contract=on by default
+  // (llvm/CodeGen/CommandFlags.h) and this pragma is needed to generate FMA
+  // instructions.
+  // GCC 7.2 does not understand this pragma, but it has -ffp-contract=fast by
+  // default and FMA instructions are generated if -mfma is turned on.
+#ifdef __clang__
+#pragma STDC FP_CONTRACT ON
+#endif
+  static_assert(std::is_floating_point<T>::value,
+                "Only floating point types are supported");
+  return a * b + c;
+}
+
 }  // namespace dimsum
 
 #endif  // DIMSUM_SIMD_H_

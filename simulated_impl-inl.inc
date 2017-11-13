@@ -321,4 +321,18 @@ Simd<ScaleBy<T, 2>, detail::Simulated> mul_widened(
   return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
+template <>
+inline Simd<float, detail::Simulated> fma(Simd<float, detail::Simulated> a,
+                                          Simd<float, detail::Simulated> b,
+                                          Simd<float, detail::Simulated> c) {
+  return simulated::fma(a, b, c);
+}
+
+template <>
+inline Simd<double, detail::Simulated> fma(Simd<double, detail::Simulated> a,
+                                           Simd<double, detail::Simulated> b,
+                                           Simd<double, detail::Simulated> c) {
+  return simulated::fma(a, b, c);
+}
+
 }  // namespace dimsum

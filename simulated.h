@@ -203,6 +203,17 @@ Simd<T, Abi> round(Simd<T, Abi> simd) {
   return Simd<T, Abi>(a, flags::element_aligned);
 }
 
+template <typename T, typename Abi>
+Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
+  static_assert(std::is_floating_point<T>::value,
+                "Only floating point types are supported");
+  T s[a.size()];
+  for (size_t i = 0; i < a.size(); i++) {
+    s[i] = std::fma(a[i], b[i], c[i]);
+  }
+  return Simd<T, Abi>(s, flags::element_aligned);
+}
+
 template <typename Dest, typename T, typename Abi>
 Simd<Dest, Abi> round_to_integer(Simd<T, Abi> simd) {
   Dest a[simd.size()];
