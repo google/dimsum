@@ -67,7 +67,9 @@
 #  endif  // __AVX2__
 # elif defined(__ALTIVEC__)
 #  include "ppc_impl-inl.inc"
-# elif defined(__aarch64__)
+// TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
+// production ready.
+# elif defined(__aarch64__) && defined(__ARM_NEON) && defined(USE_DIMSUM_ARM)
 #  include "arm_impl-inl.inc"
 # else
 #  include "simulated_impl-inl.inc"
