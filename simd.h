@@ -361,7 +361,7 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   // Constructs a Simd object from the first size() elements of the buffer.
   template <typename Flags>
   explicit Simd(const T* buffer, Flags flags) {
-    memload(buffer, flags);
+    copy_from(buffer, flags);
   }
 
   // Constructs a Simd object, using a single value for all elements.
@@ -376,20 +376,32 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
 
   // Changes the current object to Simd(buffer).
   template <typename Flags>
-  void memload(const T* buffer, Flags flags) {
+  void copy_from(const T* buffer, Flags flags) {
     *this = detail::LoadImpl<T, detail::Abi<kStorage, kNumBytes>, Flags>::Apply(
         buffer);
   }
 
   // Stores the Simd object to the buffer.
   template <typename Flags>
-  void memstore(T* buffer, Flags) const {
+  void copy_to(T* buffer, Flags) const {
     constexpr size_t bytes = sizeof(storage_);
     if (std::is_same<Flags, flags::vector_aligned_tag>::value) {
       memcpy(__builtin_assume_aligned(buffer, bytes), &storage_, bytes);
     } else {
       memcpy(buffer, &storage_, bytes);
     }
+  }
+
+  template <typename Flags>
+  __attribute__((deprecated("Use copy_from instead.")))
+  void memload(const T* buffer, Flags flags) {
+    copy_from(buffer, flags);
+  }
+
+  template <typename Flags>
+  __attribute__((deprecated("Use copy_to instead.")))
+  void memstore(T* buffer, Flags flags) {
+    copy_to(buffer, flags);
   }
 
   // Sets the ith element.
@@ -494,7 +506,7 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   void GeneratorInit(const Generator& gen, dimsum::index_sequence<indices...>) {
     T buffer[size()] = {
         static_cast<T>(gen(std::integral_constant<size_t, indices>{}))...};
-    memload(buffer, flags::element_aligned);
+    copy_from(buffer, flags::element_aligned);
   }
 
   typename Traits::InternalType storage_;

@@ -252,10 +252,10 @@ TEST(DimsumTest, Splat) {
   }
 }
 
-TEST(DimsumTest, Store) {
+TEST(DimsumTest, CopyTo) {
   {
     int32 a[4] = {0};
-    Simd128<int32>::list(1, 2, 3, 4).memstore(a, flags::element_aligned);
+    Simd128<int32>::list(1, 2, 3, 4).copy_to(a, flags::element_aligned);
     EXPECT_EQ(1, a[0]);
     EXPECT_EQ(2, a[1]);
     EXPECT_EQ(3, a[2]);
@@ -263,7 +263,7 @@ TEST(DimsumTest, Store) {
   }
   {
     float a[4] = {0.};
-    Simd128<float>::list(1., 2., 3., 4.).memstore(a, flags::element_aligned);
+    Simd128<float>::list(1., 2., 3., 4.).copy_to(a, flags::element_aligned);
     EXPECT_EQ(1., a[0]);
     EXPECT_EQ(2., a[1]);
     EXPECT_EQ(3., a[2]);
