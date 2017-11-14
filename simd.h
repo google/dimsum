@@ -1018,15 +1018,23 @@ Simd<Dest, Abi> round_to_integer(Simd<T, Abi>) DIMSUM_DELETE;
 
 // Partitions the input elements into NewSize groups. For each group, sums up
 // the elements in it, and produces a NewType. Return all sums in a Simd object.
+//
+// Formally, for the return value ret,
+//     ret[i] = sum(simd[i * (simd.size() / NewSize)
+//                  ... (i + 1) * (simd.size() / NewSize)])
+//
+// If any overflow occur, the result is undefined.
 template <typename NewType, size_t NewSize, typename T, typename Abi>
 typename std::enable_if<
     std::is_same<NewType, T>::value,
     ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize>>::type
 reduce_add(Simd<T, Abi> simd) {
   static_assert(simd.size() % NewSize == 0, "");
-  constexpr size_t kArity = simd.size() / NewSize;
   static_assert(std::is_integral<T>::value,
                 "The element types needs to be integrals.");
+  static_assert(sizeof(NewType) >= sizeof(T),
+                "reduce_add's result element is too small.");
+  constexpr size_t kArity = simd.size() / NewSize;
   return detail::ReduceAddImpl<kArity>::Apply(simd);
 }
 
