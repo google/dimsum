@@ -206,6 +206,50 @@ inline Simd<int32, detail::VSX> reduce_add<int32, 4>(
 }
 
 template <>
+inline Simd<uint32, detail::VSX>
+reduce_add<uint32, 4>(Simd<uint16, detail::VSX> simd) {
+  return vec_msum(simd.raw(), Simd<uint16, detail::VSX>(1).raw(),
+                  Simd<uint32, detail::VSX>(0).raw());
+}
+
+// Common reduce_add<T, 1> specializations.
+
+// vec_sums(vector int, vector int) (vsumsws) returns saturated sum.
+// Note, reduce_add overflow has undefined behavior, so we are free to use this
+// saturation semantics.
+template <>
+inline ResizeTo<Simd<int32, detail::VSX>, 1>
+reduce_add<int32, 1>(Simd<int32, detail::VSX> simd) {
+  return vec_sums(simd.raw(), Simd<int32, detail::VSX>(0).raw())[3];
+}
+
+template <>
+inline ResizeTo<Simd<uint32, detail::VSX>, 1>
+reduce_add<uint32, 1>(Simd<uint8, detail::VSX> simd) {
+  return bit_cast<uint32>(
+      reduce_add<int32, 1>(bit_cast<int32>(reduce_add<uint32, 4>(simd))));
+}
+
+template <>
+inline ResizeTo<Simd<uint64, detail::VSX>, 1>
+reduce_add<uint64, 1>(Simd<uint8, detail::VSX> simd) {
+  return reduce_add<uint32, 1>(simd)[0];
+}
+
+template <>
+inline ResizeTo<Simd<uint32, detail::VSX>, 1>
+reduce_add<uint32, 1>(Simd<uint16, detail::VSX> simd) {
+  return bit_cast<uint32>(
+      reduce_add<int32, 1>(bit_cast<int32>(reduce_add<uint32, 4>(simd))));
+}
+
+template <>
+inline ResizeTo<Simd<uint64, detail::VSX>, 1>
+reduce_add<uint64, 1>(Simd<uint16, detail::VSX> simd) {
+  return reduce_add<uint32, 1>(simd)[0];
+}
+
+template <>
 inline Simd<int32, detail::VSX> mul_sum(Simd<int16, detail::VSX> lhs,
                                         Simd<int16, detail::VSX> rhs,
                                         Simd<int32, detail::VSX> acc) {

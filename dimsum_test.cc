@@ -1041,6 +1041,14 @@ TEST(DimsumTest, ReduceAdd) {
           Simd128<int32>::list(1, 2, 3, 4), Simd128<int32>::list(5, 6, 7, 8),
           Simd128<int32>::list(9, 10, 11, 12),
           Simd128<int32>::list(13, 14, 15, 16)))));
+
+  EXPECT_EQ(-16, (reduce_add<int64, 1>(Simd128<int8>(-1))[0]));
+  EXPECT_EQ(255 * 16, (reduce_add<uint64, 1>(Simd128<uint8>(255))[0]));
+  EXPECT_EQ(-8, (reduce_add<int64, 1>(Simd128<int16>(-1))[0]));
+  EXPECT_EQ(65535 * 8, (reduce_add<uint64, 1>(Simd128<uint16>(65535))[0]));
+  EXPECT_EQ(-4, (reduce_add<int64, 1>(Simd128<int32>(-1))[0]));
+  EXPECT_EQ(4294967295LL * 4,
+            (reduce_add<uint64, 1>(Simd128<uint32>(4294967295))[0]));
 }
 
 #undef SIMD_BINARY_OP_ASSIGN_TEST

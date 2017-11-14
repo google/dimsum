@@ -130,7 +130,6 @@ template <typename SimdType, size_t NewSize>
 void TestSameTypeReduceAdd(const uint8_t* data) {
   SimdType input;
   LoadFromRaw(data, &input);
-
   constexpr size_t kArity = SimdType::size() / NewSize;
   for (int i = 0; i < input.size(); i += kArity) {
     typename SimdType::value_type sum = 0;
@@ -155,6 +154,17 @@ void TestSameTotalWidthReduceAdd(const uint8_t* data) {
   LoadFromRaw(data, &input);
   constexpr size_t kArity = sizeof(NewType) / sizeof(SrcType);
   constexpr size_t NewSize = input.size() / kArity;
+  for (int i = 0; i < input.size(); i += kArity) {
+    NewType sum = 0;
+    for (int j = 0; j < kArity; j++) {
+      if (dimsum::detail::CheckAddOverflow(sum, NewType{input[i + j]}) !=
+          OverflowType::kNoOverflow) {
+        return;
+      }
+      sum += input[i + j];
+    }
+  }
+
   TrapIfNotEqual(dimsum::simulated::reduce_add<NewType, NewSize>(input),
                  dimsum::reduce_add<NewType, NewSize>(input));
 }

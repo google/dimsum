@@ -320,6 +320,22 @@ inline Simd<int32, detail::XMM> reduce_add<int32, 4>(
 }
 
 template <>
+inline ResizeTo<Simd<uint64, detail::XMM>, 1>
+reduce_add<uint64, 1>(Simd<uint8, detail::XMM> simd) {
+  return reduce_add<uint64, 1>(reduce_add<uint64, 2>(simd));
+}
+
+template <>
+inline ResizeTo<Simd<uint64, detail::XMM>, 1>
+reduce_add<uint64, 1>(Simd<uint16, detail::XMM> simd) {
+  uint64 even_sum = reduce_add<uint64, 1>(
+      bit_cast<uint8>(simd & Simd<uint16, detail::XMM>(0x00ff)))[0];
+  uint64 odd_sum = reduce_add<uint64, 1>(
+      bit_cast<uint8>(simd & Simd<uint16, detail::XMM>(0xff00)))[0];
+  return (odd_sum << 8) + even_sum;
+}
+
+template <>
 inline Simd<int32, detail::XMM> mul_sum(Simd<int16, detail::XMM> lhs,
                                         Simd<int16, detail::XMM> rhs,
                                         Simd<int32, detail::XMM> acc) {
