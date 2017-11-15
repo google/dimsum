@@ -1055,20 +1055,6 @@ ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
   return reduce_add<T, 1>(simd);
 }
 
-// Perform a kArity-way summation.
-//
-// Put every adjacent kArity elements into a group, and calculate the sum of
-// such a group. Return all sums in a Simd object.
-//
-// Formally, for the result a,
-//     a[i] = sum(simd[i * kArity ... (i + 1) * kArity - 1])
-template <size_t kArity, typename T, typename Abi>
-__attribute__((deprecated("Use reduce_add<NewType, NewSize>() instead")))
-ResizeBy<Simd<T, Abi>, 1, kArity>
-reduce_add(Simd<T, Abi> simd) {
-  return reduce_add<T, simd.size() / kArity>(simd);
-}
-
 // Equivalent to acc + reduce_add<..., lhs.size() / 2>(mul_widened(lhs, rhs)),
 // but probably faster.
 //
