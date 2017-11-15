@@ -164,222 +164,222 @@ using Simd64 = Simd<T, detail::HalfNEON>;
 
 template <>
 inline Simd<int8, detail::NEON> abs(Simd<int8, detail::NEON> simd) {
-  return vabsq_s8(simd);
+  return vabsq_s8(simd.raw());
 }
 
 template <>
 inline Simd<int16, detail::NEON> abs(Simd<int16, detail::NEON> simd) {
-  return vabsq_s16(simd);
+  return vabsq_s16(simd.raw());
 }
 
 template <>
 inline Simd<int32, detail::NEON> abs(Simd<int32, detail::NEON> simd) {
-  return vabsq_s32(simd);
+  return vabsq_s32(simd.raw());
 }
 
 template <>
 inline Simd<int64, detail::NEON> abs(Simd<int64, detail::NEON> simd) {
-  return vabsq_s64(simd);
+  return vabsq_s64(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::NEON> abs(Simd<float, detail::NEON> simd) {
-  return vabsq_f32(simd);
+  return vabsq_f32(simd.raw());
 }
 
 template <>
 inline Simd<double, detail::NEON> abs(Simd<double, detail::NEON> simd) {
-  return vabsq_f64(simd);
+  return vabsq_f64(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::NEON> reciprocal_estimate(
     Simd<float, detail::NEON> simd) {
-  return vrecpeq_f32(simd);
+  return vrecpeq_f32(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::NEON> sqrt(Simd<float, detail::NEON> simd) {
-  return vsqrtq_f32(simd);
+  return vsqrtq_f32(simd.raw());
 }
 
 template <>
 inline Simd<double, detail::NEON> sqrt(Simd<double, detail::NEON> simd) {
-  return vsqrtq_f64(simd);
+  return vsqrtq_f64(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::NEON> reciprocal_sqrt_estimate(
     Simd<float, detail::NEON> simd) {
-  return vrsqrteq_f32(simd);
+  return vrsqrteq_f32(simd.raw());
 }
 
 template <>
 inline Simd<int8, detail::NEON> add_saturated(Simd<int8, detail::NEON> lhs,
                                               Simd<int8, detail::NEON> rhs) {
-  return vqaddq_s8(lhs, rhs);
+  return vqaddq_s8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::NEON> add_saturated(Simd<uint8, detail::NEON> lhs,
                                                Simd<uint8, detail::NEON> rhs) {
-  return vqaddq_u8(lhs, rhs);
+  return vqaddq_u8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::NEON> add_saturated(Simd<int16, detail::NEON> lhs,
                                                Simd<int16, detail::NEON> rhs) {
-  return vqaddq_s16(lhs, rhs);
+  return vqaddq_s16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::NEON> add_saturated(
     Simd<uint16, detail::NEON> lhs, Simd<uint16, detail::NEON> rhs) {
-  return vqaddq_u16(lhs, rhs);
+  return vqaddq_u16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::NEON> sub_saturated(Simd<int8, detail::NEON> lhs,
                                               Simd<int8, detail::NEON> rhs) {
-  return vqsubq_s8(lhs, rhs);
+  return vqsubq_s8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::NEON> sub_saturated(Simd<uint8, detail::NEON> lhs,
                                                Simd<uint8, detail::NEON> rhs) {
-  return vqsubq_u8(lhs, rhs);
+  return vqsubq_u8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::NEON> sub_saturated(Simd<int16, detail::NEON> lhs,
                                                Simd<int16, detail::NEON> rhs) {
-  return vqsubq_s16(lhs, rhs);
+  return vqsubq_s16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::NEON> sub_saturated(
     Simd<uint16, detail::NEON> lhs, Simd<uint16, detail::NEON> rhs) {
-  return vqsubq_u16(lhs, rhs);
+  return vqsubq_u16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::NEON> min(Simd<int8, detail::NEON> lhs,
                                     Simd<int8, detail::NEON> rhs) {
-  return vminq_s8(lhs, rhs);
+  return vminq_s8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::NEON> min(Simd<int16, detail::NEON> lhs,
                                      Simd<int16, detail::NEON> rhs) {
-  return vminq_s16(lhs, rhs);
+  return vminq_s16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int32, detail::NEON> min(Simd<int32, detail::NEON> lhs,
                                      Simd<int32, detail::NEON> rhs) {
-  return vminq_s32(lhs, rhs);
+  return vminq_s32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::NEON> min(Simd<uint8, detail::NEON> lhs,
                                      Simd<uint8, detail::NEON> rhs) {
-  return vminq_u8(lhs, rhs);
+  return vminq_u8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::NEON> min(Simd<uint16, detail::NEON> lhs,
                                       Simd<uint16, detail::NEON> rhs) {
-  return vminq_u16(lhs, rhs);
+  return vminq_u16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint32, detail::NEON> min(Simd<uint32, detail::NEON> lhs,
                                       Simd<uint32, detail::NEON> rhs) {
-  return vminq_u32(lhs, rhs);
+  return vminq_u32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<float, detail::NEON> min(Simd<float, detail::NEON> lhs,
                                      Simd<float, detail::NEON> rhs) {
-  return vminq_f32(lhs, rhs);
+  return vminq_f32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<double, detail::NEON> min(Simd<double, detail::NEON> lhs,
                                       Simd<double, detail::NEON> rhs) {
-  return vminq_f64(lhs, rhs);
+  return vminq_f64(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::NEON> max(Simd<int8, detail::NEON> lhs,
                                     Simd<int8, detail::NEON> rhs) {
-  return vmaxq_s8(lhs, rhs);
+  return vmaxq_s8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::NEON> max(Simd<int16, detail::NEON> lhs,
                                      Simd<int16, detail::NEON> rhs) {
-  return vmaxq_s16(lhs, rhs);
+  return vmaxq_s16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int32, detail::NEON> max(Simd<int32, detail::NEON> lhs,
                                      Simd<int32, detail::NEON> rhs) {
-  return vmaxq_s32(lhs, rhs);
+  return vmaxq_s32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::NEON> max(Simd<uint8, detail::NEON> lhs,
                                      Simd<uint8, detail::NEON> rhs) {
-  return vmaxq_u8(lhs, rhs);
+  return vmaxq_u8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::NEON> max(Simd<uint16, detail::NEON> lhs,
                                       Simd<uint16, detail::NEON> rhs) {
-  return vmaxq_u16(lhs, rhs);
+  return vmaxq_u16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint32, detail::NEON> max(Simd<uint32, detail::NEON> lhs,
                                       Simd<uint32, detail::NEON> rhs) {
-  return vmaxq_u32(lhs, rhs);
+  return vmaxq_u32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<float, detail::NEON> max(Simd<float, detail::NEON> lhs,
                                      Simd<float, detail::NEON> rhs) {
-  return vmaxq_f32(lhs, rhs);
+  return vmaxq_f32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<double, detail::NEON> max(Simd<double, detail::NEON> lhs,
                                       Simd<double, detail::NEON> rhs) {
-  return vmaxq_f64(lhs, rhs);
+  return vmaxq_f64(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::NEON> pack_saturated(Simd<int16, detail::NEON> lhs,
                                                Simd<int16, detail::NEON> rhs) {
-  return vcombine_s8(vqmovn_s16(lhs), vqmovn_s16(rhs));
+  return vcombine_s8(vqmovn_s16(lhs.raw()), vqmovn_s16(rhs.raw()));
 }
 
 template <>
 inline Simd<int16, detail::NEON> pack_saturated(Simd<int32, detail::NEON> lhs,
                                                 Simd<int32, detail::NEON> rhs) {
-  return vcombine_s16(vqmovn_s32(lhs), vqmovn_s32(rhs));
+  return vcombine_s16(vqmovn_s32(lhs.raw()), vqmovn_s32(rhs.raw()));
 }
 
 template <>
 inline Simd<uint8, detail::NEON> packu_saturated(
     Simd<int16, detail::NEON> lhs, Simd<int16, detail::NEON> rhs) {
-  return vcombine_u8(vqmovun_s16(lhs), vqmovun_s16(rhs));
+  return vcombine_u8(vqmovun_s16(lhs.raw()), vqmovun_s16(rhs.raw()));
 }
 
 template <>
 inline Simd<uint16, detail::NEON> packu_saturated(
     Simd<int32, detail::NEON> lhs, Simd<int32, detail::NEON> rhs) {
-  return vcombine_u16(vqmovun_s32(lhs), vqmovun_s32(rhs));
+  return vcombine_u16(vqmovun_s32(lhs.raw()), vqmovun_s32(rhs.raw()));
 }
 
 // An alternative implementation of the SSE intrinsic function _mm_madd_epi16
@@ -389,13 +389,13 @@ template <>
 inline Simd<int32, detail::NEON> mul_sum(Simd<int16, detail::NEON> lhs,
                                          Simd<int16, detail::NEON> rhs,
                                          Simd<int32, detail::NEON> acc) {
-  int16x8_t lhs_raw = lhs;
-  int16x8_t rhs_raw = rhs;
+  int16x8_t lhs_raw = lhs.raw();
+  int16x8_t rhs_raw = rhs.raw();
   int32x4_t mullo = vmull_s16(vget_low_s16(lhs_raw), vget_low_s16(rhs_raw));
   int32x4_t mulhi = vmull_s16(vget_high_s16(lhs_raw), vget_high_s16(rhs_raw));
   int32x2_t addlo = vpadd_s32(vget_low_s32(mullo), vget_high_s32(mullo));
   int32x2_t addhi = vpadd_s32(vget_low_s32(mulhi), vget_high_s32(mulhi));
-  return vpaddq_s32(acc, vcombine_s32(addlo, addhi));
+  return vpaddq_s32(acc.raw(), vcombine_s32(addlo, addhi));
 }
 
 // vrndnq_f{32,64} translate to VRINTN.F{16,32}, which round floating points
@@ -403,18 +403,18 @@ inline Simd<int32, detail::NEON> mul_sum(Simd<int16, detail::NEON> lhs,
 // parlance).
 template <>
 inline Simd<float, detail::NEON> round(Simd<float, detail::NEON> simd) {
-  return vrndnq_f32(simd);
+  return vrndnq_f32(simd.raw());
 }
 
 template <>
 inline Simd<double, detail::NEON> round(Simd<double, detail::NEON> simd) {
-  return vrndnq_f64(simd);
+  return vrndnq_f64(simd.raw());
 }
 
 template <>
 inline Simd<int32, detail::NEON> round_to_integer(
     Simd<float, detail::NEON> simd) {
-  return vcvtnq_s32_f32(simd);
+  return vcvtnq_s32_f32(simd.raw());
 }
 
 template <typename T>

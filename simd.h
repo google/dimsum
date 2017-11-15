@@ -43,9 +43,9 @@
 // enabled. GCC warnings "AVX vector return without AVX enabled changes the ABI
 // [-Werror=psabi]\nThe ABI for passing parameters with 32-byte alignment has
 // changed in GCC 4.6"
-// We have declarations of SIMD_NON_NATIVE_SPECIALIZATION of 32 bytes and larger,
-// which triggers the warning. GCC < 4.6 is not supported by dimsum, so the
-// warning can be safely ignored.
+// We have declarations of SIMD_NON_NATIVE_SPECIALIZATION of 32 bytes and
+// larger, which triggers the warning. GCC < 4.6 is not supported by dimsum,
+// so the warning can be safely ignored.
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpsabi"
@@ -359,15 +359,6 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
     static_assert(sizeof(ret) == sizeof(storage_), "Simd width mismatch");
     memcpy(&ret, &storage_, sizeof(ret));
     return ret;
-  }
-
-  // Implicitly casts the Simd type to the arch-specific raw type.
-  // It exists only to help transition and refactoring.
-  //
-  // TODO(timshen): Now that we have raw() back, should we remove the implicit
-  // cast, for consistency?
-  /* implicit */ operator typename Traits::ExternalType() const {  // NOLINT
-    return raw();
   }
 
   // Constructs a Simd object from the first size() elements of the buffer.

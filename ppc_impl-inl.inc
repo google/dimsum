@@ -206,8 +206,8 @@ inline Simd<int32, detail::VSX> reduce_add<int32, 4>(
 }
 
 template <>
-inline Simd<uint32, detail::VSX>
-reduce_add<uint32, 4>(Simd<uint16, detail::VSX> simd) {
+inline Simd<uint32, detail::VSX> reduce_add<uint32, 4>(
+    Simd<uint16, detail::VSX> simd) {
   return vec_msum(simd.raw(), Simd<uint16, detail::VSX>(1).raw(),
                   Simd<uint32, detail::VSX>(0).raw());
 }
@@ -218,34 +218,34 @@ reduce_add<uint32, 4>(Simd<uint16, detail::VSX> simd) {
 // Note, reduce_add overflow has undefined behavior, so we are free to use this
 // saturation semantics.
 template <>
-inline ResizeTo<Simd<int32, detail::VSX>, 1>
-reduce_add<int32, 1>(Simd<int32, detail::VSX> simd) {
+inline ResizeTo<Simd<int32, detail::VSX>, 1> reduce_add<int32, 1>(
+    Simd<int32, detail::VSX> simd) {
   return vec_sums(simd.raw(), Simd<int32, detail::VSX>(0).raw())[3];
 }
 
 template <>
-inline ResizeTo<Simd<uint32, detail::VSX>, 1>
-reduce_add<uint32, 1>(Simd<uint8, detail::VSX> simd) {
+inline ResizeTo<Simd<uint32, detail::VSX>, 1> reduce_add<uint32, 1>(
+    Simd<uint8, detail::VSX> simd) {
   return bit_cast<uint32>(
       reduce_add<int32, 1>(bit_cast<int32>(reduce_add<uint32, 4>(simd))));
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::VSX>, 1>
-reduce_add<uint64, 1>(Simd<uint8, detail::VSX> simd) {
+inline ResizeTo<Simd<uint64, detail::VSX>, 1> reduce_add<uint64, 1>(
+    Simd<uint8, detail::VSX> simd) {
   return reduce_add<uint32, 1>(simd)[0];
 }
 
 template <>
-inline ResizeTo<Simd<uint32, detail::VSX>, 1>
-reduce_add<uint32, 1>(Simd<uint16, detail::VSX> simd) {
+inline ResizeTo<Simd<uint32, detail::VSX>, 1> reduce_add<uint32, 1>(
+    Simd<uint16, detail::VSX> simd) {
   return bit_cast<uint32>(
       reduce_add<int32, 1>(bit_cast<int32>(reduce_add<uint32, 4>(simd))));
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::VSX>, 1>
-reduce_add<uint64, 1>(Simd<uint16, detail::VSX> simd) {
+inline ResizeTo<Simd<uint64, detail::VSX>, 1> reduce_add<uint64, 1>(
+    Simd<uint16, detail::VSX> simd) {
   return reduce_add<uint32, 1>(simd)[0];
 }
 

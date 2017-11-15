@@ -61,13 +61,13 @@ Simd<int16, Abi> maddubs(Simd<uint8, Abi> lhs, Simd<int8, Abi> rhs) {
 template <>
 inline Simd<int16, detail::XMM> maddubs(Simd<uint8, detail::XMM> lhs,
                                         Simd<int8, detail::XMM> rhs) {
-  return _mm_maddubs_epi16(lhs, rhs);
+  return _mm_maddubs_epi16(lhs.raw(), rhs.raw());
 }
 #ifdef __AVX2__
 template <>
 inline Simd<int16, detail::YMM> maddubs(Simd<uint8, detail::YMM> lhs,
                                         Simd<int8, detail::YMM> rhs) {
-  return _mm256_maddubs_epi16(lhs, rhs);
+  return _mm256_maddubs_epi16(lhs.raw(), rhs.raw());
 }
 #endif  // __AVX2__
 #endif  // __SSE4_1__
@@ -117,7 +117,7 @@ inline int movemask<uint64, detail::XMM>(Simd<uint64, detail::XMM> simd) {
 # ifdef __AVX2__
 template <>
 inline int movemask<int8, detail::YMM>(Simd<int8, detail::YMM> simd) {
-  return _mm256_movemask_epi8(simd);
+  return _mm256_movemask_epi8(simd.raw());
 }
 
 template <>
@@ -173,8 +173,7 @@ inline int movemask<uint8, detail::VSX>(Simd<uint8, detail::VSX> simd) {
   // lvsl and vbpermq neutralize big-endian effect of each other, and the
   // net effect applies to both big-endian and little-endian.
   // NOLINTNEXTLINE(runtime/int)
-  __vector unsigned long long result =
-      vec_vbpermq(static_cast<__vector unsigned char>(simd), mask << 3);
+  __vector unsigned long long result = vec_vbpermq(simd.raw(), mask << 3);
 
   static_assert(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__,
                 "Only PowerPC little endian is supported");

@@ -87,23 +87,23 @@ using NativeSimd = Simd<T, detail::YMM>;
 
 template <>
 inline Simd<int8, detail::YMM> abs(Simd<int8, detail::YMM> simd) {
-  return _mm256_abs_epi8(simd);
+  return _mm256_abs_epi8(simd.raw());
 }
 
 template <>
 inline Simd<int16, detail::YMM> abs(Simd<int16, detail::YMM> simd) {
-  return _mm256_abs_epi16(simd);
+  return _mm256_abs_epi16(simd.raw());
 }
 
 template <>
 inline Simd<int32, detail::YMM> abs(Simd<int32, detail::YMM> simd) {
-  return _mm256_abs_epi32(simd);
+  return _mm256_abs_epi32(simd.raw());
 }
 
 #ifdef __AVX512VL__
 template <>
 inline Simd<int64, detail::YMM> abs(Simd<int32, detail::YMM> simd) {
-  return _mm256_abs_epi64(simd);
+  return _mm256_abs_epi64(simd.raw());
 }
 #else
 template <>
@@ -130,218 +130,218 @@ inline Simd<double, detail::YMM> abs(Simd<double, detail::YMM> simd) {
 template <>
 inline Simd<float, detail::YMM> reciprocal_estimate(
     Simd<float, detail::YMM> simd) {
-  return _mm256_rcp_ps(simd);
+  return _mm256_rcp_ps(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::YMM> sqrt(Simd<float, detail::YMM> simd) {
-  return _mm256_sqrt_ps(simd);
+  return _mm256_sqrt_ps(simd.raw());
 }
 
 template <>
 inline Simd<double, detail::YMM> sqrt(Simd<double, detail::YMM> simd) {
-  return _mm256_sqrt_pd(simd);
+  return _mm256_sqrt_pd(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::YMM> reciprocal_sqrt_estimate(
     Simd<float, detail::YMM> simd) {
-  return _mm256_rsqrt_ps(simd);
+  return _mm256_rsqrt_ps(simd.raw());
 }
 
 template <>
 inline Simd<int8, detail::YMM> add_saturated(Simd<int8, detail::YMM> lhs,
                                              Simd<int8, detail::YMM> rhs) {
-  return _mm256_adds_epi8(lhs, rhs);
+  return _mm256_adds_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::YMM> add_saturated(Simd<uint8, detail::YMM> lhs,
                                               Simd<uint8, detail::YMM> rhs) {
-  return _mm256_adds_epu8(lhs, rhs);
+  return _mm256_adds_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::YMM> add_saturated(Simd<int16, detail::YMM> lhs,
                                               Simd<int16, detail::YMM> rhs) {
-  return _mm256_adds_epi16(lhs, rhs);
+  return _mm256_adds_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::YMM> add_saturated(Simd<uint16, detail::YMM> lhs,
                                                Simd<uint16, detail::YMM> rhs) {
-  return _mm256_adds_epu16(lhs, rhs);
+  return _mm256_adds_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::YMM> sub_saturated(Simd<int8, detail::YMM> lhs,
                                              Simd<int8, detail::YMM> rhs) {
-  return _mm256_subs_epi8(lhs, rhs);
+  return _mm256_subs_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::YMM> sub_saturated(Simd<uint8, detail::YMM> lhs,
                                               Simd<uint8, detail::YMM> rhs) {
-  return _mm256_subs_epu8(lhs, rhs);
+  return _mm256_subs_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::YMM> sub_saturated(Simd<int16, detail::YMM> lhs,
                                               Simd<int16, detail::YMM> rhs) {
-  return _mm256_subs_epi16(lhs, rhs);
+  return _mm256_subs_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::YMM> sub_saturated(Simd<uint16, detail::YMM> lhs,
                                                Simd<uint16, detail::YMM> rhs) {
-  return _mm256_subs_epu16(lhs, rhs);
+  return _mm256_subs_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::YMM> min(Simd<int8, detail::YMM> lhs,
                                    Simd<int8, detail::YMM> rhs) {
-  return _mm256_min_epi8(lhs, rhs);
+  return _mm256_min_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::YMM> min(Simd<int16, detail::YMM> lhs,
                                     Simd<int16, detail::YMM> rhs) {
-  return _mm256_min_epi16(lhs, rhs);
+  return _mm256_min_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int32, detail::YMM> min(Simd<int32, detail::YMM> lhs,
                                     Simd<int32, detail::YMM> rhs) {
-  return _mm256_min_epi32(lhs, rhs);
+  return _mm256_min_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::YMM> min(Simd<uint8, detail::YMM> lhs,
                                     Simd<uint8, detail::YMM> rhs) {
-  return _mm256_min_epu8(lhs, rhs);
+  return _mm256_min_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::YMM> min(Simd<uint16, detail::YMM> lhs,
                                      Simd<uint16, detail::YMM> rhs) {
-  return _mm256_min_epu16(lhs, rhs);
+  return _mm256_min_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint32, detail::YMM> min(Simd<uint32, detail::YMM> lhs,
                                      Simd<uint32, detail::YMM> rhs) {
-  return _mm256_min_epu32(lhs, rhs);
+  return _mm256_min_epu32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<float, detail::YMM> min(Simd<float, detail::YMM> lhs,
                                     Simd<float, detail::YMM> rhs) {
-  return _mm256_min_ps(lhs, rhs);
+  return _mm256_min_ps(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<double, detail::YMM> min(Simd<double, detail::YMM> lhs,
                                      Simd<double, detail::YMM> rhs) {
-  return _mm256_min_pd(lhs, rhs);
+  return _mm256_min_pd(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::YMM> max(Simd<int8, detail::YMM> lhs,
                                    Simd<int8, detail::YMM> rhs) {
-  return _mm256_max_epi8(lhs, rhs);
+  return _mm256_max_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::YMM> max(Simd<int16, detail::YMM> lhs,
                                     Simd<int16, detail::YMM> rhs) {
-  return _mm256_max_epi16(lhs, rhs);
+  return _mm256_max_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int32, detail::YMM> max(Simd<int32, detail::YMM> lhs,
                                     Simd<int32, detail::YMM> rhs) {
-  return _mm256_max_epi32(lhs, rhs);
+  return _mm256_max_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::YMM> max(Simd<uint8, detail::YMM> lhs,
                                     Simd<uint8, detail::YMM> rhs) {
-  return _mm256_max_epu8(lhs, rhs);
+  return _mm256_max_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::YMM> max(Simd<uint16, detail::YMM> lhs,
                                      Simd<uint16, detail::YMM> rhs) {
-  return _mm256_max_epu16(lhs, rhs);
+  return _mm256_max_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint32, detail::YMM> max(Simd<uint32, detail::YMM> lhs,
                                      Simd<uint32, detail::YMM> rhs) {
-  return _mm256_max_epu32(lhs, rhs);
+  return _mm256_max_epu32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<float, detail::YMM> max(Simd<float, detail::YMM> lhs,
                                     Simd<float, detail::YMM> rhs) {
-  return _mm256_max_ps(lhs, rhs);
+  return _mm256_max_ps(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<double, detail::YMM> max(Simd<double, detail::YMM> lhs,
                                      Simd<double, detail::YMM> rhs) {
-  return _mm256_max_pd(lhs, rhs);
+  return _mm256_max_pd(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::YMM> pack_saturated(Simd<int16, detail::YMM> lhs,
                                               Simd<int16, detail::YMM> rhs) {
-  Simd<int64, detail::YMM> res(_mm256_packs_epi16(lhs, rhs));
+  Simd<int64, detail::YMM> res(_mm256_packs_epi16(lhs.raw(), rhs.raw()));
   return bit_cast<int8, int64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
 }
 
 template <>
 inline Simd<int16, detail::YMM> pack_saturated(Simd<int32, detail::YMM> lhs,
                                                Simd<int32, detail::YMM> rhs) {
-  Simd<int64, detail::YMM> res(_mm256_packs_epi32(lhs, rhs));
+  Simd<int64, detail::YMM> res(_mm256_packs_epi32(lhs.raw(), rhs.raw()));
   return bit_cast<int16, int64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
 }
 
 template <>
 inline Simd<uint8, detail::YMM> packu_saturated(Simd<int16, detail::YMM> lhs,
                                                 Simd<int16, detail::YMM> rhs) {
-  Simd<uint64, detail::YMM> res(_mm256_packus_epi16(lhs, rhs));
+  Simd<uint64, detail::YMM> res(_mm256_packus_epi16(lhs.raw(), rhs.raw()));
   return bit_cast<uint8, uint64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
 }
 
 template <>
 inline Simd<uint16, detail::YMM> packu_saturated(Simd<int32, detail::YMM> lhs,
                                                  Simd<int32, detail::YMM> rhs) {
-  Simd<uint64, detail::YMM> res(_mm256_packus_epi32(lhs, rhs));
+  Simd<uint64, detail::YMM> res(_mm256_packus_epi32(lhs.raw(), rhs.raw()));
   return bit_cast<uint16, uint64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
 }
 
 template <>
 inline Simd<uint64, detail::YMM> reduce_add<uint64, 4>(
     Simd<uint8, detail::YMM> simd) {
-  return _mm256_sad_epu8(simd, Simd<uint8, detail::YMM>(0));
+  return _mm256_sad_epu8(simd.raw(), Simd<uint8, detail::YMM>(0).raw());
 }
 
 template <>
 inline Simd<int32, detail::YMM> reduce_add<int32, 8>(
     Simd<int16, detail::YMM> simd) {
-  return _mm256_madd_epi16(simd, Simd<int16, detail::YMM>(1));
+  return _mm256_madd_epi16(simd.raw(), Simd<int16, detail::YMM>(1).raw());
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::YMM>, 1>
-reduce_add<uint64, 1>(Simd<uint8, detail::YMM> simd) {
+inline ResizeTo<Simd<uint64, detail::YMM>, 1> reduce_add<uint64, 1>(
+    Simd<uint8, detail::YMM> simd) {
   return reduce_add<uint64, 1>(reduce_add<uint64, 4>(simd));
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::YMM>, 1>
-reduce_add<uint64, 1>(Simd<uint16, detail::YMM> simd) {
+inline ResizeTo<Simd<uint64, detail::YMM>, 1> reduce_add<uint64, 1>(
+    Simd<uint16, detail::YMM> simd) {
   uint64 even_sum = reduce_add<uint64, 1>(
       bit_cast<uint8>(simd & Simd<uint16, detail::YMM>(0x00ff)))[0];
   uint64 odd_sum = reduce_add<uint64, 1>(
@@ -359,18 +359,20 @@ inline Simd<int32, detail::YMM> mul_sum(Simd<int16, detail::YMM> lhs,
 // _MM_FROUND_TO_NEAREST_INT specifies round-to-even.
 template <>
 inline Simd<float, detail::YMM> round(Simd<float, detail::YMM> simd) {
-  return _mm256_round_ps(simd, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+  return _mm256_round_ps(simd.raw(),
+                         _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
 
 template <>
 inline Simd<double, detail::YMM> round(Simd<double, detail::YMM> simd) {
-  return _mm256_round_pd(simd, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+  return _mm256_round_pd(simd.raw(),
+                         _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
 
 template <>
 inline Simd<int32, detail::YMM> round_to_integer(
     Simd<float, detail::YMM> simd) {
-  return _mm256_cvtps_epi32(simd);
+  return _mm256_cvtps_epi32(simd.raw());
 }
 
 template <typename T>

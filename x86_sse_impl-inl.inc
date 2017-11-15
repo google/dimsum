@@ -78,23 +78,23 @@ using Simd64 = Simd<T, detail::HalfXMM>;
 
 template <>
 inline Simd<int8, detail::XMM> abs(Simd<int8, detail::XMM> simd) {
-  return _mm_abs_epi8(simd);
+  return _mm_abs_epi8(simd.raw());
 }
 
 template <>
 inline Simd<int16, detail::XMM> abs(Simd<int16, detail::XMM> simd) {
-  return _mm_abs_epi16(simd);
+  return _mm_abs_epi16(simd.raw());
 }
 
 template <>
 inline Simd<int32, detail::XMM> abs(Simd<int32, detail::XMM> simd) {
-  return _mm_abs_epi32(simd);
+  return _mm_abs_epi32(simd.raw());
 }
 
 #ifdef __AVX512VL__
 template <>
 inline Simd<int64, detail::XMM> abs(Simd<int64, detail::XMM> simd) {
-  return _mm_abs_epi64(simd);
+  return _mm_abs_epi64(simd.raw());
 }
 #else
 template <>
@@ -120,214 +120,214 @@ inline Simd<double, detail::XMM> abs(Simd<double, detail::XMM> simd) {
 template <>
 inline Simd<float, detail::XMM> reciprocal_estimate(
     Simd<float, detail::XMM> simd) {
-  return _mm_rcp_ps(simd);
+  return _mm_rcp_ps(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::XMM> sqrt(Simd<float, detail::XMM> simd) {
-  return _mm_sqrt_ps(simd);
+  return _mm_sqrt_ps(simd.raw());
 }
 
 template <>
 inline Simd<double, detail::XMM> sqrt(Simd<double, detail::XMM> simd) {
-  return _mm_sqrt_pd(simd);
+  return _mm_sqrt_pd(simd.raw());
 }
 
 template <>
 inline Simd<float, detail::XMM> reciprocal_sqrt_estimate(
     Simd<float, detail::XMM> simd) {
-  return _mm_rsqrt_ps(simd);
+  return _mm_rsqrt_ps(simd.raw());
 }
 
 template <>
 inline Simd<int8, detail::XMM> add_saturated(Simd<int8, detail::XMM> lhs,
                                              Simd<int8, detail::XMM> rhs) {
-  return _mm_adds_epi8(lhs, rhs);
+  return _mm_adds_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::XMM> add_saturated(Simd<uint8, detail::XMM> lhs,
                                               Simd<uint8, detail::XMM> rhs) {
-  return _mm_adds_epu8(lhs, rhs);
+  return _mm_adds_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::XMM> add_saturated(Simd<int16, detail::XMM> lhs,
                                               Simd<int16, detail::XMM> rhs) {
-  return _mm_adds_epi16(lhs, rhs);
+  return _mm_adds_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::XMM> add_saturated(Simd<uint16, detail::XMM> lhs,
                                                Simd<uint16, detail::XMM> rhs) {
-  return _mm_adds_epu16(lhs, rhs);
+  return _mm_adds_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::XMM> sub_saturated(Simd<int8, detail::XMM> lhs,
                                              Simd<int8, detail::XMM> rhs) {
-  return _mm_subs_epi8(lhs, rhs);
+  return _mm_subs_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::XMM> sub_saturated(Simd<uint8, detail::XMM> lhs,
                                               Simd<uint8, detail::XMM> rhs) {
-  return _mm_subs_epu8(lhs, rhs);
+  return _mm_subs_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::XMM> sub_saturated(Simd<int16, detail::XMM> lhs,
                                               Simd<int16, detail::XMM> rhs) {
-  return _mm_subs_epi16(lhs, rhs);
+  return _mm_subs_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::XMM> sub_saturated(Simd<uint16, detail::XMM> lhs,
                                                Simd<uint16, detail::XMM> rhs) {
-  return _mm_subs_epu16(lhs, rhs);
+  return _mm_subs_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::XMM> min(Simd<int8, detail::XMM> lhs,
                                    Simd<int8, detail::XMM> rhs) {
-  return _mm_min_epi8(lhs, rhs);
+  return _mm_min_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::XMM> min(Simd<int16, detail::XMM> lhs,
                                     Simd<int16, detail::XMM> rhs) {
-  return _mm_min_epi16(lhs, rhs);
+  return _mm_min_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int32, detail::XMM> min(Simd<int32, detail::XMM> lhs,
                                     Simd<int32, detail::XMM> rhs) {
-  return _mm_min_epi32(lhs, rhs);
+  return _mm_min_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::XMM> min(Simd<uint8, detail::XMM> lhs,
                                     Simd<uint8, detail::XMM> rhs) {
-  return _mm_min_epu8(lhs, rhs);
+  return _mm_min_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::XMM> min(Simd<uint16, detail::XMM> lhs,
                                      Simd<uint16, detail::XMM> rhs) {
-  return _mm_min_epu16(lhs, rhs);
+  return _mm_min_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint32, detail::XMM> min(Simd<uint32, detail::XMM> lhs,
                                      Simd<uint32, detail::XMM> rhs) {
-  return _mm_min_epu32(lhs, rhs);
+  return _mm_min_epu32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<float, detail::XMM> min(Simd<float, detail::XMM> lhs,
                                     Simd<float, detail::XMM> rhs) {
-  return _mm_min_ps(lhs, rhs);
+  return _mm_min_ps(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<double, detail::XMM> min(Simd<double, detail::XMM> lhs,
                                      Simd<double, detail::XMM> rhs) {
-  return _mm_min_pd(lhs, rhs);
+  return _mm_min_pd(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::XMM> max(Simd<int8, detail::XMM> lhs,
                                    Simd<int8, detail::XMM> rhs) {
-  return _mm_max_epi8(lhs, rhs);
+  return _mm_max_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::XMM> max(Simd<int16, detail::XMM> lhs,
                                     Simd<int16, detail::XMM> rhs) {
-  return _mm_max_epi16(lhs, rhs);
+  return _mm_max_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int32, detail::XMM> max(Simd<int32, detail::XMM> lhs,
                                     Simd<int32, detail::XMM> rhs) {
-  return _mm_max_epi32(lhs, rhs);
+  return _mm_max_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::XMM> max(Simd<uint8, detail::XMM> lhs,
                                     Simd<uint8, detail::XMM> rhs) {
-  return _mm_max_epu8(lhs, rhs);
+  return _mm_max_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::XMM> max(Simd<uint16, detail::XMM> lhs,
                                      Simd<uint16, detail::XMM> rhs) {
-  return _mm_max_epu16(lhs, rhs);
+  return _mm_max_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint32, detail::XMM> max(Simd<uint32, detail::XMM> lhs,
                                      Simd<uint32, detail::XMM> rhs) {
-  return _mm_max_epu32(lhs, rhs);
+  return _mm_max_epu32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<float, detail::XMM> max(Simd<float, detail::XMM> lhs,
                                     Simd<float, detail::XMM> rhs) {
-  return _mm_max_ps(lhs, rhs);
+  return _mm_max_ps(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<double, detail::XMM> max(Simd<double, detail::XMM> lhs,
                                      Simd<double, detail::XMM> rhs) {
-  return _mm_max_pd(lhs, rhs);
+  return _mm_max_pd(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int8, detail::XMM> pack_saturated(Simd<int16, detail::XMM> lhs,
                                               Simd<int16, detail::XMM> rhs) {
-  return _mm_packs_epi16(lhs, rhs);
+  return _mm_packs_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<int16, detail::XMM> pack_saturated(Simd<int32, detail::XMM> lhs,
                                                Simd<int32, detail::XMM> rhs) {
-  return _mm_packs_epi32(lhs, rhs);
+  return _mm_packs_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint8, detail::XMM> packu_saturated(Simd<int16, detail::XMM> lhs,
                                                 Simd<int16, detail::XMM> rhs) {
-  return _mm_packus_epi16(lhs, rhs);
+  return _mm_packus_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint16, detail::XMM> packu_saturated(Simd<int32, detail::XMM> lhs,
                                                  Simd<int32, detail::XMM> rhs) {
-  return _mm_packus_epi32(lhs, rhs);
+  return _mm_packus_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
 inline Simd<uint64, detail::XMM> reduce_add<uint64, 2>(
     Simd<uint8, detail::XMM> simd) {
-  return _mm_sad_epu8(simd, Simd<uint8, detail::XMM>(0));
+  return _mm_sad_epu8(simd.raw(), Simd<uint8, detail::XMM>(0).raw());
 }
 
 template <>
 inline Simd<int32, detail::XMM> reduce_add<int32, 4>(
     Simd<int16, detail::XMM> simd) {
-  return _mm_madd_epi16(simd, Simd<int16, detail::XMM>(1));
+  return _mm_madd_epi16(simd.raw(), Simd<int16, detail::XMM>(1).raw());
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::XMM>, 1>
-reduce_add<uint64, 1>(Simd<uint8, detail::XMM> simd) {
+inline ResizeTo<Simd<uint64, detail::XMM>, 1> reduce_add<uint64, 1>(
+    Simd<uint8, detail::XMM> simd) {
   return reduce_add<uint64, 1>(reduce_add<uint64, 2>(simd));
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::XMM>, 1>
-reduce_add<uint64, 1>(Simd<uint16, detail::XMM> simd) {
+inline ResizeTo<Simd<uint64, detail::XMM>, 1> reduce_add<uint64, 1>(
+    Simd<uint16, detail::XMM> simd) {
   uint64 even_sum = reduce_add<uint64, 1>(
       bit_cast<uint8>(simd & Simd<uint16, detail::XMM>(0x00ff)))[0];
   uint64 odd_sum = reduce_add<uint64, 1>(
@@ -345,18 +345,20 @@ inline Simd<int32, detail::XMM> mul_sum(Simd<int16, detail::XMM> lhs,
 // _MM_FROUND_TO_NEAREST_INT specifies round-to-even.
 template <>
 inline Simd<float, detail::XMM> round(Simd<float, detail::XMM> simd) {
-  return _mm_round_ps(simd, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+  return _mm_round_ps(simd.raw(),
+                      _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
 
 template <>
 inline Simd<double, detail::XMM> round(Simd<double, detail::XMM> simd) {
-  return _mm_round_pd(simd, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
+  return _mm_round_pd(simd.raw(),
+                      _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
 
 template <>
 inline Simd<int32, detail::XMM> round_to_integer(
     Simd<float, detail::XMM> simd) {
-  return _mm_cvtps_epi32(simd);
+  return _mm_cvtps_epi32(simd.raw());
 }
 
 template <typename T>
