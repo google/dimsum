@@ -65,7 +65,7 @@
 #  ifdef __AVX2__
 #   include "x86_avx_impl-inl.inc"
 #  endif  // __AVX2__
-# elif defined(__ALTIVEC__)
+# elif defined(__VSX__)
 #  include "ppc_impl-inl.inc"
 // TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
 // production ready.

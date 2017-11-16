@@ -190,8 +190,9 @@ void TestFma(const uint8_t* data) {
   LoadFromRaw(data + sizeof(a), &b);
   LoadFromRaw(data + sizeof(a) + sizeof(b), &c);
 
-  NativeSimd<T> s = dimsum::simulated::fma(a, b, c);
-  if (IsNormal(s)) TrapIfNotEqual(s, dimsum::fma(a, b, c));
+  NativeSimd<T> sim_res = dimsum::simulated::fma(a, b, c);
+  if (IsNormal(sim_res))
+    TrapIfNotEqual(sim_res, dimsum::fma(a, b, c));
 }
 
 void TestMaddubs(const uint8_t* data) {

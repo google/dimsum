@@ -50,7 +50,7 @@ Compiler:
 * Clang 3.8 or newer
 
 The following sub-architectures are planed to be supported:
-* x86 SSE 4.2 or newer
+* x86 SSE 4.1 or newer
 * x86 AVX2
 * Power v2.07 VSX
 
@@ -66,7 +66,7 @@ The project is header-only, therefore no build is needed.
 For testing, use "CC=clang bazel test --copt='...' <>" to run the unit tests.
 
 For example:
-* CC=clang bazel test --copt='-msse4.2' ... # x86 host
+* CC=clang bazel test --copt='-msse4.1' ... # x86 host
 * CC=clang bazel test --copt='-mavx2' ... # x86 host
 * CC=clang bazel test --copt='-maltivec' ... # Power host
 
