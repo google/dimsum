@@ -292,19 +292,6 @@ TEST(DimsumTest, ReciprocalEstimate) {
   EXPECT_TRUE(WithinFraction(
       reciprocal_estimate(NativeSimd<float>(std::ldexp(1.1f, 125))),
       NativeSimd<float>(1 / std::ldexp(1.1f, 125))));
-
-  EXPECT_TRUE(WithinFraction(simulated::reciprocal_estimate(
-                                 NativeSimd<float>(std::ldexp(-1.1f, -125))),
-                             NativeSimd<float>(1 / std::ldexp(-1.1f, -125))));
-  EXPECT_TRUE(
-      WithinFraction(simulated::reciprocal_estimate(NativeSimd<float>(-3e30)),
-                     NativeSimd<float>(1 / -3e30)));
-  EXPECT_TRUE(
-      WithinFraction(simulated::reciprocal_estimate(NativeSimd<float>(9e30)),
-                     NativeSimd<float>(1 / 9e30)));
-  EXPECT_TRUE(WithinFraction(
-      simulated::reciprocal_estimate(NativeSimd<float>(std::ldexp(1.1f, 125))),
-      NativeSimd<float>(1 / std::ldexp(1.1f, 125))));
 }
 
 TEST(DimsumTest, Sqrt) {
@@ -316,16 +303,6 @@ TEST(DimsumTest, Sqrt) {
   EXPECT_TRUE(WithinFraction(sqrt(NativeSimd<double>(2e-30)),
                              NativeSimd<double>(std::sqrt(2e-30))));
   EXPECT_TRUE(WithinFraction(sqrt(NativeSimd<double>(9e30)),
-                             NativeSimd<double>(std::sqrt(9e30))));
-
-  EXPECT_TRUE(WithinFraction(simulated::sqrt(NativeSimd<float>(2e-30)),
-                             NativeSimd<float>(std::sqrt(2e-30))));
-  EXPECT_TRUE(WithinFraction(simulated::sqrt(NativeSimd<float>(9e30)),
-                             NativeSimd<float>(std::sqrt(9e30))));
-
-  EXPECT_TRUE(WithinFraction(simulated::sqrt(NativeSimd<double>(2e-30)),
-                             NativeSimd<double>(std::sqrt(2e-30))));
-  EXPECT_TRUE(WithinFraction(simulated::sqrt(NativeSimd<double>(9e30)),
                              NativeSimd<double>(std::sqrt(9e30))));
 }
 
@@ -340,21 +317,6 @@ TEST(DimsumTest, ReciprocalSqrtEstimate) {
   EXPECT_TRUE(WithinFraction(
       reciprocal_sqrt_estimate(NativeSimd<float>(std::ldexp(1.3f, 125))),
       NativeSimd<float>(1 / std::sqrt(std::ldexp(1.3f, 125)))));
-
-  EXPECT_TRUE(
-      WithinFraction(simulated::reciprocal_sqrt_estimate(
-                         NativeSimd<float>(std::ldexp(1.1f, -125))),
-                     NativeSimd<float>(1 / std::sqrt(std::ldexp(1.1f, -125)))));
-  EXPECT_TRUE(WithinFraction(
-      simulated::reciprocal_sqrt_estimate(NativeSimd<float>(2e-30)),
-      NativeSimd<float>(1 / std::sqrt(2e-30))));
-  EXPECT_TRUE(WithinFraction(
-      simulated::reciprocal_sqrt_estimate(NativeSimd<float>(9e30)),
-      NativeSimd<float>(1 / std::sqrt(9e30))));
-  EXPECT_TRUE(
-      WithinFraction(simulated::reciprocal_sqrt_estimate(
-                         NativeSimd<float>(std::ldexp(1.3f, 125))),
-                     NativeSimd<float>(1 / std::sqrt(std::ldexp(1.3f, 125)))));
 }
 
 TEST(DimsumTest, Add) {
@@ -371,7 +333,6 @@ TEST(DimsumTest, Add_saturated) {
   auto s8_valid = Simd128<int8>::list(60, 80, 100, 120, 127, 127, 127, 127, -60,
                                       -80, -100, -120, -128, -128, -128, -128);
 
-  EXPECT_EQ(s8_valid, simulated::add_saturated(s8_lhs, s8_rhs));
   EXPECT_EQ(s8_valid, add_saturated(s8_lhs, s8_rhs));
 
   // test uint8
@@ -382,7 +343,6 @@ TEST(DimsumTest, Add_saturated) {
   auto u8_valid = Simd128<uint8>::list(20, 40, 60, 80, 100, 120, 140, 160, 180,
                                        200, 220, 240, 255, 255, 255, 255);
 
-  EXPECT_EQ(u8_valid, simulated::add_saturated(u8_lhs, u8_rhs));
   EXPECT_EQ(u8_valid, add_saturated(u8_lhs, u8_rhs));
 
   // test int16
@@ -393,7 +353,6 @@ TEST(DimsumTest, Add_saturated) {
   auto s16_valid = Simd128<int16>::list(-32768, -32768, -20000, -32768, 32767,
                                         20000, 32767, 32767);
 
-  EXPECT_EQ(s16_valid, simulated::add_saturated(s16_lhs, s16_rhs));
   EXPECT_EQ(s16_valid, add_saturated(s16_lhs, s16_rhs));
 
   // test uint16
@@ -403,7 +362,6 @@ TEST(DimsumTest, Add_saturated) {
   auto u16_valid = Simd128<uint16>::list(65535, 65535, 65535, 1111, 2222, 5555,
                                          65535, 65535);
 
-  EXPECT_EQ(u16_valid, simulated::add_saturated(u16_lhs, u16_rhs));
   EXPECT_EQ(u16_valid, add_saturated(u16_lhs, u16_rhs));
 }
 
@@ -421,7 +379,6 @@ TEST(DimsumTest, Sub_saturated) {
   auto s8_valid = Simd128<int8>::list(0, -1, 127, 127, 1, 0, -126, 127, -128,
                                       127, -1, -128, -128, -128, -128, 127);
 
-  EXPECT_EQ(s8_valid, simulated::sub_saturated(s8_lhs, s8_rhs));
   EXPECT_EQ(s8_valid, sub_saturated(s8_lhs, s8_rhs));
 
   // test uint8
@@ -432,7 +389,6 @@ TEST(DimsumTest, Sub_saturated) {
   auto u8_valid = Simd128<uint8>::list(0, 0, 0, 0, 1, 0, 0, 0, 127, 126, 0, 0,
                                        255, 254, 128, 0);
 
-  EXPECT_EQ(u8_valid, simulated::sub_saturated(u8_lhs, u8_rhs));
   EXPECT_EQ(u8_valid, sub_saturated(u8_lhs, u8_rhs));
 
   // test int16
@@ -442,7 +398,6 @@ TEST(DimsumTest, Sub_saturated) {
   auto s16_valid = Simd128<int16>::list(32767, 32767, 0, 32767, -32768, -32768,
                                         32767, 32767);
 
-  EXPECT_EQ(s16_valid, simulated::sub_saturated(s16_lhs, s16_rhs));
   EXPECT_EQ(s16_valid, sub_saturated(s16_lhs, s16_rhs));
 
   // test uint16
@@ -450,7 +405,6 @@ TEST(DimsumTest, Sub_saturated) {
   auto u16_rhs = Simd128<uint16>::list(0, 1, 0, 65535, 0, 65535, 0, 65535);
   auto u16_valid = Simd128<uint16>::list(0, 0, 1, 0, 32767, 0, 65535, 0);
 
-  EXPECT_EQ(u16_valid, simulated::sub_saturated(u16_lhs, u16_rhs));
   EXPECT_EQ(u16_valid, sub_saturated(u16_lhs, u16_rhs));
 }
 
@@ -708,33 +662,15 @@ void TestIntFloatStaticSimdCast() {
     EXPECT_EQ(FloatSimd(-16.), static_simd_cast<FloatType>(IntSimd(-16)));
     EXPECT_EQ(FloatSimd(-17.), static_simd_cast<FloatType>(IntSimd(-17)));
     EXPECT_EQ(FloatSimd(0.), static_simd_cast<FloatType>(IntSimd(-0)));
-
-    EXPECT_EQ(FloatSimd(-16.),
-              simulated::static_simd_cast<FloatType>(IntSimd(-16)));
-    EXPECT_EQ(FloatSimd(-17.),
-              simulated::static_simd_cast<FloatType>(IntSimd(-17)));
-    EXPECT_EQ(FloatSimd(0.),
-              simulated::static_simd_cast<FloatType>(IntSimd(-0)));
   }
   EXPECT_EQ(FloatSimd(16.), static_simd_cast<FloatType>(IntSimd(16)));
   EXPECT_EQ(FloatSimd(17.), static_simd_cast<FloatType>(IntSimd(17)));
   EXPECT_EQ(FloatSimd(0.), static_simd_cast<FloatType>(IntSimd(0)));
 
-  EXPECT_EQ(FloatSimd(16.),
-            simulated::static_simd_cast<FloatType>(IntSimd(16)));
-  EXPECT_EQ(FloatSimd(17.),
-            simulated::static_simd_cast<FloatType>(IntSimd(17)));
-  EXPECT_EQ(FloatSimd(0.), simulated::static_simd_cast<FloatType>(IntSimd(0)));
-
   constexpr auto min_int = std::numeric_limits<IntType>::min();
   constexpr auto max_int = std::numeric_limits<IntType>::max();
   EXPECT_EQ(FloatSimd(min_int), static_simd_cast<FloatType>(IntSimd(min_int)));
   EXPECT_EQ(FloatSimd(max_int), static_simd_cast<FloatType>(IntSimd(max_int)));
-
-  EXPECT_EQ(FloatSimd(min_int),
-            simulated::static_simd_cast<FloatType>(IntSimd(min_int)));
-  EXPECT_EQ(FloatSimd(max_int),
-            simulated::static_simd_cast<FloatType>(IntSimd(max_int)));
 
   // float to int
   if (std::is_signed<IntType>::value) {
@@ -745,21 +681,6 @@ void TestIntFloatStaticSimdCast() {
     EXPECT_EQ(IntSimd(-16), static_simd_cast<IntType>(FloatSimd(-16.5)));
     EXPECT_EQ(IntSimd(-16), static_simd_cast<IntType>(FloatSimd(-16.9)));
     EXPECT_EQ(IntSimd(-17), static_simd_cast<IntType>(FloatSimd(-17.0)));
-
-    EXPECT_EQ(IntSimd(-15),
-              simulated::static_simd_cast<IntType>(FloatSimd(-15.9)));
-    EXPECT_EQ(IntSimd(-16),
-              simulated::static_simd_cast<IntType>(FloatSimd(-16.0)));
-    EXPECT_EQ(IntSimd(-16),
-              simulated::static_simd_cast<IntType>(FloatSimd(-16.1)));
-    EXPECT_EQ(IntSimd(-16),
-              simulated::static_simd_cast<IntType>(FloatSimd(-16.4)));
-    EXPECT_EQ(IntSimd(-16),
-              simulated::static_simd_cast<IntType>(FloatSimd(-16.5)));
-    EXPECT_EQ(IntSimd(-16),
-              simulated::static_simd_cast<IntType>(FloatSimd(-16.9)));
-    EXPECT_EQ(IntSimd(-17),
-              simulated::static_simd_cast<IntType>(FloatSimd(-17.0)));
   }
   EXPECT_EQ(IntSimd(15), static_simd_cast<IntType>(FloatSimd(15.9)));
   EXPECT_EQ(IntSimd(16), static_simd_cast<IntType>(FloatSimd(16.0)));
@@ -771,16 +692,6 @@ void TestIntFloatStaticSimdCast() {
 
   EXPECT_EQ(IntSimd(0), static_simd_cast<IntType>(FloatSimd(0.)));
   EXPECT_EQ(IntSimd(0), static_simd_cast<IntType>(FloatSimd(-0.)));
-
-  EXPECT_EQ(IntSimd(15), simulated::static_simd_cast<IntType>(FloatSimd(15.9)));
-  EXPECT_EQ(IntSimd(16), simulated::static_simd_cast<IntType>(FloatSimd(16.0)));
-  EXPECT_EQ(IntSimd(16), simulated::static_simd_cast<IntType>(FloatSimd(16.1)));
-  EXPECT_EQ(IntSimd(16), simulated::static_simd_cast<IntType>(FloatSimd(16.4)));
-  EXPECT_EQ(IntSimd(16), simulated::static_simd_cast<IntType>(FloatSimd(16.5)));
-  EXPECT_EQ(IntSimd(16), simulated::static_simd_cast<IntType>(FloatSimd(16.9)));
-  EXPECT_EQ(IntSimd(17), simulated::static_simd_cast<IntType>(FloatSimd(17.0)));
-  EXPECT_EQ(IntSimd(0), simulated::static_simd_cast<IntType>(FloatSimd(0.)));
-  EXPECT_EQ(IntSimd(0), simulated::static_simd_cast<IntType>(FloatSimd(-0.)));
 }
 
 template <typename ToSimd, typename FromSimd>
@@ -791,14 +702,9 @@ void TestSignStaticSimdCast() {
   EXPECT_EQ(ToSimd(0), static_simd_cast<ToType>(FromSimd(0)));
   EXPECT_EQ(ToSimd(20), static_simd_cast<ToType>(FromSimd(20)));
 
-  EXPECT_EQ(ToSimd(0), simulated::static_simd_cast<ToType>(FromSimd(0)));
-  EXPECT_EQ(ToSimd(20), simulated::static_simd_cast<ToType>(FromSimd(20)));
-
   if (std::is_signed<FromType>::value) {
     constexpr auto max_int = std::numeric_limits<FromType>::max();
     EXPECT_EQ(ToSimd(max_int), static_simd_cast<ToType>(FromSimd(max_int)));
-    EXPECT_EQ(ToSimd(max_int),
-              simulated::static_simd_cast<ToType>(FromSimd(max_int)));
   }
 }
 
@@ -1026,21 +932,6 @@ TEST(DimsumTest, ReduceAdd) {
                                    Simd128<int32>::list(5, 6, 7, 8),
                                    Simd128<int32>::list(9, 10, 11, 12),
                                    Simd128<int32>::list(13, 14, 15, 16)))));
-
-  EXPECT_EQ(36, simulated::reduce_add(
-                    Simd128<int16>::list(1, 2, 3, 4, 5, 6, 7, 8))[0]);
-  EXPECT_EQ(10, simulated::reduce_add(Simd128<int32>::list(1, 2, 3, 4))[0]);
-  EXPECT_EQ(Simd128<int32>::list(3, 7, 11, 15),
-            (simulated::reduce_add<int32, 4>(
-                concat(Simd128<int32>::list(1, 2, 3, 4),
-                       Simd128<int32>::list(5, 6, 7, 8)))));
-
-  EXPECT_EQ(
-      Simd128<int32>::list(10, 26, 42, 58),
-      (simulated::reduce_add<int32, 4>(concat(
-          Simd128<int32>::list(1, 2, 3, 4), Simd128<int32>::list(5, 6, 7, 8),
-          Simd128<int32>::list(9, 10, 11, 12),
-          Simd128<int32>::list(13, 14, 15, 16)))));
 
   EXPECT_EQ(-16, (reduce_add<int64, 1>(Simd128<int8>(-1))[0]));
   EXPECT_EQ(255 * 16, (reduce_add<uint64, 1>(Simd128<uint8>(255))[0]));
