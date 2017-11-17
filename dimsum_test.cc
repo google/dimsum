@@ -505,6 +505,9 @@ TEST(DimsumTest, Shuffle) {
     auto lhs = Simd128<int32>::list(1, 2, 3, 4);
     auto rhs = Simd128<int32>::list(5, 6, 7, 8);
 
+    EXPECT_EQ(2, (shuffle<-1, 1, -1, -1>(lhs, rhs))[1]);
+    EXPECT_EQ(6, (shuffle<-1, -1, 5, -1>(lhs, rhs))[2]);
+
     EXPECT_EQ((simulated::shuffle<1, 2, 3, 4>(lhs, rhs)),
               (shuffle<1, 2, 3, 4>(lhs, rhs)));
 

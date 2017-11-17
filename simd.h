@@ -417,7 +417,7 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   template <typename Tp, typename Abi, typename Flags>
   friend struct detail::LoadImpl;
 
-  template <size_t... indices, typename Tp, typename Ap>
+  template <int... indices, typename Tp, typename Ap>
   friend ResizeTo<Simd<Tp, Ap>, sizeof...(indices)> shuffle(Simd<Tp, Ap> lhs,
                                                             Simd<Tp, Ap> rhs);
 
@@ -598,10 +598,13 @@ std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> split(Simd<T, Abi> simd) {
 
 // Hypothetically concatenates lhs and rhs, index them from 0 to 2N-1, and then
 // returns a Simd object with elements in the concatenated result, pointed by
-// `indices`.
-template <size_t... indices, typename T, typename SrcAbi>
-ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)> shuffle(
-    Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
+// `indices`. An index of -1 indicates the corresponding element is not cared
+// and can be optimized by the compiler.
+//
+// Example: shuffle<5, 1, 6, -1>({0,1,2,3}, {4,5,6,7}) returns {5,1,6,any}.
+template <int... indices, typename T, typename SrcAbi>
+ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)>
+shuffle(Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
   using DestSimd = ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)>;
 #if defined(__clang__)
   return DestSimd::from_storage(
@@ -613,7 +616,9 @@ ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)> shuffle(
   T a[sizeof...(indices)];
   int i = 0;
   for (auto index : {indices...}) {
-    a[i++] = index < lhs.size() ? lhs[index] : rhs[index - lhs.size()];
+    a[i++] = index < 0
+                 ? lhs[0]
+                 : index < lhs.size() ? lhs[index] : rhs[index - lhs.size()];
   }
   return DestSimd(a, flags::element_aligned);
 #endif
