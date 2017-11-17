@@ -59,6 +59,20 @@ namespace {
         << #FUNC "(" << lhs << ", " << rhs << ")";                          \
   }
 
+#define SIMD_UNARY_OP_TEST(TYPE, FUNC, OP, INPUT)                              \
+  for (auto(&entry) : INPUT) {                                                 \
+    auto a = Simd128<TYPE>::list(entry[0], entry[1], entry[2], entry[3]);      \
+    EXPECT_EQ(simulated::FUNC(a), operator OP(a)) << #FUNC "(" << a << ")";    \
+  }
+
+#define SIMD_BINARY_OP_TEST(TYPE, FUNC, OP, INPUT)                             \
+  for (auto(&entry) : INPUT) {                                                 \
+    auto lhs = Simd128<TYPE>::list(entry[0], entry[1], entry[2], entry[3]);    \
+    auto rhs = Simd128<TYPE>::list(entry[4], entry[5], entry[6], entry[7]);    \
+    EXPECT_EQ(simulated::FUNC(lhs, rhs), operator OP(lhs, rhs))                \
+        << "operator" #OP "(" << lhs << ", " << rhs << ")";                    \
+  }
+
 int32 bitconvert(uint32 a) {
   int32 ret;
   memcpy(&ret, &a, sizeof(a));
@@ -272,8 +286,8 @@ TEST(DimsumTest, CopyTo) {
 }
 
 TEST(DimsumTest, Negate) {
-  SIMD_UNARY_FREE_FUNC_TEST(int32, negate, boring_unary_op_test);
-  SIMD_UNARY_FREE_FUNC_TEST(float, negate, boring_unary_op_test_float);
+  SIMD_UNARY_OP_TEST(int32, negate, -, boring_unary_op_test);
+  SIMD_UNARY_OP_TEST(float, negate, -, boring_unary_op_test_float);
 }
 
 TEST(DimsumTest, Abs) {
@@ -320,8 +334,8 @@ TEST(DimsumTest, ReciprocalSqrtEstimate) {
 }
 
 TEST(DimsumTest, Add) {
-  SIMD_BINARY_FREE_FUNC_TEST(int32, add, boring_binary_op_test);
-  SIMD_BINARY_FREE_FUNC_TEST(float, add, boring_binary_op_test_float);
+  SIMD_BINARY_OP_TEST(int32, add, +, boring_binary_op_test);
+  SIMD_BINARY_OP_TEST(float, add, +, boring_binary_op_test_float);
 }
 
 TEST(DimsumTest, Add_saturated) {
@@ -366,8 +380,8 @@ TEST(DimsumTest, Add_saturated) {
 }
 
 TEST(DimsumTest, Sub) {
-  SIMD_BINARY_FREE_FUNC_TEST(int32, sub, boring_binary_op_test);
-  SIMD_BINARY_FREE_FUNC_TEST(float, sub, boring_binary_op_test_float);
+  SIMD_BINARY_OP_TEST(int32, sub, -, boring_binary_op_test);
+  SIMD_BINARY_OP_TEST(float, sub, -, boring_binary_op_test_float);
 }
 
 TEST(DimsumTest, Sub_saturated) {
@@ -409,9 +423,9 @@ TEST(DimsumTest, Sub_saturated) {
 }
 
 TEST(DimsumTest, Mul) {
-  SIMD_BINARY_FREE_FUNC_TEST(int32, mul, elementwise_mul_test);
-  SIMD_BINARY_FREE_FUNC_TEST(uint32, mul, elementwise_mul_test_uint);
-  SIMD_BINARY_FREE_FUNC_TEST(float, mul, elementwise_mul_test_float);
+  SIMD_BINARY_OP_TEST(int32, mul, *, elementwise_mul_test);
+  SIMD_BINARY_OP_TEST(uint32, mul, *, elementwise_mul_test_uint);
+  SIMD_BINARY_OP_TEST(float, mul, *, elementwise_mul_test_float);
 }
 
 TEST(DimsumTest, ShiftLeft) {
@@ -427,11 +441,11 @@ TEST(DimsumTest, ShiftLeft) {
   for (auto(&entry) : input) {
     auto op = Simd128<int32>::list(entry[0], entry[1], entry[2], entry[3]);
     auto countv = Simd128<int32>::list(entry[4], 0, entry[4], 1);
-    EXPECT_EQ(simulated::shl_simd(op, countv), shl_simd(op, countv))
+    EXPECT_EQ(simulated::shl_simd(op, countv), operator<<(op, countv))
         << "shl_simd(" << op << ", " << countv << ")";
   }
   EXPECT_EQ((Simd128<int32>::list(2, 4, 6, 8)),
-            shl(Simd128<int32>::list(1, 2, 3, 4), 1));
+            operator<<(Simd128<int32>::list(1, 2, 3, 4), 1));
 }
 
 TEST(DimsumTest, ShiftRight) {
@@ -447,27 +461,27 @@ TEST(DimsumTest, ShiftRight) {
   for (auto(&entry) : input) {
     auto op = Simd128<int32>::list(entry[0], entry[1], entry[2], entry[3]);
     auto countv = Simd128<int32>::list(entry[4], 0, entry[4], 1);
-    EXPECT_EQ(simulated::shr_simd(op, countv), shr_simd(op, countv))
+    EXPECT_EQ(simulated::shr_simd(op, countv), operator>>(op, countv))
         << "shr_simd(" << op << ", " << countv << ")";
   }
   EXPECT_EQ((Simd128<int32>::list(0, 1, 1, 2)),
-            shr(Simd128<int32>::list(1, 2, 3, 4), 1));
+            operator>>(Simd128<int32>::list(1, 2, 3, 4), 1));
 }
 
 TEST(DimsumTest, BitAnd) {
-  SIMD_BINARY_FREE_FUNC_TEST(int32, bit_and, boring_binary_op_test);
+  SIMD_BINARY_OP_TEST(int32, bit_and, &, boring_binary_op_test);
 }
 
 TEST(DimsumTest, BitOr) {
-  SIMD_BINARY_FREE_FUNC_TEST(int32, bit_or, boring_binary_op_test);
+  SIMD_BINARY_OP_TEST(int32, bit_or, |, boring_binary_op_test);
 }
 
 TEST(DimsumTest, BitXor) {
-  SIMD_BINARY_FREE_FUNC_TEST(int32, bit_xor, boring_binary_op_test);
+  SIMD_BINARY_OP_TEST(int32, bit_xor, ^, boring_binary_op_test);
 }
 
 TEST(DimsumTest, BitNot) {
-  SIMD_UNARY_FREE_FUNC_TEST(int32, bit_not, boring_unary_op_test);
+  SIMD_UNARY_OP_TEST(int32, bit_not, ~, boring_unary_op_test);
 }
 
 TEST(DimsumTest, CmpEq) {

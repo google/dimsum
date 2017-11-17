@@ -422,31 +422,10 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
                                                             Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> add(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
   friend Simd<Tp, Ap> add_saturated(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> sub(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
   friend Simd<Tp, Ap> sub_saturated(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> mul(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> shl_simd(Simd<Tp, Ap> simd, Simd<Tp, Ap> count);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> shl(Simd<Tp, Ap> simd, int count);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> shr_simd(Simd<Tp, Ap> simd, Simd<Tp, Ap> count);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> shr(Simd<Tp, Ap> simd, int count);
 
   template <typename Tp, typename Ap>
   friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_eq(
@@ -479,19 +458,34 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   friend Simd<Tp, Ap> max(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> negate(Simd<Tp, Ap> simd);
+  friend Simd<Tp, Ap> operator-(Simd<Tp, Ap> simd);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> bit_and(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend Simd<Tp, Ap> operator~(Simd<Tp, Ap> simd);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> bit_or(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend Simd<Tp, Ap> operator+(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> bit_xor(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend Simd<Tp, Ap> operator-(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> bit_not(Simd<Tp, Ap> simd);
+  friend Simd<Tp, Ap> operator*(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+
+  template <typename Tp, typename Ap>
+  friend Simd<Tp, Ap> operator<<(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+
+  template <typename Tp, typename Ap>
+  friend Simd<Tp, Ap> operator>>(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+
+  template <typename Tp, typename Ap>
+  friend Simd<Tp, Ap> operator&(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+
+  template <typename Tp, typename Ap>
+  friend Simd<Tp, Ap> operator|(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+
+  template <typename Tp, typename Ap>
+  friend Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Dp, typename Tp, typename Ap>
   friend Simd<Dp, Ap> bit_cast(Simd<Tp, Ap> simd);
@@ -650,66 +644,13 @@ Simd<T, Abi> abs(Simd<T, Abi> simd) {
   return simd;
 }
 
-// Returns the element-wise sum of two Simd objects.
-// The behavior of overflow is undefined.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> add(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<Tp, Abi>::from_storage(lhs.storage_ + rhs.storage_);
-}
-
 // Returns the element-wise saturated sum of two Simd objects.
 template <typename Tp, typename Abi>
 Simd<Tp, Abi> add_saturated(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs);
 
-// Returns the element-wise difference of two Simd objects.
-// The behavior of overflow is undefined.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> sub(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<Tp, Abi>::from_storage(lhs.storage_ - rhs.storage_);
-}
-
 // Returns the element-wise saturated difference of two Simd objects.
 template <typename Tp, typename Abi>
 Simd<Tp, Abi> sub_saturated(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs);
-
-// Returns the element-wise products of two objects.
-// The behavior of overflow is undefined.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> mul(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<Tp, Abi>::from_storage(lhs.storage_ * rhs.storage_);
-}
-
-// Left shifts each lane by the number of bits specified in count.
-// If count is negative or greater than or equal to the number of bits,
-// the result is undefined.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> shl_simd(Simd<Tp, Abi> simd, Simd<Tp, Abi> count) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integral types are supported");
-  return Simd<Tp, Abi>::from_storage(simd.storage_ << count.storage_);
-}
-
-// Returns shl_simd(Simd(count)).
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> shl(Simd<Tp, Abi> simd, int count) {
-  return shl_simd(simd, Simd<Tp, Abi>(count));
-}
-
-// Right shifts each lane by the number of bits specified in count.
-// If the left operand is negative or greater than or equal to the number of
-// bits, the result is undefined.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> shr_simd(Simd<Tp, Abi> simd, Simd<Tp, Abi> count) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integral types are supported");
-  return Simd<Tp, Abi>::from_storage(simd.storage_ >> count.storage_);
-}
-
-// Returns shr_simd(Simd(count)).
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> shr(Simd<Tp, Abi> simd, int count) {
-  return shr_simd(simd, Simd<Tp, Abi>(count));
-}
 
 // Returns the element-wise comparison result.
 // Each element in the result is 0 for false and non-zero for true.
@@ -850,42 +791,6 @@ Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
 template <typename T, typename Abi>
 Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
 
-// Returns the element-wise negation.
-template <typename T, typename Abi>
-Simd<T, Abi> negate(Simd<T, Abi> simd) {
-  return Simd<T, Abi>::from_storage(-simd.storage_);
-}
-
-// Returns the element-wise bit and result.
-template <typename T, typename Abi>
-Simd<T, Abi> bit_and(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  static_assert(std::is_integral<T>::value, "Only integer types are supported");
-  return Simd<T, Abi>::from_storage(lhs.storage_ & rhs.storage_);
-}
-
-// Returns the element-wise bit or result.
-template <typename T, typename Abi>
-Simd<T, Abi> bit_or(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  static_assert(std::is_integral<T>::value, "Only integer types are supported");
-  return Simd<T, Abi>::from_storage(lhs.storage_ | rhs.storage_);
-}
-
-// Returns the element-wise bit xor result.
-template <typename T, typename Abi>
-Simd<T, Abi> bit_xor(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  static_assert(std::is_integral<T>::value, "Only integer types are supported");
-  return Simd<T, Abi>::from_storage(lhs.storage_ ^ rhs.storage_);
-}
-
-// Returns the element-wise bit not result.
-template <typename T, typename Abi>
-Simd<T, Abi> bit_not(Simd<T, Abi> simd) {
-  static_assert(std::is_integral<T>::value, "Only integer types are supported");
-  // GCC 4.9 reports `simd` set but not used. Make it happy.
-  (void)simd;
-  return Simd<T, Abi>::from_storage(~simd.storage_);
-}
-
 // Returns the element-wise estimate of reciprocal.
 // On x86, the relative error is less or equal than 1.5/4096.
 // On POWER, the relative error is less or equal than 1/16384.
@@ -945,39 +850,101 @@ ChangeElemTo<Simd<Src, Abi>, Dest> simd_cast(Simd<Src, Abi> simd) {
 }
 
 // Overloaded operators.
+
+// Returns simd unchanged.
 template <typename T, typename Abi>
-Simd<T, Abi> operator-(Simd<T, Abi> a) {
-  return negate(a);
+Simd<T, Abi> operator+(Simd<T, Abi> simd) {
+  return simd;
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> operator+(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return add(lhs, rhs);
+// Returns the element-wise negation.
+// For signed Tp, overflow (e.g. negation of INT32_MIN) is undefined.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator-(Simd<Tp, Ap> simd) {
+  return Simd<Tp, Ap>::from_storage(-simd.storage_);
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> operator-(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return sub(lhs, rhs);
+// Returns the element-wise bit not result.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator~(Simd<Tp, Ap> simd) {
+  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  // GCC 4.9 reports `simd` set but not used. Make it happy.
+  (void)simd;
+  return Simd<Tp, Ap>::from_storage(~simd.storage_);
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> operator*(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return mul(lhs, rhs);
+// Returns the element-wise sum of two Simd objects.
+// For signed Tp, overflow is undefined.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator+(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ + rhs.storage_);
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> operator&(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return bit_and(lhs, rhs);
+// Returns the element-wise difference of two Simd objects.
+// For signed Tp, overflow is undefined.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator-(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ - rhs.storage_);
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> operator|(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return bit_or(lhs, rhs);
+// Returns the element-wise products of two objects.
+// For signed Tp, overflow is undefined.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator*(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ * rhs.storage_);
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> operator^(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return bit_xor(lhs, rhs);
+// Left shifts each lane by the number of bits specified in count.
+// If count is negative or greater than or equal to the number of bits,
+// the result is undefined.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator<<(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  static_assert(std::is_integral<Tp>::value,
+                "Only integral types are supported");
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ << rhs.storage_);
+}
+
+// Returns shl_simd(Simd(count)).
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator<<(Simd<Tp, Ap> simd, int count) {
+  return simd << Simd<Tp, Ap>(count);
+}
+
+// Right shifts each lane by the number of bits specified in count.
+// If the left operand is negative or greater than or equal to the number of
+// bits, the result is undefined.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator>>(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  static_assert(std::is_integral<Tp>::value,
+                "Only integral types are supported");
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ >> rhs.storage_);
+}
+
+// Returns shr_simd(Simd(count)).
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator>>(Simd<Tp, Ap> simd, int count) {
+  return simd >> Simd<Tp, Ap>(count);
+}
+
+// Returns the element-wise bit and result.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator&(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ & rhs.storage_);
+}
+
+// Returns the element-wise bit or result.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator|(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ | rhs.storage_);
+}
+
+// Returns the element-wise bit xor result.
+template <typename Tp, typename Ap>
+Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
+  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  return Simd<Tp, Ap>::from_storage(lhs.storage_ ^ rhs.storage_);
 }
 
 template <typename T, typename Abi>
@@ -996,6 +963,26 @@ void operator*=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
 }
 
 template <typename T, typename Abi>
+void operator<<=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
+  lhs = lhs << rhs;
+}
+
+template <typename T, typename Abi>
+void operator<<=(Simd<T, Abi>& simd, int count) {
+  simd = simd << count;
+}
+
+template <typename T, typename Abi>
+void operator>>=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
+  lhs = lhs >> rhs;
+}
+
+template <typename T, typename Abi>
+void operator>>=(Simd<T, Abi>& simd, int count) {
+  simd = simd >> count;
+}
+
+template <typename T, typename Abi>
 void operator&=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
   lhs = lhs & rhs;
 }
@@ -1008,11 +995,6 @@ void operator|=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
 template <typename T, typename Abi>
 void operator^=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
   lhs = lhs ^ rhs;
-}
-
-template <typename T, typename Abi>
-Simd<T, Abi> operator~(Simd<T, Abi> a) {
-  return bit_not(a);
 }
 
 // ----------------- Compound Operations -----------------
@@ -1094,7 +1076,7 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
 }  // namespace dimsum
 
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
+//#pragma GCC diagnostic pop
 #endif
 
 #endif  // DIMSUM_SIMD_H_
