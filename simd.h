@@ -539,6 +539,12 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
 // a default implementation for common types and have
 // instantiations in *_impl-inl.inc files.
 //
+// TODO(timshen): eliminate all DIMSUM_DELETE. Use less efficient
+// implementations for those.
+//
+// TODO(timshen): change all pass-by-value parameters to pass-by-const-ref, to
+// be compliant to P0214.
+//
 // ----------------- Primitive Operations -----------------
 // Returns the concatenated result of the input parameters.
 //
