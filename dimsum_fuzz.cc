@@ -126,6 +126,23 @@ void TestStaticSimdCast(const uint8_t* data) {
                  dimsum::static_simd_cast<To>(simd));
 }
 
+template <typename T>
+void TestReduce(const uint8_t* data) {
+  NativeSimd<T> simd;
+  LoadFromRaw(data, &simd);
+  if (!IsNormal(simd)) return;
+
+  // Take abs to avoid catastrophic cancellation.
+  simd = dimsum::abs(simd);
+  T sum0 = 0;
+  for (size_t i = 0; i < simd.size(); i++)
+    sum0 += simd[i];
+  T sum1 = dimsum::reduce(simd);
+  // Trap if `reduce` sum deviates from sum0 too much.
+  if (isfinite(sum1) && std::abs(sum1 - sum0) / sum0 > 1e-5)
+    __builtin_trap();
+}
+
 template <typename SimdType, size_t NewSize>
 void TestSameTypeReduceAdd(const uint8_t* data) {
   SimdType input;
@@ -411,6 +428,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     TestRound<float>(data);
     TestRound<double>(data);
     TestRoundToInteger<float, int32>(data);
+
+    TestReduce<float>(data);
+    TestReduce<double>(data);
 
     TestSameTypeReduceAdd<Simd128<int8>, 8>(data);
     TestSameTypeReduceAdd<Simd128<int8>, 4>(data);

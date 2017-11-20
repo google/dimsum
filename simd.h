@@ -24,6 +24,7 @@
 #include <cstring>
 
 #include <array>
+#include <functional>
 #include <initializer_list>
 #include <limits>
 #include <tuple>
@@ -247,6 +248,13 @@ constexpr bool IsNarrowingConversion() {
   static_assert(
       std::is_arithmetic<To>::value && std::is_arithmetic<From>::value, "");
   return IsNarrowingConversionImpl<To>(From{});
+}
+
+template <typename T, typename Op>
+constexpr bool IsReduceAdd() {
+  return std::is_integral<T>::value &&
+         (std::is_same<Op, std::plus<T>>::value ||
+          std::is_same<Op, std::plus<void>>::value);
 }
 
 }  // namespace detail
@@ -1046,6 +1054,28 @@ reduce_add(Simd<T, Abi> simd) {
 template <typename T, typename Abi>
 ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
   return reduce_add<T, 1>(simd);
+}
+
+// Returns the generalized sum with operation Op. The components may be grouped
+// and arranged in arbitrary order.
+//
+// Ideally, T and Op should form a commutative monoid. Associativity is not
+// satisified by floating point addition, but this function may also be used if
+// the addition order is not cared.
+// TODO(maskray) After dropping C++11 support, change plus<T> to plus<>.
+template <typename T, typename Abi, class Op = std::plus<T>>
+typename std::enable_if<!detail::IsReduceAdd<T, Op>(), T>::type reduce(
+    const Simd<T, Abi>& simd, Op op = Op()) {
+  T ret = simd[0];
+  for (size_t i = 1; i < simd.size(); i++)
+    ret = op(ret, simd[i]);
+  return ret;
+}
+
+template <typename T, typename Abi, class Op = std::plus<T>>
+typename std::enable_if<detail::IsReduceAdd<T, Op>(), T>::type reduce(
+    const Simd<T, Abi>& simd, Op op = Op()) {
+  return reduce_add<T, 1>(simd)[0];
 }
 
 // Equivalent to acc + reduce_add<..., lhs.size() / 2>(mul_widened(lhs, rhs)),

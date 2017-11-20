@@ -255,6 +255,12 @@ inline ResizeTo<Simd<uint64, detail::VSX>, 1> reduce_add<uint64, 1>(
 }
 
 template <>
+inline float reduce<float, detail::VSX, std::plus<float>>(
+    const Simd<float, detail::VSX>& simd, std::plus<float>) {
+  return (simd[0] + simd[2]) + (simd[1] + simd[3]);
+}
+
+template <>
 inline Simd<int32, detail::VSX> mul_sum(Simd<int16, detail::VSX> lhs,
                                         Simd<int16, detail::VSX> rhs,
                                         Simd<int32, detail::VSX> acc) {

@@ -936,6 +936,15 @@ TEST(DimsumTest, TestSimd64) {
                 "");
 }
 
+TEST(DimsumTest, Reduce) {
+  EXPECT_EQ(10.f, reduce(Simd128<float>::list(1.f, 2.f, 3.f, 4.f)));
+  EXPECT_EQ(10, reduce(Simd128<int32>::list(1, 2, 3, 4)));
+  // TODO(maskray) After dropping C++11 support, change bit_xor<int32> to
+  // bit_xor<>.
+  EXPECT_EQ(15,
+            reduce(Simd128<int32>::list(1, 2, 4, 8), std::bit_xor<int32>()));
+}
+
 TEST(DimsumTest, ReduceAdd) {
   EXPECT_EQ(36, reduce_add(Simd128<int16>::list(1, 2, 3, 4, 5, 6, 7, 8))[0]);
   EXPECT_EQ(10, reduce_add(Simd128<int32>::list(1, 2, 3, 4))[0]);
