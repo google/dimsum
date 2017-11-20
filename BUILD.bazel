@@ -7,15 +7,15 @@ exports_files(["LICENSE"])
 cc_library(
     name = "dimsum",
     hdrs = [
-        "arm_impl-inl.inc",
         "dimsum.h",
         "index_sequence.h",
-        "ppc_impl-inl.inc",
         "simd.h",
+        "simd_avx.h",
+        "simd_neon.h",
+        "simd_simulated.h",
+        "simd_sse.h",
+        "simd_vsx.h",
         "simulated.h",
-        "simulated_impl-inl.inc",
-        "x86_avx_impl-inl.inc",
-        "x86_sse_impl-inl.inc",
     ],
     deps = [
         ":integral_types",

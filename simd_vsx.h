@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
+#ifndef DIMSUM_SIMD_VSX_H_
+#define DIMSUM_SIMD_VSX_H_
+
 #include <altivec.h>
+
+#include "simd.h"
 
 namespace dimsum {
 namespace detail {
@@ -292,3 +297,7 @@ Simd<ScaleBy<T, 2>, detail::VSX> mul_widened(Simd<T, detail::HalfVSX> lhs,
 }
 
 }  // namespace dimsum
+
+#undef SIMD_SPECIALIZATION
+
+#endif  // DIMSUM_SIMD_VSX_H_

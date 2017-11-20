@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
+#ifndef DIMSUM_SIMD_SSE_H_
+#define DIMSUM_SIMD_SSE_H_
+
 #include <smmintrin.h>
+
+#include "simd.h"
 
 namespace dimsum {
 namespace detail {
@@ -368,3 +373,9 @@ Simd<ScaleBy<T, 2>, detail::XMM> mul_widened(Simd<T, detail::HalfXMM> lhs,
 }
 
 }  // namespace dimsum
+
+#ifndef __AVX2__
+#undef SIMD_SPECIALIZATION
+#endif  // __AVX2__
+
+#endif  // DIMSUM_SIMD_SSE_H_

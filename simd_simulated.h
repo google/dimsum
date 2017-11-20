@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#ifndef DIMSUM_SIMD_SIMULATED_H_
+#define DIMSUM_SIMD_SIMULATED_H_
+
+#include "simd.h"
 #include "simulated.h"
 
 namespace dimsum {
@@ -312,7 +316,7 @@ inline Simd<int32, detail::Simulated> round_to_integer(
   return simulated::round_to_integer<int32>(simd);
 }
 
-// TODO(maskray) this specialization is duplicated in each *_impl-inl.inc file,
+// TODO(maskray) this specialization is duplicated in each simd_*.h file,
 // which should be addressed later. The implementation of dimsum::split should
 // also be revisited, it does not work on int8/uint8 Simd types.
 template <typename T>
@@ -336,3 +340,7 @@ inline Simd<double, detail::Simulated> fma(Simd<double, detail::Simulated> a,
 }
 
 }  // namespace dimsum
+
+#undef SIMD_SPECIALIZATION
+
+#endif  // DIMSUM_SIMD_SIMULATED_H_

@@ -511,18 +511,17 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
 };
 
 // Here defines NativeSimd. It's actual definition varies on platforms. See
-// *.inc files for all of them. NativeSimd is for the "most efficient" ABI on
+// simd_*.h files for all of them. NativeSimd is for the "most efficient" ABI on
 // the current architecuture.
 //   template <typename T>
 //   using NativeSimd = ...
 
-// Here defines Simd128. It's actual definition varies on platforms. See *.inc
-// files for all of them.
-// Simd128 is guaranteed to have 128 bits.
+// Here defines Simd128. It's actual definition varies on platforms. See
+// simd_*.h files for all of them. Simd128 is guaranteed to have 128 bits.
 //   template <typename T>
 //   using Simd128 = ...
 
-// Here defines Simd64. It's actual definition varies on platforms. See *.inc
+// Here defines Simd64. It's actual definition varies on platforms. See simd_*.h
 // files for all of them.
 // Simd64 is guaranteed to have 64 bits.
 //   template <typename T>
@@ -534,10 +533,10 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
 //   void PublicFunction(Simd<T, Abi> a);
 
 // Most functions defined here are generic. Functions
-// marked with `= delete` are specialized in separate *_impl-inl.inc files for
+// marked with `= delete` are specialized in separate simd_*.h files for
 // different platforms. Others defined inside the class (e.g. abs()) may provide
 // a default implementation for common types and have
-// instantiations in *_impl-inl.inc files.
+// instantiations in simd_*.h files.
 //
 // TODO(timshen): eliminate all DIMSUM_DELETE. Use less efficient
 // implementations for those.
@@ -1084,5 +1083,45 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
+
+// The supported specializations of Simd types. InternalType means the actually
+// stored type. ExternalType means the convertible type that the user can use to
+// construct from and extract to.
+#define SIMD_SPECIALIZATION(T, STORAGE, NUM_BYTES, EXTERNAL_TYPE)  \
+  template <>                                                      \
+  struct SimdTraits<T, detail::Abi<STORAGE, NUM_BYTES>> {          \
+    static_assert(NUM_BYTES % sizeof(T) == 0, "");                 \
+    using InternalType = detail::GccVecTraits<T, NUM_BYTES>::type; \
+    using ExternalType = EXTERNAL_TYPE;                            \
+  };
+
+#define SIMD_NON_NATIVE_SPECIALIZATION(STORAGE, NUM_BYTES)      \
+  SIMD_SPECIALIZATION(int8, STORAGE, NUM_BYTES, InternalType)   \
+  SIMD_SPECIALIZATION(int16, STORAGE, NUM_BYTES, InternalType)  \
+  SIMD_SPECIALIZATION(int32, STORAGE, NUM_BYTES, InternalType)  \
+  SIMD_SPECIALIZATION(int64, STORAGE, NUM_BYTES, InternalType)  \
+  SIMD_SPECIALIZATION(uint8, STORAGE, NUM_BYTES, InternalType)  \
+  SIMD_SPECIALIZATION(uint16, STORAGE, NUM_BYTES, InternalType) \
+  SIMD_SPECIALIZATION(uint32, STORAGE, NUM_BYTES, InternalType) \
+  SIMD_SPECIALIZATION(uint64, STORAGE, NUM_BYTES, InternalType) \
+  SIMD_SPECIALIZATION(float, STORAGE, NUM_BYTES, InternalType)  \
+  SIMD_SPECIALIZATION(double, STORAGE, NUM_BYTES, InternalType)
+
+#define SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(STORAGE) \
+  SIMD_SPECIALIZATION(int8, STORAGE, 4, InternalType)           \
+  SIMD_SPECIALIZATION(int16, STORAGE, 4, InternalType)          \
+  SIMD_SPECIALIZATION(int32, STORAGE, 4, InternalType)          \
+  SIMD_SPECIALIZATION(uint8, STORAGE, 4, InternalType)          \
+  SIMD_SPECIALIZATION(uint16, STORAGE, 4, InternalType)         \
+  SIMD_SPECIALIZATION(uint32, STORAGE, 4, InternalType)         \
+  SIMD_SPECIALIZATION(float, STORAGE, 4, InternalType)          \
+  SIMD_SPECIALIZATION(int8, STORAGE, 2, InternalType)           \
+  SIMD_SPECIALIZATION(int16, STORAGE, 2, InternalType)          \
+  SIMD_SPECIALIZATION(uint8, STORAGE, 2, InternalType)          \
+  SIMD_SPECIALIZATION(uint16, STORAGE, 2, InternalType)         \
+  SIMD_SPECIALIZATION(int8, STORAGE, 1, InternalType)           \
+  SIMD_SPECIALIZATION(uint8, STORAGE, 1, InternalType)
+
+#undef DIMSUM_DELETE
 
 #endif  // DIMSUM_SIMD_H_

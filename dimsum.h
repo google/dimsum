@@ -17,66 +17,23 @@
 #ifndef DIMSUM_DIMSUM_H_
 #define DIMSUM_DIMSUM_H_
 
-#include "simd.h"
-
-// The supported specializations of Simd types. InternalType means the actually
-// stored type. ExternalType means the convertible type that the user can use to
-// construct from and extract to.
-#define SIMD_SPECIALIZATION(T, STORAGE, NUM_BYTES, EXTERNAL_TYPE)  \
-  template <>                                                      \
-  struct SimdTraits<T, detail::Abi<STORAGE, NUM_BYTES>> {          \
-    static_assert(NUM_BYTES % sizeof(T) == 0, "");                 \
-    using InternalType = detail::GccVecTraits<T, NUM_BYTES>::type; \
-    using ExternalType = EXTERNAL_TYPE;                            \
-  };
-
-#define SIMD_NON_NATIVE_SPECIALIZATION(STORAGE, NUM_BYTES)      \
-  SIMD_SPECIALIZATION(int8, STORAGE, NUM_BYTES, InternalType)   \
-  SIMD_SPECIALIZATION(int16, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(int32, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(int64, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(uint8, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(uint16, STORAGE, NUM_BYTES, InternalType) \
-  SIMD_SPECIALIZATION(uint32, STORAGE, NUM_BYTES, InternalType) \
-  SIMD_SPECIALIZATION(uint64, STORAGE, NUM_BYTES, InternalType) \
-  SIMD_SPECIALIZATION(float, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(double, STORAGE, NUM_BYTES, InternalType)
-
-#define SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(STORAGE) \
-  SIMD_SPECIALIZATION(int8, STORAGE, 4, InternalType)           \
-  SIMD_SPECIALIZATION(int16, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(int32, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(uint8, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(uint16, STORAGE, 4, InternalType)         \
-  SIMD_SPECIALIZATION(uint32, STORAGE, 4, InternalType)         \
-  SIMD_SPECIALIZATION(float, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(int8, STORAGE, 2, InternalType)           \
-  SIMD_SPECIALIZATION(int16, STORAGE, 2, InternalType)          \
-  SIMD_SPECIALIZATION(uint8, STORAGE, 2, InternalType)          \
-  SIMD_SPECIALIZATION(uint16, STORAGE, 2, InternalType)         \
-  SIMD_SPECIALIZATION(int8, STORAGE, 1, InternalType)           \
-  SIMD_SPECIALIZATION(uint8, STORAGE, 1, InternalType)
-
 #ifdef DIMSUM_USE_SIMULATED
-# include "simulated_impl-inl.inc"
+# include "simd_simulated.h"
 #else
 # if defined(__aarch64__) && defined(__ARM_NEON) && defined(USE_DIMSUM_ARM)
 // TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
 // production ready.
-#  include "arm_impl-inl.inc"
-# elif defined(__VSX__)
-#  include "ppc_impl-inl.inc"
+#  include "simd_neon.h"
 # elif defined(__SSE4_1__)
-#  include "x86_sse_impl-inl.inc"
+#  include "simd_sse.h"
 #  ifdef __AVX2__
-#   include "x86_avx_impl-inl.inc"
+#   include "simd_avx.h"
 #  endif  // __AVX2__
+# elif defined(__VSX__)
+#  include "simd_vsx.h"
 # else
-#  include "simulated_impl-inl.inc"
+#  include "simd_simulated.h"
 # endif
 #endif  // DIMSUM_USE_SIMULATED
-
-#undef SIMD_SPECIALIZATION
-#undef DIMSUM_DELETE
 
 #endif  // DIMSUM_DIMSUM_H_

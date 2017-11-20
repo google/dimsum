@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
+#ifndef DIMSUM_SIMD_NEON_H_
+#define DIMSUM_SIMD_NEON_H_
+
 #include <arm_neon.h>
+
+#include "simd.h"
 
 namespace dimsum {
 namespace detail {
@@ -423,3 +428,7 @@ Simd<ScaleBy<T, 2>, detail::NEON> mul_widened(Simd<T, detail::HalfNEON> lhs,
 }
 
 }  // namespace dimsum
+
+#undef SIMD_SPECIALIZATION
+
+#endif  // DIMSUM_SIMD_NEON_H_
