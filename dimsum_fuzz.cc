@@ -139,7 +139,7 @@ void TestReduce(const uint8_t* data) {
     sum0 += simd[i];
   T sum1 = dimsum::reduce(simd);
   // Trap if `reduce` sum deviates from sum0 too much.
-  if (isfinite(sum1) && std::abs(sum1 - sum0) / sum0 > 1e-5)
+  if (std::isfinite(sum1) && std::abs(sum1 - sum0) / sum0 > 1e-5)
     __builtin_trap();
 }
 
