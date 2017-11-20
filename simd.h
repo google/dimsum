@@ -1082,7 +1082,7 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
 }  // namespace dimsum
 
 #if defined(__GNUC__) && !defined(__clang__)
-//#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 #endif  // DIMSUM_SIMD_H_
