@@ -60,20 +60,20 @@
 #ifdef DIMSUM_USE_SIMULATED
 # include "simulated_impl-inl.inc"
 #else
-# if defined(__SSE4_1__)
+# if defined(__aarch64__) && defined(__ARM_NEON) && defined(USE_DIMSUM_ARM)
+// TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
+// production ready.
+#  include "arm_impl-inl.inc"
+# elif defined(__VSX__)
+#  include "ppc_impl-inl.inc"
+# elif defined(__SSE4_1__)
 #  include "x86_sse_impl-inl.inc"
 #  ifdef __AVX2__
 #   include "x86_avx_impl-inl.inc"
 #  endif  // __AVX2__
-# elif defined(__VSX__)
-#  include "ppc_impl-inl.inc"
-// TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
-// production ready.
-# elif defined(__aarch64__) && defined(__ARM_NEON) && defined(USE_DIMSUM_ARM)
-#  include "arm_impl-inl.inc"
 # else
 #  include "simulated_impl-inl.inc"
-# endif  // defined(__SSE4_1__)
+# endif
 #endif  // DIMSUM_USE_SIMULATED
 
 #undef SIMD_SPECIALIZATION

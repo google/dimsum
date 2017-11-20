@@ -66,8 +66,7 @@ struct LoadImpl<T, detail::Abi<detail::StoragePolicy::kNeon, kNumBytes>,
     Simd<T, detail::Abi<detail::StoragePolicy::kNeon, kNumBytes>> ret;
     uint64x2_t ret1[sizeof(ret) / 16];
     for (int i = 0; i < sizeof(ret) / 16; i++) {
-      ret1[i] = vld1q_u64(reinterpret_cast<const uint64_t*>(buffer) +
-                          16 / sizeof(T) * i);
+      ret1[i] = vld1q_u64(reinterpret_cast<const uint64_t*>(buffer) + 2 * i);
     }
     memcpy(&ret.storage_, &ret1, sizeof(ret1));
     return ret;
@@ -395,7 +394,7 @@ inline Simd<int32, detail::NEON> mul_sum(Simd<int16, detail::NEON> lhs,
   int32x4_t mulhi = vmull_s16(vget_high_s16(lhs_raw), vget_high_s16(rhs_raw));
   int32x2_t addlo = vpadd_s32(vget_low_s32(mullo), vget_high_s32(mullo));
   int32x2_t addhi = vpadd_s32(vget_low_s32(mulhi), vget_high_s32(mulhi));
-  return vpaddq_s32(acc.raw(), vcombine_s32(addlo, addhi));
+  return vaddq_s32(acc.raw(), vcombine_s32(addlo, addhi));
 }
 
 // vrndnq_f{32,64} translate to VRINTN.F{16,32}, which round floating points
