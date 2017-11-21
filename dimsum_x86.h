@@ -59,14 +59,12 @@ Simd<int16, Abi> maddubs(Simd<uint8, Abi> lhs, Simd<int8, Abi> rhs) {
 #ifndef DIMSUM_USE_SIMULATED
 #ifdef __SSE4_1__
 template <>
-inline Simd<int16, detail::XMM> maddubs(Simd<uint8, detail::XMM> lhs,
-                                        Simd<int8, detail::XMM> rhs) {
+inline Simd128<int16> maddubs(Simd128<uint8> lhs, Simd128<int8> rhs) {
   return _mm_maddubs_epi16(lhs.raw(), rhs.raw());
 }
 #ifdef __AVX2__
 template <>
-inline Simd<int16, detail::YMM> maddubs(Simd<uint8, detail::YMM> lhs,
-                                        Simd<int8, detail::YMM> rhs) {
+inline NativeSimd<int16> maddubs(NativeSimd<uint8> lhs, NativeSimd<int8> rhs) {
   return _mm256_maddubs_epi16(lhs.raw(), rhs.raw());
 }
 #endif  // __AVX2__
@@ -85,63 +83,63 @@ int movemask(Simd<T, Abi> simd) {
 #ifdef __SSE4_1__
 
 template <>
-inline int movemask<int8, detail::XMM>(Simd<int8, detail::XMM> simd) {
+inline int movemask(Simd128<int8> simd) {
   return _mm_movemask_epi8(simd.raw());
 }
 
 template <>
-inline int movemask<uint8, detail::XMM>(Simd<uint8, detail::XMM> simd) {
+inline int movemask(Simd128<uint8> simd) {
   return _mm_movemask_epi8(simd.raw());
 }
 
 template <>
-inline int movemask<int32, detail::XMM>(Simd<int32, detail::XMM> simd) {
+inline int movemask(Simd128<int32> simd) {
   return _mm_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
-inline int movemask<uint32, detail::XMM>(Simd<uint32, detail::XMM> simd) {
+inline int movemask(Simd128<uint32> simd) {
   return _mm_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
-inline int movemask<int64, detail::XMM>(Simd<int64, detail::XMM> simd) {
+inline int movemask(Simd128<int64> simd) {
   return _mm_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 template <>
-inline int movemask<uint64, detail::XMM>(Simd<uint64, detail::XMM> simd) {
+inline int movemask(Simd128<uint64> simd) {
   return _mm_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 # ifdef __AVX2__
 template <>
-inline int movemask<int8, detail::YMM>(Simd<int8, detail::YMM> simd) {
+inline int movemask(NativeSimd<int8> simd) {
   return _mm256_movemask_epi8(simd.raw());
 }
 
 template <>
-inline int movemask<uint8, detail::YMM>(Simd<uint8, detail::YMM> simd) {
+inline int movemask(NativeSimd<uint8> simd) {
   return _mm256_movemask_epi8(simd.raw());
 }
 
 template <>
-inline int movemask<int32, detail::YMM>(Simd<int32, detail::YMM> simd) {
+inline int movemask(NativeSimd<int32> simd) {
   return _mm256_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
-inline int movemask<uint32, detail::YMM>(Simd<uint32, detail::YMM> simd) {
+inline int movemask(NativeSimd<uint32> simd) {
   return _mm256_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
-inline int movemask<int64, detail::YMM>(Simd<int64, detail::YMM> simd) {
+inline int movemask(NativeSimd<int64> simd) {
   return _mm256_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 template <>
-inline int movemask<uint64, detail::YMM>(Simd<uint64, detail::YMM> simd) {
+inline int movemask(NativeSimd<uint64> simd) {
   return _mm256_movemask_pd(bit_cast<double>(simd).raw());
 }
 #endif  // __AVX2__
@@ -149,7 +147,7 @@ inline int movemask<uint64, detail::YMM>(Simd<uint64, detail::YMM> simd) {
 
 #if defined(__VSX__)
 template <>
-inline int movemask<uint8, detail::VSX>(Simd<uint8, detail::VSX> simd) {
+inline int movemask(Simd128<uint8> simd) {
   __vector unsigned char mask;
   // vec_lvsl (little-endian version is deprecated on clang and GCC) inserts a
   // vec_perm on little-endian that we don't want.
@@ -181,8 +179,8 @@ inline int movemask<uint8, detail::VSX>(Simd<uint8, detail::VSX> simd) {
 }
 
 template <>
-inline int movemask<int8, detail::VSX>(Simd<int8, detail::VSX> simd) {
-  return movemask<uint8, detail::VSX>(bit_cast<uint8>(simd));
+inline int movemask(Simd128<int8> simd) {
+  return movemask(bit_cast<uint8>(simd));
 }
 #endif  // __VSX__
 #endif  // DIMSUM_USE_SIMULATED

@@ -25,270 +25,231 @@ namespace dimsum {
 namespace detail {
 
 // Simulated (16 bytes)
-using Simulated = detail::Abi<detail::StoragePolicy::kSimulated, 16>;
-using HalfSimulated = detail::Abi<detail::StoragePolicy::kSimulated, 8>;
+SIMD_SPECIALIZATION(int8, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(int16, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(int32, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(int64, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(uint8, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(uint16, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(uint32, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(uint64, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(float, StoragePolicy::kSimulated, 16, InternalType)
+SIMD_SPECIALIZATION(double, StoragePolicy::kSimulated, 16, InternalType)
 
-SIMD_SPECIALIZATION(int8, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(int16, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(int32, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(int64, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint8, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint16, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint32, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint64, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(float, detail::StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(double, detail::StoragePolicy::kSimulated, 16, InternalType)
-
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(
-    detail::StoragePolicy::kSimulated);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kSimulated, 8);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kSimulated, 32);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kSimulated, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kSimulated, 128);
+SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kSimulated);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 8);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 32);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 64);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 128);
 
 }  // namespace detail
 
 template <typename T>
-using NativeSimd = Simd<T, detail::Simulated>;
+using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 16>>;
 
 template <typename T>
-using Simd128 = Simd<T, detail::Simulated>;
+using Simd128 = Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 16>>;
 
 template <typename T>
-using Simd64 = Simd<T, detail::HalfSimulated>;
+using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 8>>;
 
 template <>
-inline Simd<int8, detail::Simulated> abs(Simd<int8, detail::Simulated> simd) {
+inline Simd128<int8> abs(Simd128<int8> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<int16, detail::Simulated> abs(Simd<int16, detail::Simulated> simd) {
+inline Simd128<int16> abs(Simd128<int16> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<int32, detail::Simulated> abs(Simd<int32, detail::Simulated> simd) {
+inline Simd128<int32> abs(Simd128<int32> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<int64, detail::Simulated> abs(Simd<int64, detail::Simulated> simd) {
+inline Simd128<int64> abs(Simd128<int64> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<float, detail::Simulated> abs(Simd<float, detail::Simulated> simd) {
+inline Simd128<float> abs(Simd128<float> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<double, detail::Simulated> abs(
-    Simd<double, detail::Simulated> simd) {
+inline Simd128<double> abs(Simd128<double> simd) {
   return simulated::abs(simd);
 }
 
 template <>
-inline Simd<float, detail::Simulated> reciprocal_estimate(
-    Simd<float, detail::Simulated> simd) {
+inline Simd128<float> reciprocal_estimate(Simd128<float> simd) {
   return simulated::reciprocal_estimate(simd);
 }
 
 template <>
-inline Simd<float, detail::Simulated> sqrt(
-    Simd<float, detail::Simulated> simd) {
-  return simulated::sqrt<float, detail::Simulated>(simd);
-}
-
-template <>
-inline Simd<double, detail::Simulated> sqrt(
-    Simd<double, detail::Simulated> simd) {
+inline Simd128<float> sqrt(Simd128<float> simd) {
   return simulated::sqrt(simd);
 }
 
 template <>
-inline Simd<float, detail::Simulated> reciprocal_sqrt_estimate(
-    Simd<float, detail::Simulated> simd) {
+inline Simd128<double> sqrt(Simd128<double> simd) {
+  return simulated::sqrt(simd);
+}
+
+template <>
+inline Simd128<float> reciprocal_sqrt_estimate(Simd128<float> simd) {
   return simulated::reciprocal_sqrt_estimate(simd);
 }
 
 template <>
-inline Simd<int8, detail::Simulated> add_saturated(
-    Simd<int8, detail::Simulated> lhs, Simd<int8, detail::Simulated> rhs) {
+inline Simd128<int8> add_saturated(Simd128<int8> lhs, Simd128<int8> rhs) {
   return simulated::add_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<uint8, detail::Simulated> add_saturated(
-    Simd<uint8, detail::Simulated> lhs, Simd<uint8, detail::Simulated> rhs) {
+inline Simd128<uint8> add_saturated(Simd128<uint8> lhs, Simd128<uint8> rhs) {
   return simulated::add_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<int16, detail::Simulated> add_saturated(
-    Simd<int16, detail::Simulated> lhs, Simd<int16, detail::Simulated> rhs) {
+inline Simd128<int16> add_saturated(Simd128<int16> lhs, Simd128<int16> rhs) {
   return simulated::add_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<uint16, detail::Simulated> add_saturated(
-    Simd<uint16, detail::Simulated> lhs, Simd<uint16, detail::Simulated> rhs) {
+inline Simd128<uint16> add_saturated(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return simulated::add_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<int8, detail::Simulated> sub_saturated(
-    Simd<int8, detail::Simulated> lhs, Simd<int8, detail::Simulated> rhs) {
+inline Simd128<int8> sub_saturated(Simd128<int8> lhs, Simd128<int8> rhs) {
   return simulated::sub_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<uint8, detail::Simulated> sub_saturated(
-    Simd<uint8, detail::Simulated> lhs, Simd<uint8, detail::Simulated> rhs) {
+inline Simd128<uint8> sub_saturated(Simd128<uint8> lhs, Simd128<uint8> rhs) {
   return simulated::sub_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<int16, detail::Simulated> sub_saturated(
-    Simd<int16, detail::Simulated> lhs, Simd<int16, detail::Simulated> rhs) {
+inline Simd128<int16> sub_saturated(Simd128<int16> lhs, Simd128<int16> rhs) {
   return simulated::sub_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<uint16, detail::Simulated> sub_saturated(
-    Simd<uint16, detail::Simulated> lhs, Simd<uint16, detail::Simulated> rhs) {
+inline Simd128<uint16> sub_saturated(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return simulated::sub_saturated(lhs, rhs);
 }
 
 template <>
-inline Simd<int8, detail::Simulated> min(Simd<int8, detail::Simulated> lhs,
-                                         Simd<int8, detail::Simulated> rhs) {
+inline Simd128<int8> min(Simd128<int8> lhs, Simd128<int8> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<int16, detail::Simulated> min(Simd<int16, detail::Simulated> lhs,
-                                          Simd<int16, detail::Simulated> rhs) {
+inline Simd128<int16> min(Simd128<int16> lhs, Simd128<int16> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<int32, detail::Simulated> min(Simd<int32, detail::Simulated> lhs,
-                                          Simd<int32, detail::Simulated> rhs) {
+inline Simd128<int32> min(Simd128<int32> lhs, Simd128<int32> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<int64, detail::Simulated> min(Simd<int64, detail::Simulated> lhs,
-                                          Simd<int64, detail::Simulated> rhs) {
+inline Simd128<int64> min(Simd128<int64> lhs, Simd128<int64> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<uint8, detail::Simulated> min(Simd<uint8, detail::Simulated> lhs,
-                                          Simd<uint8, detail::Simulated> rhs) {
+inline Simd128<uint8> min(Simd128<uint8> lhs, Simd128<uint8> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<uint16, detail::Simulated> min(
-    Simd<uint16, detail::Simulated> lhs, Simd<uint16, detail::Simulated> rhs) {
+inline Simd128<uint16> min(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<uint32, detail::Simulated> min(
-    Simd<uint32, detail::Simulated> lhs, Simd<uint32, detail::Simulated> rhs) {
+inline Simd128<uint32> min(Simd128<uint32> lhs, Simd128<uint32> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<float, detail::Simulated> min(Simd<float, detail::Simulated> lhs,
-                                          Simd<float, detail::Simulated> rhs) {
+inline Simd128<float> min(Simd128<float> lhs, Simd128<float> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<double, detail::Simulated> min(
-    Simd<double, detail::Simulated> lhs, Simd<double, detail::Simulated> rhs) {
+inline Simd128<double> min(Simd128<double> lhs, Simd128<double> rhs) {
   return simulated::min(lhs, rhs);
 }
 
 template <>
-inline Simd<int8, detail::Simulated> max(Simd<int8, detail::Simulated> lhs,
-                                         Simd<int8, detail::Simulated> rhs) {
+inline Simd128<int8> max(Simd128<int8> lhs, Simd128<int8> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<int16, detail::Simulated> max(Simd<int16, detail::Simulated> lhs,
-                                          Simd<int16, detail::Simulated> rhs) {
+inline Simd128<int16> max(Simd128<int16> lhs, Simd128<int16> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<int32, detail::Simulated> max(Simd<int32, detail::Simulated> lhs,
-                                          Simd<int32, detail::Simulated> rhs) {
+inline Simd128<int32> max(Simd128<int32> lhs, Simd128<int32> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<int64, detail::Simulated> max(Simd<int64, detail::Simulated> lhs,
-                                          Simd<int64, detail::Simulated> rhs) {
+inline Simd128<int64> max(Simd128<int64> lhs, Simd128<int64> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<uint8, detail::Simulated> max(Simd<uint8, detail::Simulated> lhs,
-                                          Simd<uint8, detail::Simulated> rhs) {
+inline Simd128<uint8> max(Simd128<uint8> lhs, Simd128<uint8> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<uint16, detail::Simulated> max(
-    Simd<uint16, detail::Simulated> lhs, Simd<uint16, detail::Simulated> rhs) {
+inline Simd128<uint16> max(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<uint32, detail::Simulated> max(
-    Simd<uint32, detail::Simulated> lhs, Simd<uint32, detail::Simulated> rhs) {
+inline Simd128<uint32> max(Simd128<uint32> lhs, Simd128<uint32> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<uint64, detail::Simulated> max(
-    Simd<uint64, detail::Simulated> lhs, Simd<uint64, detail::Simulated> rhs) {
+inline Simd128<uint64> max(Simd128<uint64> lhs, Simd128<uint64> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<float, detail::Simulated> max(Simd<float, detail::Simulated> lhs,
-                                          Simd<float, detail::Simulated> rhs) {
+inline Simd128<float> max(Simd128<float> lhs, Simd128<float> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<double, detail::Simulated> max(
-    Simd<double, detail::Simulated> lhs, Simd<double, detail::Simulated> rhs) {
+inline Simd128<double> max(Simd128<double> lhs, Simd128<double> rhs) {
   return simulated::max(lhs, rhs);
 }
 
 template <>
-inline Simd<float, detail::Simulated> round(
-    Simd<float, detail::Simulated> simd) {
+inline Simd128<float> round(Simd128<float> simd) {
   return simulated::round(simd);
 }
 
 template <>
-inline Simd<double, detail::Simulated> round(
-    Simd<double, detail::Simulated> simd) {
+inline Simd128<double> round(Simd128<double> simd) {
   return simulated::round(simd);
 }
 
 template <>
-inline Simd<int32, detail::Simulated> round_to_integer(
-    Simd<float, detail::Simulated> simd) {
+inline Simd128<int32> round_to_integer(Simd128<float> simd) {
   return simulated::round_to_integer<int32>(simd);
 }
 
@@ -296,22 +257,19 @@ inline Simd<int32, detail::Simulated> round_to_integer(
 // which should be addressed later. The implementation of dimsum::split should
 // also be revisited, it does not work on int8/uint8 Simd types.
 template <typename T>
-Simd<ScaleBy<T, 2>, detail::Simulated> mul_widened(
-    Simd<T, detail::HalfSimulated> lhs, Simd<T, detail::HalfSimulated> rhs) {
+Simd128<ScaleBy<T, 2>> mul_widened(Simd64<T> lhs, Simd64<T> rhs) {
   return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
 template <>
-inline Simd<float, detail::Simulated> fma(Simd<float, detail::Simulated> a,
-                                          Simd<float, detail::Simulated> b,
-                                          Simd<float, detail::Simulated> c) {
+inline Simd128<float> fma(Simd128<float> a, Simd128<float> b,
+                          Simd128<float> c) {
   return simulated::fma(a, b, c);
 }
 
 template <>
-inline Simd<double, detail::Simulated> fma(Simd<double, detail::Simulated> a,
-                                           Simd<double, detail::Simulated> b,
-                                           Simd<double, detail::Simulated> c) {
+inline Simd128<double> fma(Simd128<double> a, Simd128<double> b,
+                           Simd128<double> c) {
   return simulated::fma(a, b, c);
 }
 

@@ -25,52 +25,48 @@ namespace dimsum {
 namespace detail {
 
 // AVX (32 bytes)
-using YMM = detail::Abi<detail::StoragePolicy::kYmm, 32>;
-using HalfYMM = detail::Abi<detail::StoragePolicy::kYmm, 16>;
+SIMD_SPECIALIZATION(int8, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(int16, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(int32, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(int64, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(uint8, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(uint16, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(uint32, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(uint64, StoragePolicy::kYmm, 16, __m128i)
+SIMD_SPECIALIZATION(float, StoragePolicy::kYmm, 16, __m128)
+SIMD_SPECIALIZATION(double, StoragePolicy::kYmm, 16, __m128d)
 
-SIMD_SPECIALIZATION(int8, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(int16, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(int32, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(int64, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint8, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint16, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint32, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint64, detail::StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(float, detail::StoragePolicy::kYmm, 16, __m128)
-SIMD_SPECIALIZATION(double, detail::StoragePolicy::kYmm, 16, __m128d)
+SIMD_SPECIALIZATION(int8, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(int16, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(int32, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(int64, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(uint8, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(uint16, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(uint32, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(uint64, StoragePolicy::kYmm, 32, __m256i)
+SIMD_SPECIALIZATION(float, StoragePolicy::kYmm, 32, __m256)
+SIMD_SPECIALIZATION(double, StoragePolicy::kYmm, 32, __m256d)
 
-SIMD_SPECIALIZATION(int8, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(int16, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(int32, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(int64, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint8, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint16, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint32, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint64, detail::StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(float, detail::StoragePolicy::kYmm, 32, __m256)
-SIMD_SPECIALIZATION(double, detail::StoragePolicy::kYmm, 32, __m256d)
-
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(detail::StoragePolicy::kYmm);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kYmm, 8);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kYmm, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kYmm, 128);
-SIMD_NON_NATIVE_SPECIALIZATION(detail::StoragePolicy::kYmm, 256);
+SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kYmm);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 8);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 64);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 128);
+SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 256);
 
 template <typename T>
-struct LoadImpl<T, detail::HalfYMM, flags::vector_aligned_tag> {
-  static Simd<T, detail::HalfYMM> Apply(const T* buffer) {
-    Simd<T, detail::HalfYMM> ret;
+struct LoadImpl<T, Abi<StoragePolicy::kYmm, 16>, flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kYmm, 16>> Apply(const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kYmm, 16>> ret;
     memcpy(&ret.storage_, buffer, sizeof(ret));
     return ret;
   }
 };
 
 template <typename T, size_t kNumBytes>
-struct LoadImpl<T, detail::Abi<detail::StoragePolicy::kYmm, kNumBytes>,
+struct LoadImpl<T, Abi<StoragePolicy::kYmm, kNumBytes>,
                 flags::vector_aligned_tag> {
-  static Simd<T, detail::Abi<detail::StoragePolicy::kYmm, kNumBytes>> Apply(
-      const T* buffer) {
-    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, kNumBytes>> ret;
+  static Simd<T, Abi<StoragePolicy::kYmm, kNumBytes>> Apply(const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kYmm, kNumBytes>> ret;
     __m256i ret1[sizeof(ret) / 32];
     for (int i = 0; i < sizeof(ret) / 32; i++)
       ret1[i] = _mm256_load_si256(reinterpret_cast<const __m256i*>(buffer) + i);
@@ -79,10 +75,13 @@ struct LoadImpl<T, detail::Abi<detail::StoragePolicy::kYmm, kNumBytes>,
   }
 };
 
+template <typename T>
+using Simd256 = Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 32>>;
+
 }  // namespace detail
 
 template <typename T>
-using NativeSimd = Simd<T, detail::YMM>;
+using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 32>>;
 
 // Some instructions (align, pack, unpack, permutation types, e.g.
 // _mm256_alignr_epi8 _mm256_packs_epi32) operate on 128-bit lanes rather the
@@ -91,283 +90,280 @@ using NativeSimd = Simd<T, detail::YMM>;
 // Guide for details.
 
 template <>
-inline Simd<int8, detail::YMM> abs(Simd<int8, detail::YMM> simd) {
+inline detail::Simd256<int8> abs(detail::Simd256<int8> simd) {
   return _mm256_abs_epi8(simd.raw());
 }
 
 template <>
-inline Simd<int16, detail::YMM> abs(Simd<int16, detail::YMM> simd) {
+inline detail::Simd256<int16> abs(detail::Simd256<int16> simd) {
   return _mm256_abs_epi16(simd.raw());
 }
 
 template <>
-inline Simd<int32, detail::YMM> abs(Simd<int32, detail::YMM> simd) {
+inline detail::Simd256<int32> abs(detail::Simd256<int32> simd) {
   return _mm256_abs_epi32(simd.raw());
 }
 
 #ifdef __AVX512VL__
 template <>
-inline Simd<int64, detail::YMM> abs(Simd<int32, detail::YMM> simd) {
+inline detail::Simd256<int64> abs(detail::Simd256<int32> simd) {
   return _mm256_abs_epi64(simd.raw());
 }
 #else
 template <>
-inline Simd<int64, detail::YMM> abs(Simd<int64, detail::YMM> simd) {
-  return Simd<int64, detail::YMM>::list(std::abs(simd[0]), std::abs(simd[1]),
-                                        std::abs(simd[2]), std::abs(simd[3]));
+inline detail::Simd256<int64> abs(detail::Simd256<int64> simd) {
+  return detail::Simd256<int64>::list(std::abs(simd[0]), std::abs(simd[1]),
+                                      std::abs(simd[2]), std::abs(simd[3]));
 }
 #endif
 
 // ::abs is implemented by bitand each lane with shr(-1, 1) to clear the
 // sign bit (the most significant bit).
 template <>
-inline Simd<float, detail::YMM> abs(Simd<float, detail::YMM> simd) {
+inline detail::Simd256<float> abs(detail::Simd256<float> simd) {
   return bit_cast<float>(bit_cast<uint32>(simd) &
-                         Simd<uint32, detail::YMM>(~(1u << 31)));
+                         detail::Simd256<uint32>(~(1u << 31)));
 }
 
 template <>
-inline Simd<double, detail::YMM> abs(Simd<double, detail::YMM> simd) {
+inline detail::Simd256<double> abs(detail::Simd256<double> simd) {
   return bit_cast<double>(bit_cast<uint64>(simd) &
-                          Simd<uint64, detail::YMM>(~(1ull << 63)));
+                          detail::Simd256<uint64>(~(1ull << 63)));
 }
 
 template <>
-inline Simd<float, detail::YMM> reciprocal_estimate(
-    Simd<float, detail::YMM> simd) {
+inline detail::Simd256<float> reciprocal_estimate(detail::Simd256<float> simd) {
   return _mm256_rcp_ps(simd.raw());
 }
 
 template <>
-inline Simd<float, detail::YMM> sqrt(Simd<float, detail::YMM> simd) {
+inline detail::Simd256<float> sqrt(detail::Simd256<float> simd) {
   return _mm256_sqrt_ps(simd.raw());
 }
 
 template <>
-inline Simd<double, detail::YMM> sqrt(Simd<double, detail::YMM> simd) {
+inline detail::Simd256<double> sqrt(detail::Simd256<double> simd) {
   return _mm256_sqrt_pd(simd.raw());
 }
 
 template <>
-inline Simd<float, detail::YMM> reciprocal_sqrt_estimate(
-    Simd<float, detail::YMM> simd) {
+inline detail::Simd256<float> reciprocal_sqrt_estimate(
+    detail::Simd256<float> simd) {
   return _mm256_rsqrt_ps(simd.raw());
 }
 
 template <>
-inline Simd<int8, detail::YMM> add_saturated(Simd<int8, detail::YMM> lhs,
-                                             Simd<int8, detail::YMM> rhs) {
+inline detail::Simd256<int8> add_saturated(detail::Simd256<int8> lhs,
+                                           detail::Simd256<int8> rhs) {
   return _mm256_adds_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint8, detail::YMM> add_saturated(Simd<uint8, detail::YMM> lhs,
-                                              Simd<uint8, detail::YMM> rhs) {
+inline detail::Simd256<uint8> add_saturated(detail::Simd256<uint8> lhs,
+                                            detail::Simd256<uint8> rhs) {
   return _mm256_adds_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int16, detail::YMM> add_saturated(Simd<int16, detail::YMM> lhs,
-                                              Simd<int16, detail::YMM> rhs) {
+inline detail::Simd256<int16> add_saturated(detail::Simd256<int16> lhs,
+                                            detail::Simd256<int16> rhs) {
   return _mm256_adds_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint16, detail::YMM> add_saturated(Simd<uint16, detail::YMM> lhs,
-                                               Simd<uint16, detail::YMM> rhs) {
+inline detail::Simd256<uint16> add_saturated(detail::Simd256<uint16> lhs,
+                                             detail::Simd256<uint16> rhs) {
   return _mm256_adds_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int8, detail::YMM> sub_saturated(Simd<int8, detail::YMM> lhs,
-                                             Simd<int8, detail::YMM> rhs) {
+inline detail::Simd256<int8> sub_saturated(detail::Simd256<int8> lhs,
+                                           detail::Simd256<int8> rhs) {
   return _mm256_subs_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint8, detail::YMM> sub_saturated(Simd<uint8, detail::YMM> lhs,
-                                              Simd<uint8, detail::YMM> rhs) {
+inline detail::Simd256<uint8> sub_saturated(detail::Simd256<uint8> lhs,
+                                            detail::Simd256<uint8> rhs) {
   return _mm256_subs_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int16, detail::YMM> sub_saturated(Simd<int16, detail::YMM> lhs,
-                                              Simd<int16, detail::YMM> rhs) {
+inline detail::Simd256<int16> sub_saturated(detail::Simd256<int16> lhs,
+                                            detail::Simd256<int16> rhs) {
   return _mm256_subs_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint16, detail::YMM> sub_saturated(Simd<uint16, detail::YMM> lhs,
-                                               Simd<uint16, detail::YMM> rhs) {
+inline detail::Simd256<uint16> sub_saturated(detail::Simd256<uint16> lhs,
+                                             detail::Simd256<uint16> rhs) {
   return _mm256_subs_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int8, detail::YMM> min(Simd<int8, detail::YMM> lhs,
-                                   Simd<int8, detail::YMM> rhs) {
+inline detail::Simd256<int8> min(detail::Simd256<int8> lhs,
+                                 detail::Simd256<int8> rhs) {
   return _mm256_min_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int16, detail::YMM> min(Simd<int16, detail::YMM> lhs,
-                                    Simd<int16, detail::YMM> rhs) {
+inline detail::Simd256<int16> min(detail::Simd256<int16> lhs,
+                                  detail::Simd256<int16> rhs) {
   return _mm256_min_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int32, detail::YMM> min(Simd<int32, detail::YMM> lhs,
-                                    Simd<int32, detail::YMM> rhs) {
+inline detail::Simd256<int32> min(detail::Simd256<int32> lhs,
+                                  detail::Simd256<int32> rhs) {
   return _mm256_min_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint8, detail::YMM> min(Simd<uint8, detail::YMM> lhs,
-                                    Simd<uint8, detail::YMM> rhs) {
+inline detail::Simd256<uint8> min(detail::Simd256<uint8> lhs,
+                                  detail::Simd256<uint8> rhs) {
   return _mm256_min_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint16, detail::YMM> min(Simd<uint16, detail::YMM> lhs,
-                                     Simd<uint16, detail::YMM> rhs) {
+inline detail::Simd256<uint16> min(detail::Simd256<uint16> lhs,
+                                   detail::Simd256<uint16> rhs) {
   return _mm256_min_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint32, detail::YMM> min(Simd<uint32, detail::YMM> lhs,
-                                     Simd<uint32, detail::YMM> rhs) {
+inline detail::Simd256<uint32> min(detail::Simd256<uint32> lhs,
+                                   detail::Simd256<uint32> rhs) {
   return _mm256_min_epu32(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<float, detail::YMM> min(Simd<float, detail::YMM> lhs,
-                                    Simd<float, detail::YMM> rhs) {
+inline detail::Simd256<float> min(detail::Simd256<float> lhs,
+                                  detail::Simd256<float> rhs) {
   return _mm256_min_ps(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<double, detail::YMM> min(Simd<double, detail::YMM> lhs,
-                                     Simd<double, detail::YMM> rhs) {
+inline detail::Simd256<double> min(detail::Simd256<double> lhs,
+                                   detail::Simd256<double> rhs) {
   return _mm256_min_pd(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int8, detail::YMM> max(Simd<int8, detail::YMM> lhs,
-                                   Simd<int8, detail::YMM> rhs) {
+inline detail::Simd256<int8> max(detail::Simd256<int8> lhs,
+                                 detail::Simd256<int8> rhs) {
   return _mm256_max_epi8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int16, detail::YMM> max(Simd<int16, detail::YMM> lhs,
-                                    Simd<int16, detail::YMM> rhs) {
+inline detail::Simd256<int16> max(detail::Simd256<int16> lhs,
+                                  detail::Simd256<int16> rhs) {
   return _mm256_max_epi16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<int32, detail::YMM> max(Simd<int32, detail::YMM> lhs,
-                                    Simd<int32, detail::YMM> rhs) {
+inline detail::Simd256<int32> max(detail::Simd256<int32> lhs,
+                                  detail::Simd256<int32> rhs) {
   return _mm256_max_epi32(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint8, detail::YMM> max(Simd<uint8, detail::YMM> lhs,
-                                    Simd<uint8, detail::YMM> rhs) {
+inline detail::Simd256<uint8> max(detail::Simd256<uint8> lhs,
+                                  detail::Simd256<uint8> rhs) {
   return _mm256_max_epu8(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint16, detail::YMM> max(Simd<uint16, detail::YMM> lhs,
-                                     Simd<uint16, detail::YMM> rhs) {
+inline detail::Simd256<uint16> max(detail::Simd256<uint16> lhs,
+                                   detail::Simd256<uint16> rhs) {
   return _mm256_max_epu16(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint32, detail::YMM> max(Simd<uint32, detail::YMM> lhs,
-                                     Simd<uint32, detail::YMM> rhs) {
+inline detail::Simd256<uint32> max(detail::Simd256<uint32> lhs,
+                                   detail::Simd256<uint32> rhs) {
   return _mm256_max_epu32(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<float, detail::YMM> max(Simd<float, detail::YMM> lhs,
-                                    Simd<float, detail::YMM> rhs) {
+inline detail::Simd256<float> max(detail::Simd256<float> lhs,
+                                  detail::Simd256<float> rhs) {
   return _mm256_max_ps(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<double, detail::YMM> max(Simd<double, detail::YMM> lhs,
-                                     Simd<double, detail::YMM> rhs) {
+inline detail::Simd256<double> max(detail::Simd256<double> lhs,
+                                   detail::Simd256<double> rhs) {
   return _mm256_max_pd(lhs.raw(), rhs.raw());
 }
 
 template <>
-inline Simd<uint64, detail::YMM> reduce_add<uint64, 4>(
-    Simd<uint8, detail::YMM> simd) {
-  return _mm256_sad_epu8(simd.raw(), Simd<uint8, detail::YMM>(0).raw());
+inline detail::Simd256<uint64> reduce_add<uint64, 4>(
+    detail::Simd256<uint8> simd) {
+  return _mm256_sad_epu8(simd.raw(), detail::Simd256<uint8>(0).raw());
 }
 
 template <>
-inline Simd<int32, detail::YMM> reduce_add<int32, 8>(
-    Simd<int16, detail::YMM> simd) {
-  return _mm256_madd_epi16(simd.raw(), Simd<int16, detail::YMM>(1).raw());
+inline detail::Simd256<int32> reduce_add<int32, 8>(
+    detail::Simd256<int16> simd) {
+  return _mm256_madd_epi16(simd.raw(), detail::Simd256<int16>(1).raw());
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::YMM>, 1> reduce_add<uint64, 1>(
-    Simd<uint8, detail::YMM> simd) {
+inline ResizeTo<detail::Simd256<uint64>, 1> reduce_add<uint64, 1>(
+    detail::Simd256<uint8> simd) {
   return reduce_add<uint64, 1>(reduce_add<uint64, 4>(simd));
 }
 
 template <>
-inline ResizeTo<Simd<uint64, detail::YMM>, 1> reduce_add<uint64, 1>(
-    Simd<uint16, detail::YMM> simd) {
+inline ResizeTo<detail::Simd256<uint64>, 1> reduce_add<uint64, 1>(
+    detail::Simd256<uint16> simd) {
   uint64 even_sum = reduce_add<uint64, 1>(
-      bit_cast<uint8>(simd & Simd<uint16, detail::YMM>(0x00ff)))[0];
+      bit_cast<uint8>(simd & detail::Simd256<uint16>(0x00ff)))[0];
   uint64 odd_sum = reduce_add<uint64, 1>(
-      bit_cast<uint8>(simd & Simd<uint16, detail::YMM>(0xff00)))[0];
+      bit_cast<uint8>(simd & detail::Simd256<uint16>(0xff00)))[0];
   return (odd_sum << 8) + even_sum;
 }
 
 template <>
-inline float reduce<float, detail::YMM, std::plus<float>>(
-    const Simd<float, detail::YMM>& simd, std::plus<float>) {
+inline float reduce(const detail::Simd256<float>& simd, std::plus<float>) {
   return ((simd[0] + simd[4]) + (simd[1] + simd[5])) +
          ((simd[2] + simd[6]) + (simd[3] + simd[7]));
 }
 
 template <>
-inline double reduce<double, detail::YMM, std::plus<double>>(
-    const Simd<double, detail::YMM>& simd, std::plus<double>) {
+inline double reduce(const detail::Simd256<double>& simd, std::plus<double>) {
   return (simd[0] + simd[2]) + (simd[1] + simd[3]);
 }
 
 template <>
-inline Simd<int32, detail::YMM> mul_sum(Simd<int16, detail::YMM> lhs,
-                                        Simd<int16, detail::YMM> rhs,
-                                        Simd<int32, detail::YMM> acc) {
+inline detail::Simd256<int32> mul_sum(detail::Simd256<int16> lhs,
+                                      detail::Simd256<int16> rhs,
+                                      detail::Simd256<int32> acc) {
   return _mm256_add_epi32(acc.raw(), _mm256_madd_epi16(lhs.raw(), rhs.raw()));
 }
 
 // _MM_FROUND_TO_NEAREST_INT specifies round-to-even.
 template <>
-inline Simd<float, detail::YMM> round(Simd<float, detail::YMM> simd) {
+inline detail::Simd256<float> round(detail::Simd256<float> simd) {
   return _mm256_round_ps(simd.raw(),
                          _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
 
 template <>
-inline Simd<double, detail::YMM> round(Simd<double, detail::YMM> simd) {
+inline detail::Simd256<double> round(detail::Simd256<double> simd) {
   return _mm256_round_pd(simd.raw(),
                          _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
 
 template <>
-inline Simd<int32, detail::YMM> round_to_integer(
-    Simd<float, detail::YMM> simd) {
+inline detail::Simd256<int32> round_to_integer(detail::Simd256<float> simd) {
   return _mm256_cvtps_epi32(simd.raw());
 }
 
 template <typename T>
-Simd<ScaleBy<T, 2>, detail::YMM> mul_widened(Simd<T, detail::HalfYMM> lhs,
-                                             Simd<T, detail::HalfYMM> rhs) {
+detail::Simd256<ScaleBy<T, 2>> mul_widened(
+    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 16>> lhs,
+    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 16>> rhs) {
   return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 

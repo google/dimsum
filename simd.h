@@ -196,7 +196,7 @@ enum class StoragePolicy {
   kSimulated,
   kXmm,
   kYmm,
-  kVsxReg,
+  kVsx,
   kNeon,
 };
 
@@ -870,7 +870,8 @@ Simd<Tp, Ap> operator-(Simd<Tp, Ap> simd) {
 // Returns the element-wise bit not result.
 template <typename Tp, typename Ap>
 Simd<Tp, Ap> operator~(Simd<Tp, Ap> simd) {
-  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  static_assert(std::is_integral<Tp>::value,
+                "Only integer types are supported");
   // GCC 4.9 reports `simd` set but not used. Make it happy.
   (void)simd;
   return Simd<Tp, Ap>::from_storage(~simd.storage_);
@@ -932,21 +933,24 @@ Simd<Tp, Ap> operator>>(Simd<Tp, Ap> simd, int count) {
 // Returns the element-wise bit and result.
 template <typename Tp, typename Ap>
 Simd<Tp, Ap> operator&(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  static_assert(std::is_integral<Tp>::value,
+                "Only integer types are supported");
   return Simd<Tp, Ap>::from_storage(lhs.storage_ & rhs.storage_);
 }
 
 // Returns the element-wise bit or result.
 template <typename Tp, typename Ap>
 Simd<Tp, Ap> operator|(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  static_assert(std::is_integral<Tp>::value,
+                "Only integer types are supported");
   return Simd<Tp, Ap>::from_storage(lhs.storage_ | rhs.storage_);
 }
 
 // Returns the element-wise bit xor result.
 template <typename Tp, typename Ap>
 Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value, "Only integer types are supported");
+  static_assert(std::is_integral<Tp>::value,
+                "Only integer types are supported");
   return Simd<Tp, Ap>::from_storage(lhs.storage_ ^ rhs.storage_);
 }
 
@@ -1086,7 +1090,8 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
 
 // Element-wise fused multiply-add a * b + c.
 //
-// If the target supports FMA, i.e. defined(__FMA__) || defined(__VSX__) || defined(__ARM_FEATURE_FMA),
+// If the target supports FMA, i.e.
+//    defined(__FMA__) || defined(__VSX__) || defined(__ARM_FEATURE_FMA),
 // clang 3.6/GCC 7.1 optimize the for loop into FMA.
 template <typename T, typename Abi>
 Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
