@@ -64,7 +64,8 @@ inline Simd128<int16> maddubs(Simd128<uint8> lhs, Simd128<int8> rhs) {
 }
 #ifdef __AVX2__
 template <>
-inline NativeSimd<int16> maddubs(NativeSimd<uint8> lhs, NativeSimd<int8> rhs) {
+inline detail::Simd256<int16> maddubs(detail::Simd256<uint8> lhs,
+                                      detail::Simd256<int8> rhs) {
   return _mm256_maddubs_epi16(lhs.raw(), rhs.raw());
 }
 #endif  // __AVX2__
@@ -114,32 +115,32 @@ inline int movemask(Simd128<uint64> simd) {
 
 # ifdef __AVX2__
 template <>
-inline int movemask(NativeSimd<int8> simd) {
+inline int movemask(detail::Simd256<int8> simd) {
   return _mm256_movemask_epi8(simd.raw());
 }
 
 template <>
-inline int movemask(NativeSimd<uint8> simd) {
+inline int movemask(detail::Simd256<uint8> simd) {
   return _mm256_movemask_epi8(simd.raw());
 }
 
 template <>
-inline int movemask(NativeSimd<int32> simd) {
+inline int movemask(detail::Simd256<int32> simd) {
   return _mm256_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
-inline int movemask(NativeSimd<uint32> simd) {
+inline int movemask(detail::Simd256<uint32> simd) {
   return _mm256_movemask_ps(bit_cast<float>(simd).raw());
 }
 
 template <>
-inline int movemask(NativeSimd<int64> simd) {
+inline int movemask(detail::Simd256<int64> simd) {
   return _mm256_movemask_pd(bit_cast<double>(simd).raw());
 }
 
 template <>
-inline int movemask(NativeSimd<uint64> simd) {
+inline int movemask(detail::Simd256<uint64> simd) {
   return _mm256_movemask_pd(bit_cast<double>(simd).raw());
 }
 #endif  // __AVX2__
