@@ -352,38 +352,6 @@ void TestMulWidened(const uint8_t* data) {
                  mul_widened(lhs, rhs));
 }
 
-template <typename Tin, typename Tout>
-void TestPack(const uint8_t* data) {
-  NativeSimd<Tin> lhs, rhs;
-
-  LoadFromRaw(data, &lhs);
-  LoadFromRaw(data + sizeof(lhs), &rhs);
-
-  auto res = pack_saturated(lhs, rhs);
-  auto sim_res = dimsum::simulated::pack_saturated(lhs, rhs);
-
-  static_assert(std::is_same<NativeSimd<Tout>, decltype(res)>::value,
-                "Result type mismatch!");
-
-  TrapIfNotEqual(sim_res, res);
-}
-
-template <typename Tin, typename Tout>
-void TestPacku(const uint8_t* data) {
-  NativeSimd<Tin> lhs, rhs;
-
-  LoadFromRaw(data, &lhs);
-  LoadFromRaw(data + sizeof(lhs), &rhs);
-
-  auto res = packu_saturated(lhs, rhs);
-  auto sim_res = dimsum::simulated::packu_saturated(lhs, rhs);
-
-  static_assert(std::is_same<NativeSimd<Tout>, decltype(res)>::value,
-                "Result type mismatch!");
-
-  TrapIfNotEqual(sim_res, res);
-}
-
 template <typename T>
 void TestMovemask(const uint8_t* data) {
   NativeSimd<T> simd;
@@ -484,11 +452,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   }
 
   if (size >= dimsum::detail::kMachineWidth * 2) {
-    TestPack<int16, int8>(data);
-    TestPack<int32, int16>(data);
-    TestPacku<int16, uint8>(data);
-    TestPacku<int32, uint16>(data);
-
     TestMax<int8>(data);
     TestMax<int16>(data);
     TestMax<int32>(data);

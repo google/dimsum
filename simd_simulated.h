@@ -275,30 +275,6 @@ inline Simd<double, detail::Simulated> max(
 }
 
 template <>
-inline Simd<int8, detail::Simulated> pack_saturated(
-    Simd<int16, detail::Simulated> lhs, Simd<int16, detail::Simulated> rhs) {
-  return simulated::pack_saturated(lhs, rhs);
-}
-
-template <>
-inline Simd<int16, detail::Simulated> pack_saturated(
-    Simd<int32, detail::Simulated> lhs, Simd<int32, detail::Simulated> rhs) {
-  return simulated::pack_saturated(lhs, rhs);
-}
-
-template <>
-inline Simd<uint8, detail::Simulated> packu_saturated(
-    Simd<int16, detail::Simulated> lhs, Simd<int16, detail::Simulated> rhs) {
-  return simulated::packu_saturated(lhs, rhs);
-}
-
-template <>
-inline Simd<uint16, detail::Simulated> packu_saturated(
-    Simd<int32, detail::Simulated> lhs, Simd<int32, detail::Simulated> rhs) {
-  return simulated::packu_saturated(lhs, rhs);
-}
-
-template <>
 inline Simd<float, detail::Simulated> round(
     Simd<float, detail::Simulated> simd) {
   return simulated::round(simd);

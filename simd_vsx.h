@@ -169,30 +169,6 @@ Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
 }
 
 template <>
-inline Simd<int8, detail::VSX> pack_saturated(Simd<int16, detail::VSX> lhs,
-                                              Simd<int16, detail::VSX> rhs) {
-  return vec_packs(lhs.raw(), rhs.raw());
-}
-
-template <>
-inline Simd<int16, detail::VSX> pack_saturated(Simd<int32, detail::VSX> lhs,
-                                               Simd<int32, detail::VSX> rhs) {
-  return vec_packs(lhs.raw(), rhs.raw());
-}
-
-template <>
-inline Simd<uint8, detail::VSX> packu_saturated(Simd<int16, detail::VSX> lhs,
-                                                Simd<int16, detail::VSX> rhs) {
-  return vec_packsu(lhs.raw(), rhs.raw());
-}
-
-template <>
-inline Simd<uint16, detail::VSX> packu_saturated(Simd<int32, detail::VSX> lhs,
-                                                 Simd<int32, detail::VSX> rhs) {
-  return vec_packsu(lhs.raw(), rhs.raw());
-}
-
-template <>
 inline Simd<int32, detail::VSX> reduce_add<int32, 4>(
     Simd<int8, detail::VSX> simd) {
   return vec_sum4s(simd.raw(), Simd<int32, detail::VSX>(0).raw());

@@ -106,32 +106,6 @@ Simd<T, Abi> shuffle(Simd<T, Abi> lhs, Simd<T, Abi> rhs = {}) {
 }
 
 template <typename T, typename Abi>
-Simd<detail::Number<sizeof(T) / 2, detail::NumberKind::kSInt>, Abi>
-pack_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  using ResultElement =
-      detail::Number<sizeof(T) / 2, detail::NumberKind::kSInt>;
-  ResultElement a[lhs.size() * 2];
-  for (size_t i = 0; i < lhs.size(); i++) {
-    a[i] = detail::saturated_convert<ResultElement>(lhs[i]);
-    a[i + lhs.size()] = detail::saturated_convert<ResultElement>(rhs[i]);
-  }
-  return Simd<ResultElement, Abi>(a, flags::element_aligned);
-}
-
-template <typename T, typename Abi>
-Simd<detail::Number<sizeof(T) / 2, detail::NumberKind::kUInt>, Abi>
-packu_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  using ResultElement =
-      detail::Number<sizeof(T) / 2, detail::NumberKind::kUInt>;
-  ResultElement a[lhs.size() * 2];
-  for (size_t i = 0; i < lhs.size(); i++) {
-    a[i] = detail::saturated_convert<ResultElement>(lhs[i]);
-    a[i + lhs.size()] = detail::saturated_convert<ResultElement>(rhs[i]);
-  }
-  return Simd<ResultElement, Abi>(a, flags::element_aligned);
-}
-
-template <typename T, typename Abi>
 typename std::enable_if<std::is_integral<T>::value, Simd<T, Abi>>::type abs(
     Simd<T, Abi> simd) {
   T a[simd.size()];

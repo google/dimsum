@@ -299,34 +299,6 @@ inline Simd<double, detail::YMM> max(Simd<double, detail::YMM> lhs,
 }
 
 template <>
-inline Simd<int8, detail::YMM> pack_saturated(Simd<int16, detail::YMM> lhs,
-                                              Simd<int16, detail::YMM> rhs) {
-  Simd<int64, detail::YMM> res(_mm256_packs_epi16(lhs.raw(), rhs.raw()));
-  return bit_cast<int8, int64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
-}
-
-template <>
-inline Simd<int16, detail::YMM> pack_saturated(Simd<int32, detail::YMM> lhs,
-                                               Simd<int32, detail::YMM> rhs) {
-  Simd<int64, detail::YMM> res(_mm256_packs_epi32(lhs.raw(), rhs.raw()));
-  return bit_cast<int16, int64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
-}
-
-template <>
-inline Simd<uint8, detail::YMM> packu_saturated(Simd<int16, detail::YMM> lhs,
-                                                Simd<int16, detail::YMM> rhs) {
-  Simd<uint64, detail::YMM> res(_mm256_packus_epi16(lhs.raw(), rhs.raw()));
-  return bit_cast<uint8, uint64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
-}
-
-template <>
-inline Simd<uint16, detail::YMM> packu_saturated(Simd<int32, detail::YMM> lhs,
-                                                 Simd<int32, detail::YMM> rhs) {
-  Simd<uint64, detail::YMM> res(_mm256_packus_epi32(lhs.raw(), rhs.raw()));
-  return bit_cast<uint16, uint64, detail::YMM>(shuffle<0, 2, 1, 3>(res, res));
-}
-
-template <>
 inline Simd<uint64, detail::YMM> reduce_add<uint64, 4>(
     Simd<uint8, detail::YMM> simd) {
   return _mm256_sad_epu8(simd.raw(), Simd<uint8, detail::YMM>(0).raw());

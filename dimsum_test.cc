@@ -571,44 +571,6 @@ TEST(DimsumTest, Shuffle) {
   }
 }
 
-template <size_t N>
-typename std::enable_if<N == 4>::type TestPack() {
-  EXPECT_EQ((pack_saturated(Simd128<int32>::list(3, 7, 32767, 32768),
-                            Simd128<int32>::list(-3, -7, -32768, -32769))),
-            (Simd128<int16>::list(3, 7, 32767, 32767, -3, -7, -32768, -32768)));
-}
-
-template <size_t N>
-typename std::enable_if<N == 8>::type TestPack() {
-  EXPECT_EQ(
-      (pack_saturated(
-          NativeSimd<int32>::list(0, 1, 2, 3, 4, 5, 32767, 32768),
-          NativeSimd<int32>::list(0, -1, -2, -3, -4, -5, -32768, -32769))),
-      (NativeSimd<int16>::list(0, 1, 2, 3, 4, 5, 32767, 32767, 0, -1, -2, -3,
-                               -4, -5, -32768, -32768)));
-}
-
-TEST(DimsumTest, Pack) { TestPack<NativeSimd<int32>::size()>(); }
-
-template <size_t N>
-typename std::enable_if<N == 4>::type TestPacku() {
-  EXPECT_EQ((packu_saturated(Simd128<int32>::list(3, 7, 65535, 65536),
-                             Simd128<int32>::list(-3, -7, -65535, -65536))),
-            (Simd128<uint16>::list(3, 7, 65535, 65535, 0, 0, 0, 0)));
-}
-
-template <size_t N>
-typename std::enable_if<N == 8>::type TestPacku() {
-  EXPECT_EQ(
-      (packu_saturated(
-          NativeSimd<int32>::list(0, 1, 2, 3, 4, 5, 65535, 65536),
-          NativeSimd<int32>::list(0, -1, -2, -3, -4, -5, -65535, -65536))),
-      (NativeSimd<uint16>::list(0, 1, 2, 3, 4, 5, 65535, 65535, 0, 0, 0, 0, 0,
-                                0, 0, 0)));
-}
-
-TEST(DimsumTest, Packu) { TestPacku<NativeSimd<int32>::size()>(); }
-
 TEST(DimsumTest, MulSum) {
   EXPECT_EQ((Simd128<int32>::list(1, 14, 43, 88)),
             (mul_sum(Simd128<int16>::list(0, 1, 2, 3, 4, 5, 6, 7),

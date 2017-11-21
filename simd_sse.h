@@ -289,30 +289,6 @@ inline Simd<double, detail::XMM> max(Simd<double, detail::XMM> lhs,
 }
 
 template <>
-inline Simd<int8, detail::XMM> pack_saturated(Simd<int16, detail::XMM> lhs,
-                                              Simd<int16, detail::XMM> rhs) {
-  return _mm_packs_epi16(lhs.raw(), rhs.raw());
-}
-
-template <>
-inline Simd<int16, detail::XMM> pack_saturated(Simd<int32, detail::XMM> lhs,
-                                               Simd<int32, detail::XMM> rhs) {
-  return _mm_packs_epi32(lhs.raw(), rhs.raw());
-}
-
-template <>
-inline Simd<uint8, detail::XMM> packu_saturated(Simd<int16, detail::XMM> lhs,
-                                                Simd<int16, detail::XMM> rhs) {
-  return _mm_packus_epi16(lhs.raw(), rhs.raw());
-}
-
-template <>
-inline Simd<uint16, detail::XMM> packu_saturated(Simd<int32, detail::XMM> lhs,
-                                                 Simd<int32, detail::XMM> rhs) {
-  return _mm_packus_epi32(lhs.raw(), rhs.raw());
-}
-
-template <>
 inline Simd<uint64, detail::XMM> reduce_add<uint64, 2>(
     Simd<uint8, detail::XMM> simd) {
   return _mm_sad_epu8(simd.raw(), Simd<uint8, detail::XMM>(0).raw());

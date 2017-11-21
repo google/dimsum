@@ -362,30 +362,6 @@ inline Simd<double, detail::NEON> max(Simd<double, detail::NEON> lhs,
   return vmaxq_f64(lhs.raw(), rhs.raw());
 }
 
-template <>
-inline Simd<int8, detail::NEON> pack_saturated(Simd<int16, detail::NEON> lhs,
-                                               Simd<int16, detail::NEON> rhs) {
-  return vcombine_s8(vqmovn_s16(lhs.raw()), vqmovn_s16(rhs.raw()));
-}
-
-template <>
-inline Simd<int16, detail::NEON> pack_saturated(Simd<int32, detail::NEON> lhs,
-                                                Simd<int32, detail::NEON> rhs) {
-  return vcombine_s16(vqmovn_s32(lhs.raw()), vqmovn_s32(rhs.raw()));
-}
-
-template <>
-inline Simd<uint8, detail::NEON> packu_saturated(
-    Simd<int16, detail::NEON> lhs, Simd<int16, detail::NEON> rhs) {
-  return vcombine_u8(vqmovun_s16(lhs.raw()), vqmovun_s16(rhs.raw()));
-}
-
-template <>
-inline Simd<uint16, detail::NEON> packu_saturated(
-    Simd<int32, detail::NEON> lhs, Simd<int32, detail::NEON> rhs) {
-  return vcombine_u16(vqmovun_s32(lhs.raw()), vqmovun_s32(rhs.raw()));
-}
-
 // An alternative implementation of the SSE intrinsic function _mm_madd_epi16
 // on ARM. It breaks a Simd object into the low and high parts. Then values in
 // each part are multiplied and summed pairwisely before being concatenated.

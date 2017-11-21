@@ -774,18 +774,6 @@ struct ReduceAddImpl {
 
 }  // namespace detail
 
-// Narrows elements of the input Simd objects by half, and concatenate them
-// together. Always produce a signed result.
-template <typename T, typename Abi>
-Simd<detail::Number<sizeof(T) / 2, detail::NumberKind::kSInt>, Abi>
-pack_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs) DIMSUM_DELETE;
-
-// Narrows elements of the input Simd objects by half, and concatenate them
-// together. Always produce an unsigned result.
-template <typename T, typename Abi>
-Simd<detail::Number<sizeof(T) / 2, detail::NumberKind::kUInt>, Abi>
-packu_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs) DIMSUM_DELETE;
-
 // Returns the element-wise, widening multiplication. For input
 // Simd<(u)intn>, returns a Simd object with element type (u)int2n, and with the
 // same amount of elements as lhs/rhs.
@@ -861,6 +849,8 @@ ChangeElemTo<Simd<Src, Abi>, Dest> simd_cast(Simd<Src, Abi> simd) {
                 "static_simd_cast instead.");
   return static_simd_cast<Dest, Src, Abi>(simd);
 }
+
+// TODO(timshen): Add simd_cast_saturated.
 
 // Overloaded operators.
 
