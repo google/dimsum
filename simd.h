@@ -296,6 +296,12 @@ using ScaleElemBy =
     Simd<ScaleBy<typename SimdType::value_type, kNumerator, kDenominator>,
          typename SimdType::abi_type>;
 
+// Returns a Simd type of the same width, but with the element type changed to T.
+template <typename SimdType, typename T>
+using WidenElemTo = ResizeBy<
+    ScaleElemBy<SimdType, sizeof(T), sizeof(typename SimdType::value_type)>,
+    sizeof(typename SimdType::value_type), sizeof(T)>;
+
 // Simd provides a portable interface of the vector/simd units in the hardware.
 //
 // Simd should only be instantiated with detail::Abi.
@@ -627,6 +633,12 @@ shuffle(Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
 }
 
 namespace detail {
+
+template <typename Dest, typename T, typename Abi>
+using MulSumWidenElemTo =
+    WidenElemTo<Simd<T, Abi>,
+                typename std::conditional<std::is_void<Dest>::value,
+                                          ScaleBy<T, 2>, Dest>::type>;
 
 template <size_t... indices, typename T, typename Abi>
 ResizeBy<Simd<T, Abi>, 2> zip_impl(Simd<T, Abi> lhs, Simd<T, Abi> rhs,
@@ -1065,20 +1077,27 @@ typename std::enable_if<detail::IsReduceAdd<T, Op>(), T>::type reduce(
   return reduce_add<T, 1>(simd)[0];
 }
 
-// Equivalent to acc + reduce_add<..., lhs.size() / 2>(mul_widened(lhs, rhs)),
-// but probably faster.
+// Equivalent to acc + reduce_add<NewType, acc.size()>(mul_widened(lhs, rhs)),
+// but probably faster. acc, lhs, and rhs must have the same number of bytes.
 //
-// e.g. mul_sum(Simd128<int16>, Simd128<int16>, Simd128<int32>)
+// e.g. mul_sum<int32>(Simd128<int16>, Simd128<int16>, Simd128<int32>)
 // computes 8 int16*int16 products ({s[0], ..., s[7]}) first, then does pairwise
 // horizontal summation and gets {s[0]+s[1], s[2]+s[3], s[4]+s[5], s[6]+s[7]}),
 // so that the result is still 128-bit, finally returns {acc[0]+s[0]+s[1],
 // acc[1]+s[2]+s[3], acc[2]+s[4]+s[5], acc[3]+s[6]+s[7]}.
-template <typename T, typename Abi>
-ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
+//
+// TODO(maskray) Remove `= void`.
+template <typename Dest = void, typename T, typename Abi>
+detail::MulSumWidenElemTo<Dest, T, Abi> mul_sum(
     Simd<T, Abi> lhs, Simd<T, Abi> rhs,
-    ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> acc =
-        ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>(0)) {
-  return acc + reduce_add<ScaleBy<T, 2>, lhs.size() / 2>(mul_widened(lhs, rhs));
+    detail::MulSumWidenElemTo<Dest, T, Abi> acc = 0) {
+  if (std::is_void<Dest>::value) {
+    return mul_sum<typename std::conditional<std::is_void<Dest>::value,
+                                             ScaleBy<T, 2>, Dest>::type>(
+        lhs, rhs, acc);
+  }
+  return acc + reduce_add<typename decltype(acc)::value_type, acc.size()>(
+                   mul_widened(lhs, rhs));
 }
 
 // Element-wise fused multiply-add a * b + c.

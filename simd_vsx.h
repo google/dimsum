@@ -226,14 +226,20 @@ inline float reduce(const Simd128<float>& simd, std::plus<float>) {
 }
 
 template <>
-inline Simd128<int32> mul_sum(Simd128<int16> lhs, Simd128<int16> rhs,
-                              Simd128<int32> acc) {
+inline Simd128<uint32> mul_sum<uint32>(Simd128<uint8> lhs, Simd128<uint8> rhs,
+                                       Simd128<uint32> acc) {
   return vec_msum(lhs.raw(), rhs.raw(), acc.raw());
 }
 
 template <>
-inline Simd128<uint32> mul_sum(Simd128<uint16> lhs, Simd128<uint16> rhs,
-                               Simd128<uint32> acc) {
+inline Simd128<int32> mul_sum<int32>(Simd128<int16> lhs, Simd128<int16> rhs,
+                                     Simd128<int32> acc) {
+  return vec_msum(lhs.raw(), rhs.raw(), acc.raw());
+}
+
+template <>
+inline Simd128<uint32> mul_sum<uint32>(Simd128<uint16> lhs, Simd128<uint16> rhs,
+                                       Simd128<uint32> acc) {
   return vec_msum(lhs.raw(), rhs.raw(), acc.raw());
 }
 

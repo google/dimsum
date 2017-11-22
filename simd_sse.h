@@ -293,8 +293,8 @@ inline float reduce(const Simd128<float>& simd, std::plus<float>) {
 }
 
 template <>
-inline Simd128<int32> mul_sum(Simd128<int16> lhs, Simd128<int16> rhs,
-                              Simd128<int32> acc) {
+inline Simd128<int32> mul_sum<int32>(Simd128<int16> lhs, Simd128<int16> rhs,
+                                     Simd128<int32> acc) {
   return _mm_add_epi32(acc.raw(), _mm_madd_epi16(lhs.raw(), rhs.raw()));
 }
 

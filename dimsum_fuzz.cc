@@ -194,10 +194,10 @@ void TestMulSum(const uint8_t* data) {
   LoadFromRaw(data + sizeof(lhs), &rhs);
   LoadFromRaw(data + sizeof(lhs) + sizeof(rhs), &acc);
 
-  TrapIfNotEqual(dimsum::simulated::mul_sum<T>(lhs, rhs),
-                 dimsum::mul_sum<T>(lhs, rhs));
-  TrapIfNotEqual(dimsum::simulated::mul_sum<T>(lhs, rhs, acc),
-                 dimsum::mul_sum<T>(lhs, rhs, acc));
+  TrapIfNotEqual(dimsum::simulated::mul_sum(lhs, rhs),
+                 dimsum::mul_sum(lhs, rhs));
+  TrapIfNotEqual(dimsum::simulated::mul_sum<Acc>(lhs, rhs, acc),
+                 dimsum::mul_sum<Acc>(lhs, rhs, acc));
 }
 
 template <typename T>
@@ -482,6 +482,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   }
 
   if (size >= dimsum::detail::kMachineWidth * 3) {
+    TestMulSum<int8, int32>(data);
+    TestMulSum<uint8, uint32>(data);
     TestMulSum<int16, int32>(data);
 
     TestFma<float>(data);

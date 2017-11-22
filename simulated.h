@@ -404,23 +404,23 @@ ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
   return simulated::reduce_add<T, 1>(simd);
 }
 
-template <typename T, typename Abi>
-ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
+// TODO(maskray) Remove `= void`.
+template <typename Dest = void, typename T, typename Abi>
+detail::MulSumWidenElemTo<Dest, T, Abi> mul_sum(
     Simd<T, Abi> lhs, Simd<T, Abi> rhs,
-    ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> acc =
-        ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>(0)) {
-  using DestType = ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2>;
-  using DestElem = typename DestType::value_type;
-  DestType ret{};
-  // Cast intermediate result to unsigned because there is an add overflow case
-  // for each signed type: e.g. INT32_MIN * INT32_MIN + INT32_MIN * INT32_MIN =
-  // 2**63 is not representable by int64.
-  for (size_t i = 0; i < lhs.size(); i += 2) {
-    ret.set(
-        i / 2,
-        acc[i / 2] + (static_cast<typename std::make_unsigned<DestElem>::type>(
-                          DestElem{lhs[i]} * rhs[i]) +
-                      DestElem{lhs[i + 1]} * rhs[i + 1]));
+    detail::MulSumWidenElemTo<Dest, T, Abi> acc = 0) {
+  using Dest1 = typename std::conditional<std::is_void<Dest>::value,
+                                          ScaleBy<T, 2>, Dest>::type;
+  decltype(acc) ret{};
+  size_t way = lhs.size() / acc.size();
+  for (size_t i = 0; i < acc.size(); i++) {
+    // Cast intermediate result to unsigned to avoid addition overflow.
+    // e.g. For 2-way mul_sum of int32's: INT32_MIN * INT32_MIN + INT32_MIN *
+    // INT32_MIN = 2**63 is not representable by int64.
+    typename std::make_unsigned<Dest1>::type t = acc[i];
+    for (size_t j = 0; j < way; j++)
+      t += Dest1{lhs[i * way + j]} * rhs[i * way + j];
+    ret.set(i, t);
   }
   return ret;
 }

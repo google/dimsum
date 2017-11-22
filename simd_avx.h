@@ -341,9 +341,9 @@ inline double reduce(const detail::Simd256<double>& simd, std::plus<double>) {
 }
 
 template <>
-inline detail::Simd256<int32> mul_sum(detail::Simd256<int16> lhs,
-                                      detail::Simd256<int16> rhs,
-                                      detail::Simd256<int32> acc) {
+inline detail::Simd256<int32> mul_sum<int32>(detail::Simd256<int16> lhs,
+                                             detail::Simd256<int16> rhs,
+                                             detail::Simd256<int32> acc) {
   return _mm256_add_epi32(acc.raw(), _mm256_madd_epi16(lhs.raw(), rhs.raw()));
 }
 
