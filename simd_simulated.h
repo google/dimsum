@@ -45,13 +45,16 @@ SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 128);
 }  // namespace detail
 
 template <typename T>
-using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 16>>;
+using NativeSimd =
+    Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd128 = Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 16>>;
+using Simd128 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 8>>;
+using Simd64 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kSimulated, 8 / sizeof(T)>>;
 
 template <>
 inline Simd128<int8> abs(Simd128<int8> simd) {

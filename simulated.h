@@ -390,9 +390,8 @@ Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_ge(
 }
 
 template <typename NewType, size_t NewSize, typename T, typename Abi>
-ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize> reduce_add(
-    Simd<T, Abi> simd) {
-  ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize> ret = {};
+ResizeTo<Simd<NewType, Abi>, NewSize> reduce_add(Simd<T, Abi> simd) {
+  ResizeTo<Simd<NewType, Abi>, NewSize> ret = {};
   constexpr size_t kArity = simd.size() / NewSize;
   for (size_t i = 0; i < simd.size(); i++) {
     ret.set(i / kArity, ret[i / kArity] + simd[i]);
@@ -427,13 +426,14 @@ ResizeBy<ScaleElemBy<Simd<T, Abi>, 2>, 1, 2> mul_sum(
 }
 
 template <typename Abi>
-Simd<int16, Abi> maddubs(Simd<uint8, Abi> lhs, Simd<int8, Abi> rhs) {
+ResizeBy<Simd<int16, Abi>, 1, 2> maddubs(Simd<uint8, Abi> lhs,
+                                         Simd<int8, Abi> rhs) {
   int16 a[lhs.size() / 2];
   for (size_t i = 0; i < lhs.size(); i += 2) {
     a[i / 2] = detail::SaturatedAdd<int16>(int16{lhs[i]} * rhs[i],
                                            int16{lhs[i + 1]} * rhs[i + 1]);
   }
-  return Simd<int16, Abi>(a, flags::element_aligned);
+  return ResizeBy<Simd<int16, Abi>, 1, 2>(a, flags::element_aligned);
 }
 
 template <typename T, typename Abi>

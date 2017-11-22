@@ -211,22 +211,21 @@ enum class StoragePolicy {
 // TODO(dimsum): currently they are all implemented in terms of "GCC vector
 // extensions", through GccVecTraits. Distinguishing "use 2 Xmm registers" from
 // "use 1 YMM register" needs more compiler support.
-template <StoragePolicy kStorage, size_t kNumBytes>
+template <StoragePolicy kStorage, size_t kNumElements>
 struct Abi {
-  static_assert(kNumBytes > 0, "Abi should contain more than 0 bytes");
-  static_assert(((kNumBytes - 1) & kNumBytes) == 0,
-                "Abi should contain power of 2 bytes");
+  static_assert(kNumElements > 0, "Abi should contain more than 0 bytes");
+  static_assert(((kNumElements - 1) & kNumElements) == 0,
+                "Abi should contain power of 2 elements");
 };
 
 template <typename SimdType, typename NewElementType, size_t kNewSize>
 struct RebindTraits {};
 
-template <typename T, StoragePolicy kStorage, size_t kNumBytes,
+template <typename T, StoragePolicy kStorage, size_t kOldNumElements,
           typename NewElementType, size_t kNewNumElements>
-struct RebindTraits<Simd<T, Abi<kStorage, kNumBytes>>, NewElementType,
+struct RebindTraits<Simd<T, Abi<kStorage, kOldNumElements>>, NewElementType,
                     kNewNumElements> {
-  using type = Simd<NewElementType,
-                    Abi<kStorage, sizeof(NewElementType) * kNewNumElements>>;
+  using type = Simd<NewElementType, Abi<kStorage, kNewNumElements>>;
 };
 
 template <typename T, typename Abi, typename Flags>
@@ -290,16 +289,12 @@ template <typename T, size_t kNumerator, size_t kDenominator = 1>
 using ScaleBy = detail::Number<sizeof(T) * kNumerator / kDenominator,
                                detail::get_number_kind<T>()>;
 
-// Returns a new Simd type based on the old one, with element type NewType.
-template <typename SimdType, typename NewType>
-using ChangeElemTo =
-    typename detail::RebindTraits<SimdType, NewType, SimdType::size()>::type;
-
 // Returns a numeric type that's based on T, but with a different width by the
 // ratio kNumerator / kDenominator.
 template <typename SimdType, size_t kNumerator, size_t kDenominator = 1>
-using ScaleElemBy = ChangeElemTo<
-    SimdType, ScaleBy<typename SimdType::value_type, kNumerator, kDenominator>>;
+using ScaleElemBy =
+    Simd<ScaleBy<typename SimdType::value_type, kNumerator, kDenominator>,
+         typename SimdType::abi_type>;
 
 // Simd provides a portable interface of the vector/simd units in the hardware.
 //
@@ -307,10 +302,10 @@ using ScaleElemBy = ChangeElemTo<
 template <typename T, typename Abi>
 class Simd {};
 
-template <typename T, detail::StoragePolicy kStorage, size_t kNumBytes>
-class Simd<T, detail::Abi<kStorage, kNumBytes>> {
+template <typename T, detail::StoragePolicy kStorage, size_t kNumElements>
+class Simd<T, detail::Abi<kStorage, kNumElements>> {
   using Traits =
-      ::dimsum::detail::SimdTraits<T, detail::Abi<kStorage, kNumBytes>>;
+      ::dimsum::detail::SimdTraits<T, detail::Abi<kStorage, kNumElements>>;
 
   using NumberKind = ::dimsum::detail::NumberKind;
 
@@ -324,7 +319,7 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   using value_type = T;
 
   // The ABI type.
-  using abi_type = detail::Abi<kStorage, kNumBytes>;
+  using abi_type = detail::Abi<kStorage, kNumElements>;
 
   // The element type that comparison operations return.
   using ComparisonResultType = Number<sizeof(T), NumberKind::kUInt>;
@@ -332,9 +327,7 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   constexpr Simd() = default;
 
   // Returns the number of elements in this class.
-  static constexpr size_t size() { return kNumBytes / sizeof(T); }
-
-  static constexpr size_t num_bits() { return kNumBytes * CHAR_BIT; }
+  static constexpr size_t size() { return kNumElements; }
 
   // Initialize a Simd object from a function. The function takes a index type,
   // that's convertible from integral_constant<size_t, ...>().
@@ -389,8 +382,9 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   // Changes the current object to Simd(buffer).
   template <typename Flags>
   void copy_from(const T* buffer, Flags flags) {
-    *this = detail::LoadImpl<T, detail::Abi<kStorage, kNumBytes>, Flags>::Apply(
-        buffer);
+    *this =
+        detail::LoadImpl<T, detail::Abi<kStorage, kNumElements>, Flags>::Apply(
+            buffer);
   }
 
   // Stores the Simd object to the buffer.
@@ -496,10 +490,11 @@ class Simd<T, detail::Abi<kStorage, kNumBytes>> {
   friend Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Dp, typename Tp, typename Ap>
-  friend Simd<Dp, Ap> bit_cast(Simd<Tp, Ap> simd);
+  friend ResizeBy<Simd<Dp, Ap>, sizeof(Tp), sizeof(Dp)> bit_cast(
+      Simd<Tp, Ap> simd);
 
   template <typename Dp, typename Sp, typename Ap>
-  friend ChangeElemTo<Simd<Sp, Ap>, Dp> static_simd_cast(Simd<Sp, Ap> simd);
+  friend Simd<Dp, Ap> static_simd_cast(Simd<Sp, Ap> simd);
 
  private:
   static Simd from_storage(typename Traits::InternalType storage) {
@@ -816,8 +811,8 @@ Simd<T, Abi> round(Simd<T, Abi>) DIMSUM_DELETE;
 
 // Casts to another vector type of the same width without changing any bits.
 template <typename Dest, typename T, typename Abi>
-Simd<Dest, Abi> bit_cast(Simd<T, Abi> simd) {
-  Simd<Dest, Abi> ret;
+ResizeBy<Simd<Dest, Abi>, sizeof(T), sizeof(Dest)> bit_cast(Simd<T, Abi> simd) {
+  ResizeBy<Simd<Dest, Abi>, sizeof(T), sizeof(Dest)> ret;
   static_assert(sizeof(ret.storage_) == sizeof(simd.storage_),
                 "Simd width mismatch");
   memcpy(&ret.storage_, &simd.storage_, sizeof(ret.storage_));
@@ -826,8 +821,8 @@ Simd<Dest, Abi> bit_cast(Simd<T, Abi> simd) {
 
 // Element-wise static_cast<Dest>().
 template <typename Dest, typename Src, typename Abi>
-ChangeElemTo<Simd<Src, Abi>, Dest> static_simd_cast(Simd<Src, Abi> simd) {
-  using DestSimd = ChangeElemTo<Simd<Src, Abi>, Dest>;
+Simd<Dest, Abi> static_simd_cast(Simd<Src, Abi> simd) {
+  using DestSimd = Simd<Dest, Abi>;
 #if defined(__clang__)
   return DestSimd(__builtin_convertvector(
       simd.storage_, typename DestSimd::Traits::InternalType));
@@ -843,7 +838,7 @@ ChangeElemTo<Simd<Src, Abi>, Dest> static_simd_cast(Simd<Src, Abi> simd) {
 // Element-wise static_cast<Dest>() prohibiting narrowing cast, e.g. every
 // possible value of the element type can be represented with Dest.
 template <typename Dest, typename Src, typename Abi>
-ChangeElemTo<Simd<Src, Abi>, Dest> simd_cast(Simd<Src, Abi> simd) {
+Simd<Dest, Abi> simd_cast(Simd<Src, Abi> simd) {
   static_assert(!detail::IsNarrowingConversion<Dest, Src>(),
                 "simd_cast does not support narrowing cast. Use "
                 "static_simd_cast instead.");
@@ -1023,9 +1018,8 @@ Simd<Dest, Abi> round_to_integer(Simd<T, Abi>) DIMSUM_DELETE;
 //
 // If any overflow occur, the result is undefined.
 template <typename NewType, size_t NewSize, typename T, typename Abi>
-typename std::enable_if<
-    std::is_same<NewType, T>::value,
-    ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize>>::type
+typename std::enable_if<std::is_same<NewType, T>::value,
+                        ResizeTo<Simd<NewType, Abi>, NewSize>>::type
 reduce_add(Simd<T, Abi> simd) {
   static_assert(simd.size() % NewSize == 0, "");
   static_assert(std::is_integral<T>::value,
@@ -1037,9 +1031,8 @@ reduce_add(Simd<T, Abi> simd) {
 }
 
 template <typename NewType, size_t NewSize, typename T, typename Abi>
-typename std::enable_if<
-    !std::is_same<NewType, T>::value,
-    ResizeTo<ChangeElemTo<Simd<T, Abi>, NewType>, NewSize>>::type
+typename std::enable_if<!std::is_same<NewType, T>::value,
+                        ResizeTo<Simd<NewType, Abi>, NewSize>>::type
 reduce_add(Simd<T, Abi> simd) {
   return reduce_add<NewType, NewSize>(static_simd_cast<NewType>(simd));
 }
@@ -1112,12 +1105,12 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
 // The supported specializations of Simd types. InternalType means the actually
 // stored type. ExternalType means the convertible type that the user can use to
 // construct from and extract to.
-#define SIMD_SPECIALIZATION(T, STORAGE, NUM_BYTES, EXTERNAL_TYPE)  \
-  template <>                                                      \
-  struct SimdTraits<T, detail::Abi<STORAGE, NUM_BYTES>> {          \
-    static_assert(NUM_BYTES % sizeof(T) == 0, "");                 \
-    using InternalType = detail::GccVecTraits<T, NUM_BYTES>::type; \
-    using ExternalType = EXTERNAL_TYPE;                            \
+#define SIMD_SPECIALIZATION(T, STORAGE, NUM_BYTES, EXTERNAL_TYPE)     \
+  template <>                                                         \
+  struct SimdTraits<T, detail::Abi<STORAGE, NUM_BYTES / sizeof(T)>> { \
+    static_assert(NUM_BYTES % sizeof(T) == 0, "");                    \
+    using InternalType = detail::GccVecTraits<T, NUM_BYTES>::type;    \
+    using ExternalType = EXTERNAL_TYPE;                               \
   };
 
 #define SIMD_NON_NATIVE_SPECIALIZATION(STORAGE, NUM_BYTES)      \

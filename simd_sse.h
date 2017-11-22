@@ -43,19 +43,22 @@ SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kXmm, 64);
 SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kXmm, 128);
 
 template <typename T>
-struct LoadImpl<T, Abi<StoragePolicy::kXmm, 8>, flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kXmm, 8>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kXmm, 8>> ret;
+struct LoadImpl<T, Abi<StoragePolicy::kXmm, 8 / sizeof(T)>,
+                flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kXmm, 8 / sizeof(T)>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kXmm, 8 / sizeof(T)>> ret;
     memcpy(&ret.storage_, buffer, sizeof(ret));
     return ret;
   }
 };
 
-template <typename T, size_t kNumBytes>
-struct LoadImpl<T, Abi<StoragePolicy::kXmm, kNumBytes>,
+template <typename T, size_t kNumElements>
+struct LoadImpl<T, Abi<StoragePolicy::kXmm, kNumElements>,
                 flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kXmm, kNumBytes>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kXmm, kNumBytes>> ret;
+  static Simd<T, Abi<StoragePolicy::kXmm, kNumElements>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kXmm, kNumElements>> ret;
     __m128i ret1[sizeof(ret) / 16];
     for (int i = 0; i < sizeof(ret) / 16; i++)
       ret1[i] = _mm_load_si128(reinterpret_cast<const __m128i*>(buffer) + i);
@@ -68,14 +71,16 @@ struct LoadImpl<T, Abi<StoragePolicy::kXmm, kNumBytes>,
 
 #ifndef __AVX2__
 template <typename T>
-using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 16>>;
+using NativeSimd =
+    Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 16 / sizeof(T)>>;
 #endif
 
 template <typename T>
-using Simd128 = Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 16>>;
+using Simd128 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 8>>;
+using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 8 / sizeof(T)>>;
 
 template <>
 inline Simd128<int8> abs(Simd128<int8> simd) {

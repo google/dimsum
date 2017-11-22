@@ -52,19 +52,22 @@ SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kNeon, 64);
 SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kNeon, 128);
 
 template <typename T>
-struct LoadImpl<T, Abi<StoragePolicy::kNeon, 8>, flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kNeon, 8>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kNeon, 8>> ret;
+struct LoadImpl<T, Abi<StoragePolicy::kNeon, 8 / sizeof(T)>,
+                flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kNeon, 8 / sizeof(T)>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kNeon, 8 / sizeof(T)>> ret;
     memcpy(&ret.storage_, buffer, sizeof(ret));
     return ret;
   }
 };
 
-template <typename T, size_t kNumBytes>
-struct LoadImpl<T, Abi<StoragePolicy::kNeon, kNumBytes>,
+template <typename T, size_t kNumElements>
+struct LoadImpl<T, Abi<StoragePolicy::kNeon, kNumElements>,
                 flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kNeon, kNumBytes>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kNeon, kNumBytes>> ret;
+  static Simd<T, Abi<StoragePolicy::kNeon, kNumElements>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kNeon, kNumElements>> ret;
     uint64x2_t ret1[sizeof(ret) / 16];
     for (int i = 0; i < sizeof(ret) / 16; i++) {
       ret1[i] = vld1q_u64(reinterpret_cast<const uint64_t*>(buffer) + 2 * i);
@@ -75,13 +78,15 @@ struct LoadImpl<T, Abi<StoragePolicy::kNeon, kNumBytes>,
 };
 
 template <typename T>
-typename SimdTraits<T, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+typename SimdTraits<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>>::ExternalType
 load_neon_vector_aligned(const T* buffer);
 
 template <typename T>
-struct LoadImpl<T, Abi<StoragePolicy::kNeon, 16>, flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kNeon, 16>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kNeon, 16>> ret;
+struct LoadImpl<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>,
+                flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>> ret;
     auto value = load_neon_vector_aligned(buffer);
     memcpy(&ret.storage_, &value, sizeof(ret));
     return ret;
@@ -95,19 +100,19 @@ load_neon_vector_aligned(const int8* buffer) {
 }
 
 template <>
-inline typename SimdTraits<int16, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<int16, Abi<StoragePolicy::kNeon, 8>>::ExternalType
 load_neon_vector_aligned(const int16* buffer) {
   return vld1q_s16(buffer);
 }
 
 template <>
-inline typename SimdTraits<int32, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<int32, Abi<StoragePolicy::kNeon, 4>>::ExternalType
 load_neon_vector_aligned(const int32* buffer) {
   return vld1q_s32(buffer);
 }
 
 template <>
-inline typename SimdTraits<int64, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<int64, Abi<StoragePolicy::kNeon, 2>>::ExternalType
 load_neon_vector_aligned(const int64* buffer) {
   return vld1q_s64(reinterpret_cast<const int64_t*>(buffer));
 }
@@ -119,31 +124,31 @@ load_neon_vector_aligned(const uint8* buffer) {
 }
 
 template <>
-inline typename SimdTraits<uint16, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<uint16, Abi<StoragePolicy::kNeon, 8>>::ExternalType
 load_neon_vector_aligned(const uint16* buffer) {
   return vld1q_u16(buffer);
 }
 
 template <>
-inline typename SimdTraits<uint32, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<uint32, Abi<StoragePolicy::kNeon, 4>>::ExternalType
 load_neon_vector_aligned(const uint32* buffer) {
   return vld1q_u32(buffer);
 }
 
 template <>
-inline typename SimdTraits<uint64, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<uint64, Abi<StoragePolicy::kNeon, 2>>::ExternalType
 load_neon_vector_aligned(const uint64* buffer) {
   return vld1q_u64(reinterpret_cast<const uint64_t*>(buffer));
 }
 
 template <>
-inline typename SimdTraits<float, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<float, Abi<StoragePolicy::kNeon, 4>>::ExternalType
 load_neon_vector_aligned(const float* buffer) {
   return vld1q_f32(buffer);
 }
 
 template <>
-inline typename SimdTraits<double, Abi<StoragePolicy::kNeon, 16>>::ExternalType
+inline typename SimdTraits<double, Abi<StoragePolicy::kNeon, 2>>::ExternalType
 load_neon_vector_aligned(const double* buffer) {
   return vld1q_f64(buffer);
 }
@@ -154,13 +159,16 @@ load_neon_vector_aligned(const double* buffer) {
 }  // namespace detail
 
 template <typename T>
-using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kNeon, 16>>;
+using NativeSimd =
+    Simd<T, detail::Abi<detail::StoragePolicy::kNeon, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd128 = Simd<T, detail::Abi<detail::StoragePolicy::kNeon, 16>>;
+using Simd128 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kNeon, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kNeon, 8>>;
+using Simd64 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kNeon, 8 / sizeof(T)>>;
 
 template <>
 inline Simd128<int8> abs(Simd128<int8> simd) {

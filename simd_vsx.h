@@ -43,23 +43,26 @@ SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kVsx, 64);
 SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kVsx, 128);
 
 template <typename T>
-typename SimdTraits<T, Abi<StoragePolicy::kVsx, 16>>::ExternalType
+typename SimdTraits<T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>>::ExternalType
 load_vsx_vector_aligned(const T* buffer);
 
 template <typename T>
-struct LoadImpl<T, Abi<StoragePolicy::kVsx, 8>, flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kVsx, 8>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kVsx, 8>> ret;
+struct LoadImpl<T, Abi<StoragePolicy::kVsx, 8 / sizeof(T)>,
+                flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kVsx, 8 / sizeof(T)>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kVsx, 8 / sizeof(T)>> ret;
     memcpy(&ret.storage_, buffer, sizeof(ret));
     return ret;
   }
 };
 
-template <typename T, size_t kNumBytes>
-struct LoadImpl<T, Abi<StoragePolicy::kVsx, kNumBytes>,
+template <typename T, size_t kNumElements>
+struct LoadImpl<T, Abi<StoragePolicy::kVsx, kNumElements>,
                 flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kVsx, kNumBytes>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kVsx, kNumBytes>> ret;
+  static Simd<T, Abi<StoragePolicy::kVsx, kNumElements>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kVsx, kNumElements>> ret;
     __vector int ret1[sizeof(ret) / 16];
     for (int i = 0; i < sizeof(ret) / 16; i++)
       ret1[i] = reinterpret_cast<const __vector int*>(buffer)[i];
@@ -69,23 +72,28 @@ struct LoadImpl<T, Abi<StoragePolicy::kVsx, kNumBytes>,
 };
 
 template <typename T>
-struct LoadImpl<T, Abi<StoragePolicy::kVsx, 16>, flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kVsx, 16>> Apply(const T* buffer) {
+struct LoadImpl<T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>,
+                flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>> Apply(
+      const T* buffer) {
     return *reinterpret_cast<const typename Simd<
-        T, Abi<StoragePolicy::kVsx, 16>>::Traits::ExternalType*>(buffer);
+        T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>>::Traits::ExternalType*>(
+        buffer);
   }
 };
 
 }  // namespace detail
 
 template <typename T>
-using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kVsx, 16>>;
+using NativeSimd =
+    Simd<T, detail::Abi<detail::StoragePolicy::kVsx, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd128 = Simd<T, detail::Abi<detail::StoragePolicy::kVsx, 16>>;
+using Simd128 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kVsx, 16 / sizeof(T)>>;
 
 template <typename T>
-using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kVsx, 8>>;
+using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kVsx, 8 / sizeof(T)>>;
 
 template <>
 inline Simd128<int8> abs(Simd128<int8> simd) {

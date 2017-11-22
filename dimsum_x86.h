@@ -52,7 +52,8 @@ namespace dimsum {
 namespace x86 {
 
 template <typename Abi>
-Simd<int16, Abi> maddubs(Simd<uint8, Abi> lhs, Simd<int8, Abi> rhs) {
+ResizeBy<Simd<int16, Abi>, 1, 2> maddubs(Simd<uint8, Abi> lhs,
+                                         Simd<int8, Abi> rhs) {
   return simulated::maddubs(lhs, rhs);
 }
 

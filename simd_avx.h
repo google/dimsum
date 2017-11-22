@@ -54,19 +54,22 @@ SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 128);
 SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 256);
 
 template <typename T>
-struct LoadImpl<T, Abi<StoragePolicy::kYmm, 16>, flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kYmm, 16>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kYmm, 16>> ret;
+struct LoadImpl<T, Abi<StoragePolicy::kYmm, 16 / sizeof(T)>,
+                flags::vector_aligned_tag> {
+  static Simd<T, Abi<StoragePolicy::kYmm, 16 / sizeof(T)>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kYmm, 16 / sizeof(T)>> ret;
     memcpy(&ret.storage_, buffer, sizeof(ret));
     return ret;
   }
 };
 
-template <typename T, size_t kNumBytes>
-struct LoadImpl<T, Abi<StoragePolicy::kYmm, kNumBytes>,
+template <typename T, size_t kNumElements>
+struct LoadImpl<T, Abi<StoragePolicy::kYmm, kNumElements>,
                 flags::vector_aligned_tag> {
-  static Simd<T, Abi<StoragePolicy::kYmm, kNumBytes>> Apply(const T* buffer) {
-    Simd<T, Abi<StoragePolicy::kYmm, kNumBytes>> ret;
+  static Simd<T, Abi<StoragePolicy::kYmm, kNumElements>> Apply(
+      const T* buffer) {
+    Simd<T, Abi<StoragePolicy::kYmm, kNumElements>> ret;
     __m256i ret1[sizeof(ret) / 32];
     for (int i = 0; i < sizeof(ret) / 32; i++)
       ret1[i] = _mm256_load_si256(reinterpret_cast<const __m256i*>(buffer) + i);
@@ -76,12 +79,14 @@ struct LoadImpl<T, Abi<StoragePolicy::kYmm, kNumBytes>,
 };
 
 template <typename T>
-using Simd256 = Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 32>>;
+using Simd256 =
+    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 32 / sizeof(T)>>;
 
 }  // namespace detail
 
 template <typename T>
-using NativeSimd = Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 32>>;
+using NativeSimd =
+    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 32 / sizeof(T)>>;
 
 // Some instructions (align, pack, unpack, permutation types, e.g.
 // _mm256_alignr_epi8 _mm256_packs_epi32) operate on 128-bit lanes rather the
@@ -362,8 +367,8 @@ inline detail::Simd256<int32> round_to_integer(detail::Simd256<float> simd) {
 
 template <typename T>
 detail::Simd256<ScaleBy<T, 2>> mul_widened(
-    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 16>> lhs,
-    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 16>> rhs) {
+    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 16 / sizeof(T)>> lhs,
+    Simd<T, detail::Abi<detail::StoragePolicy::kYmm, 16 / sizeof(T)>> rhs) {
   return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
