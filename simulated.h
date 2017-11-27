@@ -406,9 +406,9 @@ ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
 
 // TODO(maskray) Remove `= void`.
 template <typename Dest = void, typename T, typename Abi>
-detail::MulSumWidenElemTo<Dest, T, Abi> mul_sum(
+ReinterpretTo<Simd<T, Abi>, Dest> mul_sum(
     Simd<T, Abi> lhs, Simd<T, Abi> rhs,
-    detail::MulSumWidenElemTo<Dest, T, Abi> acc = 0) {
+    ReinterpretTo<Simd<T, Abi>, Dest> acc = 0) {
   using Dest1 = typename std::conditional<std::is_void<Dest>::value,
                                           ScaleBy<T, 2>, Dest>::type;
   decltype(acc) ret{};

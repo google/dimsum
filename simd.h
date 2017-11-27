@@ -282,6 +282,14 @@ template <typename SimdType, size_t kNumerator, size_t kDenominator = 1>
 using ResizeBy =
     ResizeTo<SimdType, SimdType::size() * kNumerator / kDenominator>;
 
+// Returns a Simd type of the same width, but with the element type changed to
+// T.
+template <typename SimdType, typename NewElementType>
+using ReinterpretTo =
+    Simd<NewElementType,
+         typename ResizeBy<SimdType, sizeof(typename SimdType::value_type),
+                           sizeof(NewElementType)>::abi_type>;
+
 // Returns a scalar type with width sizeof(T) * kNumerator / kDenominator.
 // For example, ScaleBy<int16, 2> gives int32, ScaleBy<uint16, 1, 2> gives
 // uint8.
@@ -295,12 +303,6 @@ template <typename SimdType, size_t kNumerator, size_t kDenominator = 1>
 using ScaleElemBy =
     Simd<ScaleBy<typename SimdType::value_type, kNumerator, kDenominator>,
          typename SimdType::abi_type>;
-
-// Returns a Simd type of the same width, but with the element type changed to T.
-template <typename SimdType, typename T>
-using WidenElemTo = ResizeBy<
-    ScaleElemBy<SimdType, sizeof(T), sizeof(typename SimdType::value_type)>,
-    sizeof(typename SimdType::value_type), sizeof(T)>;
 
 // Simd provides a portable interface of the vector/simd units in the hardware.
 //
@@ -496,8 +498,7 @@ class Simd<T, detail::Abi<kStorage, kNumElements>> {
   friend Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Dp, typename Tp, typename Ap>
-  friend ResizeBy<Simd<Dp, Ap>, sizeof(Tp), sizeof(Dp)> bit_cast(
-      Simd<Tp, Ap> simd);
+  friend ReinterpretTo<Simd<Tp, Ap>, Dp> bit_cast(Simd<Tp, Ap> simd);
 
   template <typename Dp, typename Sp, typename Ap>
   friend Simd<Dp, Ap> static_simd_cast(Simd<Sp, Ap> simd);
@@ -633,12 +634,6 @@ shuffle(Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
 }
 
 namespace detail {
-
-template <typename Dest, typename T, typename Abi>
-using MulSumWidenElemTo =
-    WidenElemTo<Simd<T, Abi>,
-                typename std::conditional<std::is_void<Dest>::value,
-                                          ScaleBy<T, 2>, Dest>::type>;
 
 template <size_t... indices, typename T, typename Abi>
 ResizeBy<Simd<T, Abi>, 2> zip_impl(Simd<T, Abi> lhs, Simd<T, Abi> rhs,
@@ -823,8 +818,8 @@ Simd<T, Abi> round(Simd<T, Abi>) DIMSUM_DELETE;
 
 // Casts to another vector type of the same width without changing any bits.
 template <typename Dest, typename T, typename Abi>
-ResizeBy<Simd<Dest, Abi>, sizeof(T), sizeof(Dest)> bit_cast(Simd<T, Abi> simd) {
-  ResizeBy<Simd<Dest, Abi>, sizeof(T), sizeof(Dest)> ret;
+ReinterpretTo<Simd<T, Abi>, Dest> bit_cast(Simd<T, Abi> simd) {
+  ReinterpretTo<Simd<T, Abi>, Dest> ret;
   static_assert(sizeof(ret.storage_) == sizeof(simd.storage_),
                 "Simd width mismatch");
   memcpy(&ret.storage_, &simd.storage_, sizeof(ret.storage_));
@@ -1080,17 +1075,18 @@ typename std::enable_if<detail::IsReduceAdd<T, Op>(), T>::type reduce(
 // Equivalent to acc + reduce_add<NewType, acc.size()>(mul_widened(lhs, rhs)),
 // but probably faster. acc, lhs, and rhs must have the same number of bytes.
 //
+// Notice that the total number of bytes in acc is constraint to be the same as
+// the total number of bytes in lhs/rhs.
+//
 // e.g. mul_sum<int32>(Simd128<int16>, Simd128<int16>, Simd128<int32>)
 // computes 8 int16*int16 products ({s[0], ..., s[7]}) first, then does pairwise
 // horizontal summation and gets {s[0]+s[1], s[2]+s[3], s[4]+s[5], s[6]+s[7]}),
 // so that the result is still 128-bit, finally returns {acc[0]+s[0]+s[1],
 // acc[1]+s[2]+s[3], acc[2]+s[4]+s[5], acc[3]+s[6]+s[7]}.
-//
-// TODO(maskray) Remove `= void`.
-template <typename Dest = void, typename T, typename Abi>
-detail::MulSumWidenElemTo<Dest, T, Abi> mul_sum(
+template <typename Dest, typename T, typename Abi>
+ReinterpretTo<Simd<T, Abi>, Dest> mul_sum(
     Simd<T, Abi> lhs, Simd<T, Abi> rhs,
-    detail::MulSumWidenElemTo<Dest, T, Abi> acc = 0) {
+    ReinterpretTo<Simd<T, Abi>, Dest> acc = 0) {
   if (std::is_void<Dest>::value) {
     return mul_sum<typename std::conditional<std::is_void<Dest>::value,
                                              ScaleBy<T, 2>, Dest>::type>(

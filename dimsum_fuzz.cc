@@ -194,10 +194,10 @@ void TestMulSum(const uint8_t* data) {
   LoadFromRaw(data + sizeof(lhs), &rhs);
   LoadFromRaw(data + sizeof(lhs) + sizeof(rhs), &acc);
 
-  TrapIfNotEqual(dimsum::simulated::mul_sum(lhs, rhs),
-                 dimsum::mul_sum(lhs, rhs));
-  TrapIfNotEqual(dimsum::simulated::mul_sum<Acc>(lhs, rhs, acc),
-                 dimsum::mul_sum<Acc>(lhs, rhs, acc));
+  TrapIfNotEqual(dimsum::simulated::mul_sum<Acc>(lhs, rhs),
+                 dimsum::mul_sum<Acc>(lhs, rhs));
+  TrapIfNotEqual(dimsum::simulated::mul_sum(lhs, rhs, acc),
+                 dimsum::mul_sum(lhs, rhs, acc));
 }
 
 template <typename T>
