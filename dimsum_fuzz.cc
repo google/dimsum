@@ -364,7 +364,8 @@ void TestMovemask(const uint8_t* data) {
 }  // namespace
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  if (size >= dimsum::detail::kMachineWidth) {
+  constexpr size_t kNativeWidth = NativeSimd<int>::size() * sizeof(int);
+  if (size >= kNativeWidth) {
     TestFloatingToIntegralStaticSimdCast<int32, float>(data);
     TestFloatingToIntegralStaticSimdCast<uint32, float>(data);
     TestFloatingToIntegralStaticSimdCast<int64, double>(data);
@@ -451,7 +452,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     TestMovemask<uint64>(data);
   }
 
-  if (size >= dimsum::detail::kMachineWidth * 2) {
+  if (size >= kNativeWidth * 2) {
     TestMax<int8>(data);
     TestMax<int16>(data);
     TestMax<int32>(data);
@@ -481,7 +482,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     TestMaddubs(data);
   }
 
-  if (size >= dimsum::detail::kMachineWidth * 3) {
+  if (size >= kNativeWidth * 3) {
     TestMulSum<int8, int32>(data);
     TestMulSum<uint8, uint32>(data);
     TestMulSum<int16, int32>(data);

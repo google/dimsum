@@ -163,14 +163,6 @@ struct NumberTraits<8, NumberKind::kFloat> {
 template <size_t width, NumberKind kind>
 using Number = typename NumberTraits<width, kind>::type;
 
-// The most suitable width of a single simd register.
-static constexpr size_t kMachineWidth =
-#ifdef __AVX2__
-    32;
-#else
-    16;
-#endif
-
 // Returns the NumberKind of T.
 template <typename T>
 constexpr NumberKind get_number_kind() {
