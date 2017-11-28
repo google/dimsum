@@ -102,11 +102,6 @@ template <>
 inline Simd128<int64> abs(Simd128<int64> simd) {
   return _mm_abs_epi64(simd.raw());
 }
-#else
-template <>
-inline Simd128<int64> abs(Simd128<int64> simd) {
-  return Simd128<int64>::list(std::abs(simd[0]), std::abs(simd[1]));
-}
 #endif
 
 // ::abs for floating points is implemented by bit_and each lane with shr(-1, 1)

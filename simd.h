@@ -642,21 +642,6 @@ ResizeBy<Simd<T, Abi>, 2> zip_impl(Simd<T, Abi> lhs, Simd<T, Abi> rhs,
 
 }  // namespace detail
 
-// Returns the element-wise absolute value.
-// The element type can be signed, unsigned or floating point.
-// The default implementation handles the unsigned case.
-// We have specializations for signed and floating point types.
-// For signed element type, the result in each lane is
-// undefined if it is the minimum value.
-template <typename T, typename Abi>
-Simd<T, Abi> abs(Simd<T, Abi> simd) {
-  // The default implementation is likely to be optimized out and generates no
-  // instructions.
-  static_assert(detail::get_number_kind<T>() == detail::NumberKind::kUInt,
-                "The default implementation only handles unsigned types");
-  return simd;
-}
-
 // Returns the element-wise saturated sum of two Simd objects.
 template <typename Tp, typename Abi>
 Simd<Tp, Abi> add_saturated(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs);
@@ -848,6 +833,30 @@ Simd<Dest, Abi> simd_cast(Simd<Src, Abi> simd) {
                 "simd_cast does not support narrowing cast. Use "
                 "static_simd_cast instead.");
   return static_simd_cast<Dest, Src, Abi>(simd);
+}
+
+// Returns the element-wise absolute value.
+// The element type can be signed, unsigned or floating point.
+// For signed element type, the result in each lane is
+// undefined if it is the minimum value.
+template <typename T, typename Abi>
+typename std::enable_if<std::is_integral<T>::value, Simd<T, Abi>>::type abs(
+    Simd<T, Abi> simd) {
+  if (std::is_unsigned<T>::value) {
+    return simd;
+  }
+  auto mask = cmp_lt(simd, Simd<T, Abi>(0));
+  using Unsigned = typename std::make_unsigned<T>::type;
+  return bit_cast<T>((bit_cast<Unsigned>(simd) ^ mask) - mask);
+}
+
+template <typename T, typename Abi>
+typename std::enable_if<std::is_floating_point<T>::value, Simd<T, Abi>>::type
+abs(Simd<T, Abi> simd) {
+  using Unsigned =
+      Simd<detail::Number<sizeof(T), detail::NumberKind::kUInt>, Abi>;
+  return bit_cast<T>(bit_cast<Unsigned>(simd) &
+                     ~Simd<Unsigned, Abi>(Unsigned(1) << (sizeof(T) - 1)));
 }
 
 // TODO(timshen): Add simd_cast_saturated.

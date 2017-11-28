@@ -114,12 +114,6 @@ template <>
 inline detail::Simd256<int64> abs(detail::Simd256<int32> simd) {
   return _mm256_abs_epi64(simd.raw());
 }
-#else
-template <>
-inline detail::Simd256<int64> abs(detail::Simd256<int64> simd) {
-  return detail::Simd256<int64>::list(std::abs(simd[0]), std::abs(simd[1]),
-                                      std::abs(simd[2]), std::abs(simd[3]));
-}
 #endif
 
 // ::abs is implemented by bitand each lane with shr(-1, 1) to clear the
