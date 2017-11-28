@@ -583,9 +583,9 @@ ResizeBy<Simd<T, Abi>, N> concat(std::array<Simd<T, Abi>, N> arr) {
 //
 // By default, it's split into two smaller Simd objects.
 //
-// Example: split(Simd128<int32>) returns std::array<Simd64<int32>, 2>.
-template <size_t N = 2, typename T, typename Abi>
-std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> split(Simd<T, Abi> simd) {
+// Example: split_by(Simd128<int32>) returns std::array<Simd64<int32>, 2>.
+template <size_t N, typename T, typename Abi>
+std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> split_by(Simd<T, Abi> simd) {
   static_assert(simd.size() % N == 0, "");
 
   using ArrayElem = ResizeBy<Simd<T, Abi>, 1, N>;
@@ -595,6 +595,12 @@ std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> split(Simd<T, Abi> simd) {
     ret[i / size].set(i % size, simd[i]);
   }
   return ret;
+}
+
+template <size_t N = 2, typename T, typename Abi>
+std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> __attribute__((
+    deprecated("Use split_by instead."))) split(Simd<T, Abi> simd) {
+  return split_by<N>(simd);
 }
 
 // Hypothetically concatenates lhs and rhs, index them from 0 to 2N-1, and then
@@ -773,8 +779,8 @@ struct ReduceAddImpl {
 // same amount of elements as lhs/rhs.
 template <typename T, typename Abi>
 ScaleElemBy<Simd<T, Abi>, 2> mul_widened(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  auto ls = split<2>(lhs);
-  auto rs = split<2>(rhs);
+  auto ls = split_by<2>(lhs);
+  auto rs = split_by<2>(rhs);
   return concat(mul_widened(ls[0], rs[0]), mul_widened(ls[1], rs[1]));
 }
 

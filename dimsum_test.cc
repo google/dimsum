@@ -864,13 +864,13 @@ void TestSplit() {
 
   {
     using ResType = ResizeBy<Simd<T, Abi>, 1, 2>;
-    auto arr = split(SimdType(get_iota(0)));
+    auto arr = split_by<2>(SimdType(get_iota(0)));
     EXPECT_EQ(ResType(get_iota(0)), arr[0]);
     EXPECT_EQ(ResType(get_iota(size / 2)), arr[1]);
   }
   {
     using InputType = ResizeBy<Simd<T, Abi>, 4>;
-    auto arr = split<4>(InputType(get_iota(0)));
+    auto arr = split_by<4>(InputType(get_iota(0)));
     EXPECT_EQ(SimdType(get_iota(0)), arr[0]);
     EXPECT_EQ(SimdType(get_iota(size * 1)), arr[1]);
     EXPECT_EQ(SimdType(get_iota(size * 2)), arr[2]);
