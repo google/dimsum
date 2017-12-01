@@ -57,6 +57,9 @@ namespace dimsum {
 template <typename T, typename Abi>
 class Simd;
 
+template <typename T, typename Abi>
+class SimdMask;
+
 namespace detail {
 
 template <typename T, size_t num_bytes>
@@ -248,6 +251,9 @@ constexpr bool IsReduceAdd() {
           std::is_same<Op, std::plus<void>>::value);
 }
 
+template <typename T>
+using ToUnsigned = detail::Number<sizeof(T), detail::NumberKind::kUInt>;
+
 }  // namespace detail
 
 namespace flags {
@@ -298,6 +304,8 @@ using ScaleElemBy =
 
 // Simd provides a portable interface of the vector/simd units in the hardware.
 //
+// The detailed documentation is on http://wg21.link/P0214
+//
 // Simd should only be instantiated with detail::Abi.
 template <typename T, typename Abi>
 class Simd {};
@@ -320,9 +328,6 @@ class Simd<T, detail::Abi<kStorage, kNumElements>> {
 
   // The ABI type.
   using abi_type = detail::Abi<kStorage, kNumElements>;
-
-  // The element type that comparison operations return.
-  using ComparisonResultType = Number<sizeof(T), NumberKind::kUInt>;
 
   constexpr Simd() = default;
 
@@ -430,28 +435,22 @@ class Simd<T, detail::Abi<kStorage, kNumElements>> {
   friend Simd<Tp, Ap> sub_saturated(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_eq(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend SimdMask<Tp, Ap> cmp_eq(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_ne(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend SimdMask<Tp, Ap> cmp_ne(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_lt(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend SimdMask<Tp, Ap> cmp_lt(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_le(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend SimdMask<Tp, Ap> cmp_le(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_gt(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend SimdMask<Tp, Ap> cmp_gt(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_ge(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
+  friend SimdMask<Tp, Ap> cmp_ge(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
 
   template <typename Tp, typename Ap>
   friend Simd<Tp, Ap> min(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
@@ -511,6 +510,49 @@ class Simd<T, detail::Abi<kStorage, kNumElements>> {
 
   typename Traits::InternalType storage_;
 };
+
+template <typename MaskType, typename SimdType>
+class where_expression;
+
+template <typename T, typename Abi>
+class SimdMask {
+ public:
+  SimdMask operator||(SimdMask rhs) {
+    return SimdMask(storage_ | rhs.storage_);
+  }
+
+ private:
+  explicit SimdMask(Simd<detail::ToUnsigned<T>, Abi> simd) : storage_(simd) {}
+
+  template <typename Tp, typename Ap> friend class Simd;
+
+  template <typename MaskType, typename SimdType>
+  friend class where_expression;
+
+  Simd<detail::ToUnsigned<T>, Abi> storage_;
+};
+
+template <typename T, typename Abi>
+class where_expression<SimdMask<T, Abi>, Simd<T, Abi>> {
+ public:
+  void operator^=(Simd<T, Abi> rhs);
+
+ private:
+  where_expression(SimdMask<T, Abi> mask, Simd<T, Abi>& simd) : mask_(mask), simd_(simd) {}
+
+  template <class Tp, class Ap>
+  friend where_expression<SimdMask<Tp, Ap>, Simd<Tp, Ap>>
+    where(SimdMask<Tp, Ap> mask, Simd<Tp, Ap> &simd) noexcept;
+
+  SimdMask<T, Abi> mask_;
+  Simd<T, Abi>& simd_;
+};
+
+template <class T, class Abi>
+where_expression<SimdMask<T, Abi>, Simd<T, Abi>>
+where(SimdMask<T, Abi> mask, Simd<T, Abi> &simd) noexcept {
+  return where_expression<SimdMask<T, Abi>, Simd<T, Abi>>(mask, simd);
+}
 
 // Here defines NativeSimd. It's actual definition varies on platforms. See
 // simd_*.h files for all of them. NativeSimd is for the "most efficient" ABI on
@@ -662,46 +704,34 @@ Simd<Tp, Abi> sub_saturated(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs);
 // corresponding unsigned type (e.g. Simd<uint16>).
 // For floating point types, the result element type is the integral type
 // with the exact width (float => uint32, double => uint64).
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_eq(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ == rhs.storage_);
+template <typename T, typename Abi>
+SimdMask<T, Abi> cmp_eq(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return SimdMask<T, Abi>(Simd<detail::ToUnsigned<T>, Abi>(lhs.storage_ == rhs.storage_));
 }
 
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_ne(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ != rhs.storage_);
+template <typename T, typename Abi>
+SimdMask<T, Abi> cmp_ne(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return SimdMask<T, Abi>(Simd<detail::ToUnsigned<T>, Abi>(lhs.storage_ != rhs.storage_));
 }
 
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_lt(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ < rhs.storage_);
+template <typename T, typename Abi>
+SimdMask<T, Abi> cmp_lt(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return SimdMask<T, Abi>(Simd<detail::ToUnsigned<T>, Abi>(lhs.storage_ < rhs.storage_));
 }
 
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_le(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ <= rhs.storage_);
+template <typename T, typename Abi>
+SimdMask<T, Abi> cmp_le(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return SimdMask<T, Abi>(Simd<detail::ToUnsigned<T>, Abi>(lhs.storage_ <= rhs.storage_));
 }
 
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_gt(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ > rhs.storage_);
+template <typename T, typename Abi>
+SimdMask<T, Abi> cmp_gt(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return SimdMask<T, Abi>(Simd<detail::ToUnsigned<T>, Abi>(lhs.storage_ > rhs.storage_));
 }
 
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_ge(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ >= rhs.storage_);
+template <typename T, typename Abi>
+SimdMask<T, Abi> cmp_ge(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return SimdMask<T, Abi>(Simd<detail::ToUnsigned<T>, Abi>(lhs.storage_ >= rhs.storage_));
 }
 
 // For input lhs[0], lhs[1], ..., lhs[n-1], rhs[0], rhs[1], ..., rhs[n-1],
@@ -846,15 +876,14 @@ typename std::enable_if<std::is_integral<T>::value, Simd<T, Abi>>::type abs(
     return simd;
   }
   auto mask = cmp_lt(simd, Simd<T, Abi>(0));
-  using Unsigned = typename std::make_unsigned<T>::type;
+  using Unsigned = detail::ToUnsigned<T>;
   return bit_cast<T>((bit_cast<Unsigned>(simd) ^ mask) - mask);
 }
 
 template <typename T, typename Abi>
 typename std::enable_if<std::is_floating_point<T>::value, Simd<T, Abi>>::type
 abs(Simd<T, Abi> simd) {
-  using Unsigned =
-      Simd<detail::Number<sizeof(T), detail::NumberKind::kUInt>, Abi>;
+  using Unsigned = detail::ToUnsigned<T>;
   return bit_cast<T>(bit_cast<Unsigned>(simd) &
                      ~Simd<Unsigned, Abi>(Unsigned(1) << (sizeof(T) - 1)));
 }
@@ -1116,6 +1145,12 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
   for (size_t i = 0; i < a.size(); i++)
     ret.set(i, std::fma(a[i], b[i], c[i]));
   return ret;
+}
+
+template <typename T, typename Abi>
+void where_expression<SimdMask<T, Abi>, Simd<T, Abi>>::operator^=(Simd<T, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<T>;
+  simd_ ^= bit_cast<T>(mask_.storage_ & bit_cast<Unsigned>(rhs));
 }
 
 }  // namespace dimsum
