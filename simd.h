@@ -771,11 +771,21 @@ ScaleElemBy<Simd<T, Abi>, 2> mul_widened(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
 
 // Returns the element-wise min result. Elements should not contain NaN.
 template <typename T, typename Abi>
-Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
+Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  Simd<T, Abi> ret;
+  for (size_t i = 0; i < lhs.size(); i++)
+    ret.set(i, std::min(lhs[i], rhs[i]));
+  return ret;
+}
 
 // Returns the element-wise max result. Elements should not contain NaN.
 template <typename T, typename Abi>
-Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs);
+Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  Simd<T, Abi> ret;
+  for (size_t i = 0; i < lhs.size(); i++)
+    ret.set(i, std::max(lhs[i], rhs[i]));
+  return ret;
+}
 
 // Returns the element-wise estimate of reciprocal.
 // On x86, the relative error is less or equal than 1.5/4096.
@@ -1064,6 +1074,8 @@ ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
 // satisified by floating point addition, but this function may also be used if
 // the addition order is not cared.
 // TODO(maskray) After dropping C++11 support, change plus<T> to plus<>.
+//
+// Example: reduce(a); reduce(a, std::bit_xor<int32>());
 template <typename T, typename Abi, class Op = std::plus<T>>
 typename std::enable_if<!detail::IsReduceAdd<T, Op>(), T>::type reduce(
     const Simd<T, Abi>& simd, Op op = Op()) {
@@ -1077,6 +1089,36 @@ template <typename T, typename Abi, class Op = std::plus<T>>
 typename std::enable_if<detail::IsReduceAdd<T, Op>(), T>::type reduce(
     const Simd<T, Abi>& simd, Op op = Op()) {
   return reduce_add<T, 1>(simd)[0];
+}
+
+// Returns the minimum element.
+// For floating points, if simd contains NaN, the result is undefined.
+template <typename T, typename Abi>
+typename std::enable_if<(Simd<T, Abi>::size() > 1), T>::type hmin(
+    const Simd<T, Abi>& simd) {
+  auto arr = split_by<2>(simd);
+  return hmin(min(arr[0], arr[1]));
+}
+
+// Returns the maximum element.
+// For floating points, if simd contains NaN, the result is undefined.
+template <typename T, typename Abi>
+typename std::enable_if<(Simd<T, Abi>::size() == 1), T>::type hmin(
+    const Simd<T, Abi>& simd) {
+  return simd[0];
+}
+
+template <typename T, typename Abi>
+typename std::enable_if<(Simd<T, Abi>::size() > 1), T>::type hmax(
+    const Simd<T, Abi>& simd) {
+  auto arr = split_by<2>(simd);
+  return hmax(max(arr[0], arr[1]));
+}
+
+template <typename T, typename Abi>
+typename std::enable_if<(Simd<T, Abi>::size() == 1), T>::type hmax(
+    const Simd<T, Abi>& simd) {
+  return simd[0];
 }
 
 // Equivalent to acc + reduce_add<NewType, acc.size()>(mul_widened(lhs, rhs)),

@@ -155,13 +155,13 @@ inline Simd<T, Abi> sub_saturated(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
   return vec_subs(lhs.raw(), rhs.raw());
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+template <typename T>
+Simd128<T> min(Simd128<T> lhs, Simd128<T> rhs) {
   return vec_min(lhs.raw(), rhs.raw());
 }
 
-template <typename T, typename Abi>
-Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+template <typename T>
+Simd128<T> max(Simd128<T> lhs, Simd128<T> rhs) {
   return vec_max(lhs.raw(), rhs.raw());
 }
 

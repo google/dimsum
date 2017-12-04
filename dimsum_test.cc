@@ -930,6 +930,16 @@ TEST(DimsumTest, ReduceAdd) {
             (reduce_add<uint64, 1>(Simd128<uint32>(4294967295))[0]));
 }
 
+TEST(DimsumTest, HMin) {
+  EXPECT_EQ(1.f, hmin(Simd128<float>::list(2.f, 3.f, 1.f, 4.f)));
+  EXPECT_EQ(1, hmin(Simd128<int32>::list(4, 1, 3, 2)));
+}
+
+TEST(DimsumTest, HMax) {
+  EXPECT_EQ(4.f, hmax(Simd128<float>::list(2.f, 3.f, 1.f, 4.f)));
+  EXPECT_EQ(4, hmax(Simd128<int32>::list(4, 1, 3, 2)));
+}
+
 #undef SIMD_BINARY_OP_ASSIGN_TEST
 #undef SIMD_BINARY_OP_TEST
 #undef SIMD_BINARY_FUNC_TEST

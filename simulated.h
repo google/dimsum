@@ -404,6 +404,22 @@ ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
   return simulated::reduce_add<T, 1>(simd);
 }
 
+template <typename T, typename Abi>
+T hmin(const Simd<T, Abi>& simd) {
+  T ret = simd[0];
+  for (size_t i = 1; i < simd.size(); i++)
+    ret = std::min(ret, simd[i]);
+  return ret;
+}
+
+template <typename T, typename Abi>
+T hmax(const Simd<T, Abi>& simd) {
+  T ret = simd[0];
+  for (size_t i = 1; i < simd.size(); i++)
+    ret = std::max(ret, simd[i]);
+  return ret;
+}
+
 // TODO(maskray) Remove `= void`.
 template <typename Dest = void, typename T, typename Abi>
 ReinterpretTo<Simd<T, Abi>, Dest> mul_sum(

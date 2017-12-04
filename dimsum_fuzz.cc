@@ -143,6 +143,24 @@ void TestReduce(const uint8_t* data) {
     __builtin_trap();
 }
 
+template <typename T>
+void TestHMin(const uint8_t* data) {
+  NativeSimd<T> simd;
+  LoadFromRaw(data, &simd);
+  if (!IsNormal(simd)) return;
+  if (dimsum::simulated::hmin(simd) != dimsum::hmin(simd))
+    __builtin_trap();
+}
+
+template <typename T>
+void TestHMax(const uint8_t* data) {
+  NativeSimd<T> simd;
+  LoadFromRaw(data, &simd);
+  if (!IsNormal(simd)) return;
+  if (dimsum::simulated::hmax(simd) != dimsum::hmax(simd))
+    __builtin_trap();
+}
+
 template <typename SimdType, size_t NewSize>
 void TestSameTypeReduceAdd(const uint8_t* data) {
   SimdType input;
@@ -400,6 +418,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     TestReduce<float>(data);
     TestReduce<double>(data);
+
+    TestHMin<int>(data);
+    TestHMin<float>(data);
+    TestHMax<int>(data);
+    TestHMax<float>(data);
 
     TestSameTypeReduceAdd<Simd128<int8>, 8>(data);
     TestSameTypeReduceAdd<Simd128<int8>, 4>(data);
