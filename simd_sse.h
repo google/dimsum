@@ -19,28 +19,26 @@
 
 #include <smmintrin.h>
 
-#include "simd.h"
+#include "operations.h"
 
 namespace dimsum {
 namespace detail {
 
 // SSE (16 bytes)
-SIMD_SPECIALIZATION(int8, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kXmm, 16, __m128i)
-SIMD_SPECIALIZATION(float, StoragePolicy::kXmm, 16, __m128)
-SIMD_SPECIALIZATION(double, StoragePolicy::kXmm, 16, __m128d)
+template <typename T>
+struct ExternalTypeTraits<T, detail::Abi<StoragePolicy::kXmm, 16 / sizeof(T)>> {
+  using type = __m128i;
+};
 
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kXmm);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kXmm, 8);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kXmm, 32);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kXmm, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kXmm, 128);
+template <>
+struct ExternalTypeTraits<float, detail::Abi<StoragePolicy::kXmm, 4>> {
+  using type = __m128;
+};
+
+template <>
+struct ExternalTypeTraits<double, detail::Abi<StoragePolicy::kXmm, 2>> {
+  using type = __m128d;
+};
 
 template <typename T>
 struct LoadImpl<T, Abi<StoragePolicy::kXmm, 8 / sizeof(T)>,
@@ -317,9 +315,5 @@ Simd128<ScaleBy<T, 2>> mul_widened(Simd64<T> lhs, Simd64<T> rhs) {
 }
 
 }  // namespace dimsum
-
-#ifndef __AVX2__
-#undef SIMD_SPECIALIZATION
-#endif  // __AVX2__
 
 #endif  // DIMSUM_SIMD_SSE_H_

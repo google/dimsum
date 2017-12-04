@@ -19,39 +19,26 @@
 
 #include <immintrin.h>
 
-#include "simd.h"
+#include "operations.h"
 
 namespace dimsum {
 namespace detail {
 
 // AVX (32 bytes)
-SIMD_SPECIALIZATION(int8, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kYmm, 16, __m128i)
-SIMD_SPECIALIZATION(float, StoragePolicy::kYmm, 16, __m128)
-SIMD_SPECIALIZATION(double, StoragePolicy::kYmm, 16, __m128d)
+template <typename T>
+struct ExternalTypeTraits<T, detail::Abi<StoragePolicy::kYmm, 32 / sizeof(T)>> {
+  using type = __m256i;
+};
 
-SIMD_SPECIALIZATION(int8, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kYmm, 32, __m256i)
-SIMD_SPECIALIZATION(float, StoragePolicy::kYmm, 32, __m256)
-SIMD_SPECIALIZATION(double, StoragePolicy::kYmm, 32, __m256d)
+template <>
+struct ExternalTypeTraits<float, detail::Abi<StoragePolicy::kYmm, 8>> {
+  using type = __m256;
+};
 
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kYmm);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 8);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 128);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kYmm, 256);
+template <>
+struct ExternalTypeTraits<double, detail::Abi<StoragePolicy::kYmm, 4>> {
+  using type = __m256d;
+};
 
 template <typename T>
 struct LoadImpl<T, Abi<StoragePolicy::kYmm, 16 / sizeof(T)>,
@@ -367,7 +354,5 @@ detail::Simd256<ScaleBy<T, 2>> mul_widened(
 }
 
 }  // namespace dimsum
-
-#undef SIMD_SPECIALIZATION
 
 #endif  // DIMSUM_SIMD_AVX_H_

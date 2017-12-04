@@ -19,32 +19,62 @@
 
 #include <altivec.h>
 
-#include "simd.h"
+#include "operations.h"
 
 namespace dimsum {
 namespace detail {
 
-SIMD_SPECIALIZATION(int8, StoragePolicy::kVsx, 16, __vector signed char)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kVsx, 16, __vector short)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kVsx, 16, __vector int)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kVsx, 16, __vector long long)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kVsx, 16, __vector unsigned char)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kVsx, 16, __vector unsigned short)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kVsx, 16, __vector unsigned int)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kVsx, 16,
-                    __vector unsigned long long)
-SIMD_SPECIALIZATION(float, StoragePolicy::kVsx, 16, __vector float)
-SIMD_SPECIALIZATION(double, StoragePolicy::kVsx, 16, __vector double)
+template <typename T>
+struct AltivecTraits {};
 
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kVsx);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kVsx, 8);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kVsx, 32);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kVsx, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kVsx, 128);
+template <>
+struct AltivecTraits<int8> {
+  using type = __vector signed char;
+};
+template <>
+struct AltivecTraits<int16> {
+  using type = __vector signed short;
+};
+template <>
+struct AltivecTraits<int32> {
+  using type = __vector signed int;
+};
+template <>
+struct AltivecTraits<int64> {
+  using type = __vector signed long long;
+};
+template <>
+struct AltivecTraits<uint8> {
+  using type = __vector unsigned char;
+};
+template <>
+struct AltivecTraits<uint16> {
+  using type = __vector unsigned short;
+};
+template <>
+struct AltivecTraits<uint32> {
+  using type = __vector unsigned int;
+};
+template <>
+struct AltivecTraits<uint64> {
+  using type = __vector unsigned long long;
+};
+template <>
+struct AltivecTraits<float> {
+  using type = __vector float;
+};
+template <>
+struct AltivecTraits<double> {
+  using type = __vector double;
+};
 
 template <typename T>
-typename SimdTraits<T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>>::ExternalType
-load_vsx_vector_aligned(const T* buffer);
+struct ExternalTypeTraits<T, detail::Abi<StoragePolicy::kVsx, 16 / sizeof(T)>> {
+  using type = typename AltivecTraits<T>::type;
+};
+
+template <typename T>
+typename AltivecTraits<T>::type load_vsx_vector_aligned(const T* buffer);
 
 template <typename T>
 struct LoadImpl<T, Abi<StoragePolicy::kVsx, 8 / sizeof(T)>,
@@ -76,9 +106,7 @@ struct LoadImpl<T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>,
                 flags::vector_aligned_tag> {
   static Simd<T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>> Apply(
       const T* buffer) {
-    return *reinterpret_cast<const typename Simd<
-        T, Abi<StoragePolicy::kVsx, 16 / sizeof(T)>>::Traits::ExternalType*>(
-        buffer);
+    return *reinterpret_cast<const typename AltivecTraits<T>::type*>(buffer);
   }
 };
 
@@ -270,7 +298,5 @@ Simd128<ScaleBy<T, 2>> mul_widened(Simd64<T> lhs, Simd64<T> rhs) {
 }
 
 }  // namespace dimsum
-
-#undef SIMD_SPECIALIZATION
 
 #endif  // DIMSUM_SIMD_VSX_H_

@@ -17,32 +17,10 @@
 #ifndef DIMSUM_SIMD_SIMULATED_H_
 #define DIMSUM_SIMD_SIMULATED_H_
 
-#include "simd.h"
+#include "operations.h"
 #include "simulated.h"
 
 namespace dimsum {
-
-namespace detail {
-
-// Simulated (16 bytes)
-SIMD_SPECIALIZATION(int8, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(float, StoragePolicy::kSimulated, 16, InternalType)
-SIMD_SPECIALIZATION(double, StoragePolicy::kSimulated, 16, InternalType)
-
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kSimulated);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 8);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 32);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kSimulated, 128);
-
-}  // namespace detail
 
 template <typename T>
 using NativeSimd =
@@ -277,7 +255,5 @@ inline Simd128<double> fma(Simd128<double> a, Simd128<double> b,
 }
 
 }  // namespace dimsum
-
-#undef SIMD_SPECIALIZATION
 
 #endif  // DIMSUM_SIMD_SIMULATED_H_

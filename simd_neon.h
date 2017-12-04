@@ -19,37 +19,107 @@
 
 #include <arm_neon.h>
 
-#include "simd.h"
+#include "operations.h"
 
 namespace dimsum {
 namespace detail {
 
-SIMD_SPECIALIZATION(int8, StoragePolicy::kNeon, 8, int8x8_t)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kNeon, 8, int16x4_t)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kNeon, 8, int32x2_t)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kNeon, 8, int64x1_t)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kNeon, 8, uint8x8_t)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kNeon, 8, uint16x4_t)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kNeon, 8, uint32x2_t)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kNeon, 8, uint64x1_t)
-SIMD_SPECIALIZATION(float, StoragePolicy::kNeon, 8, float32x2_t)
-SIMD_SPECIALIZATION(double, StoragePolicy::kNeon, 8, float64x1_t)
+template <typename T>
+struct Neon128Traits {};
+template <>
+struct Neon128Traits<int8> {
+  using type = int8x16_t;
+};
+template <>
+struct Neon128Traits<int16> {
+  using type = int16x8_t;
+};
+template <>
+struct Neon128Traits<int32> {
+  using type = int32x4_t;
+};
+template <>
+struct Neon128Traits<int64> {
+  using type = int64x2_t;
+};
+template <>
+struct Neon128Traits<uint8> {
+  using type = uint8x16_t;
+};
+template <>
+struct Neon128Traits<uint16> {
+  using type = uint16x8_t;
+};
+template <>
+struct Neon128Traits<uint32> {
+  using type = uint32x4_t;
+};
+template <>
+struct Neon128Traits<uint64> {
+  using type = uint64x2_t;
+};
+template <>
+struct Neon128Traits<float> {
+  using type = float32x4_t;
+};
+template <>
+struct Neon128Traits<double> {
+  using type = float64x2_t;
+};
 
-SIMD_SPECIALIZATION(int8, StoragePolicy::kNeon, 16, int8x16_t)
-SIMD_SPECIALIZATION(int16, StoragePolicy::kNeon, 16, int16x8_t)
-SIMD_SPECIALIZATION(int32, StoragePolicy::kNeon, 16, int32x4_t)
-SIMD_SPECIALIZATION(int64, StoragePolicy::kNeon, 16, int64x2_t)
-SIMD_SPECIALIZATION(uint8, StoragePolicy::kNeon, 16, uint8x16_t)
-SIMD_SPECIALIZATION(uint16, StoragePolicy::kNeon, 16, uint16x8_t)
-SIMD_SPECIALIZATION(uint32, StoragePolicy::kNeon, 16, uint32x4_t)
-SIMD_SPECIALIZATION(uint64, StoragePolicy::kNeon, 16, uint64x2_t)
-SIMD_SPECIALIZATION(float, StoragePolicy::kNeon, 16, float32x4_t)
-SIMD_SPECIALIZATION(double, StoragePolicy::kNeon, 16, float64x2_t)
+template <typename T>
+struct Neon64Traits {};
+template <>
+struct Neon64Traits<int8> {
+  using type = int8x8_t;
+};
+template <>
+struct Neon64Traits<int16> {
+  using type = int16x4_t;
+};
+template <>
+struct Neon64Traits<int32> {
+  using type = int32x2_t;
+};
+template <>
+struct Neon64Traits<int64> {
+  using type = int64x1_t;
+};
+template <>
+struct Neon64Traits<uint8> {
+  using type = uint8x8_t;
+};
+template <>
+struct Neon64Traits<uint16> {
+  using type = uint16x4_t;
+};
+template <>
+struct Neon64Traits<uint32> {
+  using type = uint32x2_t;
+};
+template <>
+struct Neon64Traits<uint64> {
+  using type = uint64x1_t;
+};
+template <>
+struct Neon64Traits<float> {
+  using type = float32x2_t;
+};
+template <>
+struct Neon64Traits<double> {
+  using type = float64x1_t;
+};
 
-SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(StoragePolicy::kNeon);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kNeon, 32);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kNeon, 64);
-SIMD_NON_NATIVE_SPECIALIZATION(StoragePolicy::kNeon, 128);
+template <typename T>
+struct ExternalTypeTraits<T,
+                          detail::Abi<StoragePolicy::kNeon, 16 / sizeof(T)>> {
+  using type = typename Neon128Traits<T>::type;
+};
+
+template <typename T>
+struct ExternalTypeTraits<T, detail::Abi<StoragePolicy::kNeon, 8 / sizeof(T)>> {
+  using type = typename Neon64Traits<T>::type;
+};
 
 template <typename T>
 struct LoadImpl<T, Abi<StoragePolicy::kNeon, 8 / sizeof(T)>,
@@ -78,8 +148,7 @@ struct LoadImpl<T, Abi<StoragePolicy::kNeon, kNumElements>,
 };
 
 template <typename T>
-typename SimdTraits<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>>::ExternalType
-load_neon_vector_aligned(const T* buffer);
+typename Neon128Traits<T>::type load_neon_vector_aligned(const T* buffer);
 
 template <typename T>
 struct LoadImpl<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>,
@@ -94,62 +163,62 @@ struct LoadImpl<T, Abi<StoragePolicy::kNeon, 16 / sizeof(T)>,
 };
 
 template <>
-inline typename SimdTraits<int8, Abi<StoragePolicy::kNeon, 16>>::ExternalType
-load_neon_vector_aligned(const int8* buffer) {
+inline typename Neon128Traits<int8>::type load_neon_vector_aligned(
+    const int8* buffer) {
   return vld1q_s8(buffer);
 }
 
 template <>
-inline typename SimdTraits<int16, Abi<StoragePolicy::kNeon, 8>>::ExternalType
-load_neon_vector_aligned(const int16* buffer) {
+inline typename Neon128Traits<int16>::type load_neon_vector_aligned(
+    const int16* buffer) {
   return vld1q_s16(buffer);
 }
 
 template <>
-inline typename SimdTraits<int32, Abi<StoragePolicy::kNeon, 4>>::ExternalType
-load_neon_vector_aligned(const int32* buffer) {
+inline typename Neon128Traits<int32>::type load_neon_vector_aligned(
+    const int32* buffer) {
   return vld1q_s32(buffer);
 }
 
 template <>
-inline typename SimdTraits<int64, Abi<StoragePolicy::kNeon, 2>>::ExternalType
-load_neon_vector_aligned(const int64* buffer) {
+inline typename Neon128Traits<int64>::type load_neon_vector_aligned(
+    const int64* buffer) {
   return vld1q_s64(reinterpret_cast<const int64_t*>(buffer));
 }
 
 template <>
-inline typename SimdTraits<uint8, Abi<StoragePolicy::kNeon, 16>>::ExternalType
-load_neon_vector_aligned(const uint8* buffer) {
+inline typename Neon128Traits<uint8>::type load_neon_vector_aligned(
+    const uint8* buffer) {
   return vld1q_u8(buffer);
 }
 
 template <>
-inline typename SimdTraits<uint16, Abi<StoragePolicy::kNeon, 8>>::ExternalType
-load_neon_vector_aligned(const uint16* buffer) {
+inline typename Neon128Traits<uint16>::type load_neon_vector_aligned(
+    const uint16* buffer) {
   return vld1q_u16(buffer);
 }
 
 template <>
-inline typename SimdTraits<uint32, Abi<StoragePolicy::kNeon, 4>>::ExternalType
-load_neon_vector_aligned(const uint32* buffer) {
+inline typename Neon128Traits<uint32>::type load_neon_vector_aligned(
+    const uint32* buffer) {
   return vld1q_u32(buffer);
 }
 
 template <>
-inline typename SimdTraits<uint64, Abi<StoragePolicy::kNeon, 2>>::ExternalType
-load_neon_vector_aligned(const uint64* buffer) {
+inline typename Neon128Traits<uint64>::type load_neon_vector_aligned(
+    const uint64* buffer) {
   return vld1q_u64(reinterpret_cast<const uint64_t*>(buffer));
 }
 
 template <>
-inline typename SimdTraits<float, Abi<StoragePolicy::kNeon, 4>>::ExternalType
-load_neon_vector_aligned(const float* buffer) {
+inline typename Neon128Traits<float>::type load_neon_vector_aligned(
+    const float* buffer) {
   return vld1q_f32(buffer);
 }
 
 template <>
-inline typename SimdTraits<double, Abi<StoragePolicy::kNeon, 2>>::ExternalType
-load_neon_vector_aligned(const double* buffer) {
+inline typename Neon128Traits<double>::type load_neon_vector_aligned(
+    const double* buffer) {
   return vld1q_f64(buffer);
 }
 
@@ -379,7 +448,5 @@ Simd128<ScaleBy<T, 2>> mul_widened(Simd64<T> lhs, Simd64<T> rhs) {
 }
 
 }  // namespace dimsum
-
-#undef SIMD_SPECIALIZATION
 
 #endif  // DIMSUM_SIMD_NEON_H_

@@ -9,7 +9,8 @@ cc_library(
     hdrs = [
         "dimsum.h",
         "index_sequence.h",
-        "simd.h",
+        "types.h",
+        "operations.h",
         "simd_avx.h",
         "simd_neon.h",
         "simd_simulated.h",

@@ -17,11 +17,13 @@
 #ifndef DIMSUM_SIMULATED_H_
 #define DIMSUM_SIMULATED_H_
 
-#include <array>
+#include <climits>
 #include <cmath>
+
+#include <array>
 #include <limits>
 
-#include "simd.h"
+#include "types.h"
 
 namespace dimsum {
 namespace detail {

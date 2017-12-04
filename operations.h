@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef DIMSUM_SIMD_H_
-#define DIMSUM_SIMD_H_
+#ifndef DIMSUM_OPERATIONS_H_
+#define DIMSUM_OPERATIONS_H_
 
-#include <climits>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <cstring>
 
 #include <array>
 #include <functional>
-#include <initializer_list>
 #include <limits>
-#include <tuple>
-#include <type_traits>
 
-#include "index_sequence.h"
-#include "integral_types.h"
+#include "types.h"
 
 // Clang with version <= 3.8 has a bug, that errors on inline specializations on
 // deleted primary function template.
@@ -41,138 +35,11 @@
 #define DIMSUM_DELETE = delete
 #endif
 
-// On x86, when __attribute__((vector_size(32))) types are used but -mavx is not
-// enabled. GCC warnings "AVX vector return without AVX enabled changes the ABI
-// [-Werror=psabi]\nThe ABI for passing parameters with 32-byte alignment has
-// changed in GCC 4.6"
-// We have declarations of SIMD_NON_NATIVE_SPECIALIZATION of 32 bytes and
-// larger, which triggers the warning. GCC < 4.6 is not supported by dimsum,
-// so the warning can be safely ignored.
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpsabi"
-#endif
-
 namespace dimsum {
 template <typename T, typename Abi>
 class Simd;
 
 namespace detail {
-
-template <typename T, size_t num_bytes>
-struct GccVecTraits {};
-
-#define GCC_VEC_SPECIALIZATION(T, NUM_BYTES)                \
-  template <>                                               \
-  struct GccVecTraits<T, NUM_BYTES> {                       \
-    using type = T __attribute__((vector_size(NUM_BYTES))); \
-  }
-#define GCC_VEC_SPECIALIZE_ON_NUM_BYTES(NUM_BYTES) \
-  GCC_VEC_SPECIALIZATION(uint8, NUM_BYTES);        \
-  GCC_VEC_SPECIALIZATION(uint16, NUM_BYTES);       \
-  GCC_VEC_SPECIALIZATION(uint32, NUM_BYTES);       \
-  GCC_VEC_SPECIALIZATION(uint64, NUM_BYTES);       \
-  GCC_VEC_SPECIALIZATION(int8, NUM_BYTES);         \
-  GCC_VEC_SPECIALIZATION(int16, NUM_BYTES);        \
-  GCC_VEC_SPECIALIZATION(int32, NUM_BYTES);        \
-  GCC_VEC_SPECIALIZATION(int64, NUM_BYTES);        \
-  GCC_VEC_SPECIALIZATION(float, NUM_BYTES);        \
-  GCC_VEC_SPECIALIZATION(double, NUM_BYTES)
-
-GCC_VEC_SPECIALIZE_ON_NUM_BYTES(8);
-GCC_VEC_SPECIALIZE_ON_NUM_BYTES(16);
-GCC_VEC_SPECIALIZE_ON_NUM_BYTES(32);
-GCC_VEC_SPECIALIZE_ON_NUM_BYTES(64);
-GCC_VEC_SPECIALIZE_ON_NUM_BYTES(128);
-GCC_VEC_SPECIALIZE_ON_NUM_BYTES(256);
-
-GCC_VEC_SPECIALIZATION(uint8, 4);
-GCC_VEC_SPECIALIZATION(uint16, 4);
-GCC_VEC_SPECIALIZATION(uint32, 4);
-GCC_VEC_SPECIALIZATION(int8, 4);
-GCC_VEC_SPECIALIZATION(int16, 4);
-GCC_VEC_SPECIALIZATION(int32, 4);
-GCC_VEC_SPECIALIZATION(float, 4);
-
-GCC_VEC_SPECIALIZATION(uint8, 2);
-GCC_VEC_SPECIALIZATION(uint16, 2);
-GCC_VEC_SPECIALIZATION(int8, 2);
-GCC_VEC_SPECIALIZATION(int16, 2);
-
-GCC_VEC_SPECIALIZATION(uint8, 1);
-GCC_VEC_SPECIALIZATION(int8, 1);
-
-#undef GCC_VEC_SPECIALIZE_ON_NUM_BYTES
-#undef GCC_VEC_SPECIALIZATION
-
-template <typename T, typename Abi>
-struct SimdTraits;
-
-// Different kinds of supported elements.
-enum class NumberKind {
-  kUInt,
-  kSInt,
-  kFloat,
-};
-
-// NumberTraits maps (width, kind) to a primitive integer type.
-template <size_t width, NumberKind kind>
-struct NumberTraits;
-
-template <>
-struct NumberTraits<1, NumberKind::kSInt> {
-  using type = int8;
-};
-template <>
-struct NumberTraits<2, NumberKind::kSInt> {
-  using type = int16;
-};
-template <>
-struct NumberTraits<4, NumberKind::kSInt> {
-  using type = int32;
-};
-template <>
-struct NumberTraits<8, NumberKind::kSInt> {
-  using type = int64;
-};
-template <>
-struct NumberTraits<1, NumberKind::kUInt> {
-  using type = uint8;
-};
-template <>
-struct NumberTraits<2, NumberKind::kUInt> {
-  using type = uint16;
-};
-template <>
-struct NumberTraits<4, NumberKind::kUInt> {
-  using type = uint32;
-};
-template <>
-struct NumberTraits<8, NumberKind::kUInt> {
-  using type = uint64;
-};
-template <>
-struct NumberTraits<4, NumberKind::kFloat> {
-  using type = float;
-};
-template <>
-struct NumberTraits<8, NumberKind::kFloat> {
-  using type = double;
-};
-
-template <size_t width, NumberKind kind>
-using Number = typename NumberTraits<width, kind>::type;
-
-// Returns the NumberKind of T.
-template <typename T>
-constexpr NumberKind get_number_kind() {
-  static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value,
-                "Unexpected type");
-  return std::is_signed<T>::value
-             ? NumberKind::kSInt
-             : (std::is_unsigned<T>::value ? NumberKind::kUInt
-                                           : NumberKind::kFloat);
-}
 
 // Returns a DestType with the value clamped into its representable range.
 template <typename DestType, typename SrcType>
@@ -183,45 +50,6 @@ DestType saturated_convert(SrcType val) {
                     ? std::numeric_limits<DestType>::min()
                     : static_cast<DestType>(val));
 }
-
-enum class StoragePolicy {
-  kSimulated,
-  kXmm,
-  kYmm,
-  kVsx,
-  kNeon,
-};
-
-// Canonical implementation of abi. Currently it consists of the storage policy,
-// and the width. Notice that we want to support storage like use "half of XMM
-// register", "use 2 XMM registers", "use 1 YMM register", as they have
-// different performance characteristics.
-//
-// One may add StoragePolicy::kArray in the future to implement scalar SIMD for
-// old/embedded devices.
-//
-// TODO(dimsum): currently they are all implemented in terms of "GCC vector
-// extensions", through GccVecTraits. Distinguishing "use 2 Xmm registers" from
-// "use 1 YMM register" needs more compiler support.
-template <StoragePolicy kStorage, size_t kNumElements>
-struct Abi {
-  static_assert(kNumElements > 0, "Abi should contain more than 0 bytes");
-  static_assert(((kNumElements - 1) & kNumElements) == 0,
-                "Abi should contain power of 2 elements");
-};
-
-template <typename SimdType, typename NewElementType, size_t kNewSize>
-struct RebindTraits {};
-
-template <typename T, StoragePolicy kStorage, size_t kOldNumElements,
-          typename NewElementType, size_t kNewNumElements>
-struct RebindTraits<Simd<T, Abi<kStorage, kOldNumElements>>, NewElementType,
-                    kNewNumElements> {
-  using type = Simd<NewElementType, Abi<kStorage, kNewNumElements>>;
-};
-
-template <typename T, typename Abi, typename Flags>
-struct LoadImpl;
 
 template <typename To, typename From>
 constexpr auto IsNarrowingConversionImpl(From a[[gnu::unused]])
@@ -249,268 +77,6 @@ constexpr bool IsReduceAdd() {
 }
 
 }  // namespace detail
-
-namespace flags {
-
-struct element_aligned_tag {};
-
-constexpr element_aligned_tag element_aligned{};
-
-struct vector_aligned_tag {};
-
-constexpr vector_aligned_tag vector_aligned{};
-
-}  // namespace flags
-
-// Returns a Simd type that's based on SimdType, but with a different size.
-template <typename SimdType, size_t kNewSize>
-using ResizeTo =
-    typename detail::RebindTraits<SimdType, typename SimdType::value_type,
-                                  kNewSize>::type;
-
-// Returns a Simd type that's based on SimdType, but with the size
-// SimdType::size() * kNumerator / kDenominator.
-template <typename SimdType, size_t kNumerator, size_t kDenominator = 1>
-using ResizeBy =
-    ResizeTo<SimdType, SimdType::size() * kNumerator / kDenominator>;
-
-// Returns a Simd type of the same width, but with the element type changed to
-// T.
-template <typename SimdType, typename NewElementType>
-using ReinterpretTo =
-    Simd<NewElementType,
-         typename ResizeBy<SimdType, sizeof(typename SimdType::value_type),
-                           sizeof(NewElementType)>::abi_type>;
-
-// Returns a scalar type with width sizeof(T) * kNumerator / kDenominator.
-// For example, ScaleBy<int16, 2> gives int32, ScaleBy<uint16, 1, 2> gives
-// uint8.
-template <typename T, size_t kNumerator, size_t kDenominator = 1>
-using ScaleBy = detail::Number<sizeof(T) * kNumerator / kDenominator,
-                               detail::get_number_kind<T>()>;
-
-// Returns a numeric type that's based on T, but with a different width by the
-// ratio kNumerator / kDenominator.
-template <typename SimdType, size_t kNumerator, size_t kDenominator = 1>
-using ScaleElemBy =
-    Simd<ScaleBy<typename SimdType::value_type, kNumerator, kDenominator>,
-         typename SimdType::abi_type>;
-
-// Simd provides a portable interface of the vector/simd units in the hardware.
-//
-// Simd should only be instantiated with detail::Abi.
-template <typename T, typename Abi>
-class Simd {};
-
-template <typename T, detail::StoragePolicy kStorage, size_t kNumElements>
-class Simd<T, detail::Abi<kStorage, kNumElements>> {
-  using Traits =
-      ::dimsum::detail::SimdTraits<T, detail::Abi<kStorage, kNumElements>>;
-
-  using NumberKind = ::dimsum::detail::NumberKind;
-
-  static constexpr NumberKind kKind = ::dimsum::detail::get_number_kind<T>();
-
-  template <size_t element_width, NumberKind kind = kKind>
-  using Number = ::dimsum::detail::Number<element_width, kind>;
-
- public:
-  // The element type.
-  using value_type = T;
-
-  // The ABI type.
-  using abi_type = detail::Abi<kStorage, kNumElements>;
-
-  // The element type that comparison operations return.
-  using ComparisonResultType = Number<sizeof(T), NumberKind::kUInt>;
-
-  constexpr Simd() = default;
-
-  // Returns the number of elements in this class.
-  static constexpr size_t size() { return kNumElements; }
-
-  // Initialize a Simd object from a function. The function takes a index type,
-  // that's convertible from integral_constant<size_t, ...>().
-  //
-  // Example: Simd128<int32>([](int i) { return 2 * i }) gives [0, 2, 4, 6].
-  template <typename Generator,
-            typename = decltype(Simd(std::declval<Generator>()(
-                std::integral_constant<size_t, 0>())))>
-  explicit Simd(const Generator& gen) {
-    GeneratorInit(gen, dimsum::make_index_sequence<size()>{});
-  }
-
-  // Initialize a Simd object by elements. Number of elements must be the same
-  // as Simd<>::size().
-  template <typename... Args>
-  static Simd list(Args... args) {
-    static_assert(sizeof...(Args) == size(), "Mismatched number of elements.");
-    T buffer[size()] = {static_cast<T>(args)...};
-    return Simd(buffer, flags::element_aligned);
-  }
-
-  // Constructs a Simd object from an arch-specific raw type.
-  // It exists only to help transition and refactoring.
-  /* implicit */ Simd(typename Traits::ExternalType storage) {  // NOLINT
-    static_assert(sizeof(storage) == sizeof(storage_), "Simd width mismatch");
-    memcpy(&storage_, &storage, sizeof(storage));
-  }
-
-  typename Traits::ExternalType raw() const {
-    typename Traits::ExternalType ret;
-    static_assert(sizeof(ret) == sizeof(storage_), "Simd width mismatch");
-    memcpy(&ret, &storage_, sizeof(ret));
-    return ret;
-  }
-
-  // Constructs a Simd object from the first size() elements of the buffer.
-  template <typename Flags>
-  explicit Simd(const T* buffer, Flags flags) {
-    copy_from(buffer, flags);
-  }
-
-  // Constructs a Simd object, using a single value for all elements.
-  Simd(T value) {  // NOLINT
-    for (int i = 0; i < size(); i++) {
-      storage_[i] = value;
-    }
-  }
-
-  // Returns the ith element.
-  value_type operator[](size_t i) const { return storage_[i]; }
-
-  // Changes the current object to Simd(buffer).
-  template <typename Flags>
-  void copy_from(const T* buffer, Flags flags) {
-    *this =
-        detail::LoadImpl<T, detail::Abi<kStorage, kNumElements>, Flags>::Apply(
-            buffer);
-  }
-
-  // Stores the Simd object to the buffer.
-  template <typename Flags>
-  void copy_to(T* buffer, Flags) const {
-    constexpr size_t bytes = sizeof(storage_);
-    if (std::is_same<Flags, flags::vector_aligned_tag>::value) {
-      memcpy(__builtin_assume_aligned(buffer, bytes), &storage_, bytes);
-    } else {
-      memcpy(buffer, &storage_, bytes);
-    }
-  }
-
-  template <typename Flags>
-  __attribute__((deprecated("Use copy_from instead.")))
-  void memload(const T* buffer, Flags flags) {
-    copy_from(buffer, flags);
-  }
-
-  template <typename Flags>
-  __attribute__((deprecated("Use copy_to instead.")))
-  void memstore(T* buffer, Flags flags) {
-    copy_to(buffer, flags);
-  }
-
-  // Sets the ith element.
-  void set(size_t i, T value) { storage_[i] = value; }
-
-  template <typename Tp, typename Ap>
-  friend class Simd;
-
-  template <typename Tp, typename Abi, typename Flags>
-  friend struct detail::LoadImpl;
-
-  template <int... indices, typename Tp, typename Ap>
-  friend ResizeTo<Simd<Tp, Ap>, sizeof...(indices)> shuffle(Simd<Tp, Ap> lhs,
-                                                            Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> add_saturated(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> sub_saturated(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_eq(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_ne(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_lt(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_le(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_gt(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<typename Simd<Tp, Ap>::ComparisonResultType, Ap> cmp_ge(
-      Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> min(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> max(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator-(Simd<Tp, Ap> simd);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator~(Simd<Tp, Ap> simd);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator+(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator-(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator*(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator<<(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator>>(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator&(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator|(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Tp, typename Ap>
-  friend Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs);
-
-  template <typename Dp, typename Tp, typename Ap>
-  friend ReinterpretTo<Simd<Tp, Ap>, Dp> bit_cast(Simd<Tp, Ap> simd);
-
-  template <typename Dp, typename Sp, typename Ap>
-  friend Simd<Dp, Ap> static_simd_cast(Simd<Sp, Ap> simd);
-
- private:
-  static Simd from_storage(typename Traits::InternalType storage) {
-    Simd ret;
-    ret.storage_ = storage;
-    return ret;
-  }
-
-  template <typename Generator, size_t... indices>
-  void GeneratorInit(const Generator& gen, dimsum::index_sequence<indices...>) {
-    T buffer[size()] = {
-        static_cast<T>(gen(std::integral_constant<size_t, indices>{}))...};
-    copy_from(buffer, flags::element_aligned);
-  }
-
-  typename Traits::InternalType storage_;
-};
 
 // Here defines NativeSimd. It's actual definition varies on platforms. See
 // simd_*.h files for all of them. NativeSimd is for the "most efficient" ABI on
@@ -610,8 +176,8 @@ std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> __attribute__((
 //
 // Example: shuffle<5, 1, 6, -1>({0,1,2,3}, {4,5,6,7}) returns {5,1,6,any}.
 template <int... indices, typename T, typename SrcAbi>
-ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)>
-shuffle(Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
+ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)> shuffle(
+    Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
   using DestSimd = ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)>;
 #if defined(__clang__)
   return DestSimd::from_storage(
@@ -759,6 +325,22 @@ struct ReduceAddImpl {
 
 }  // namespace detail
 
+template <typename T, detail::StoragePolicy kStorage, size_t kNumElements>
+template <typename Flags>
+void Simd<T, detail::Abi<kStorage, kNumElements>>::copy_from(const T* buffer,
+                                                             Flags flags) {
+  *this = detail::LoadImpl<T, abi_type, Flags>::Apply(buffer);
+}
+
+template <typename T, detail::StoragePolicy kStorage, size_t kNumElements>
+template <typename Generator, size_t... indices>
+void Simd<T, detail::Abi<kStorage, kNumElements>>::GeneratorInit(
+    const Generator& gen, dimsum::index_sequence<indices...>) {
+  T buffer[size()] = {
+      static_cast<T>(gen(std::integral_constant<size_t, indices>{}))...};
+  copy_from(buffer, flags::element_aligned);
+}
+
 // Returns the element-wise, widening multiplication. For input
 // Simd<(u)intn>, returns a Simd object with element type (u)int2n, and with the
 // same amount of elements as lhs/rhs.
@@ -773,8 +355,9 @@ ScaleElemBy<Simd<T, Abi>, 2> mul_widened(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
 template <typename T, typename Abi>
 Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
   Simd<T, Abi> ret;
-  for (size_t i = 0; i < lhs.size(); i++)
+  for (size_t i = 0; i < lhs.size(); i++) {
     ret.set(i, std::min(lhs[i], rhs[i]));
+  }
   return ret;
 }
 
@@ -782,8 +365,9 @@ Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
 template <typename T, typename Abi>
 Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
   Simd<T, Abi> ret;
-  for (size_t i = 0; i < lhs.size(); i++)
+  for (size_t i = 0; i < lhs.size(); i++) {
     ret.set(i, std::max(lhs[i], rhs[i]));
+  }
   return ret;
 }
 
@@ -824,8 +408,8 @@ template <typename Dest, typename Src, typename Abi>
 Simd<Dest, Abi> static_simd_cast(Simd<Src, Abi> simd) {
   using DestSimd = Simd<Dest, Abi>;
 #if defined(__clang__)
-  return DestSimd(__builtin_convertvector(
-      simd.storage_, typename DestSimd::Traits::InternalType));
+  return DestSimd(
+      __builtin_convertvector(simd.storage_, typename DestSimd::InternalType));
 #else
   DestSimd ret;
   for (int i = 0; i < ret.size(); i++) {
@@ -856,15 +440,14 @@ typename std::enable_if<std::is_integral<T>::value, Simd<T, Abi>>::type abs(
     return simd;
   }
   auto mask = cmp_lt(simd, Simd<T, Abi>(0));
-  using Unsigned = typename std::make_unsigned<T>::type;
+  using Unsigned = detail::ToUnsigned<T>;
   return bit_cast<T>((bit_cast<Unsigned>(simd) ^ mask) - mask);
 }
 
 template <typename T, typename Abi>
 typename std::enable_if<std::is_floating_point<T>::value, Simd<T, Abi>>::type
 abs(Simd<T, Abi> simd) {
-  using Unsigned =
-      Simd<detail::Number<sizeof(T), detail::NumberKind::kUInt>, Abi>;
+  using Unsigned = detail::ToUnsigned<T>;
   return bit_cast<T>(bit_cast<Unsigned>(simd) &
                      ~Simd<Unsigned, Abi>(Unsigned(1) << (sizeof(T) - 1)));
 }
@@ -1080,8 +663,7 @@ template <typename T, typename Abi, class Op = std::plus<T>>
 typename std::enable_if<!detail::IsReduceAdd<T, Op>(), T>::type reduce(
     const Simd<T, Abi>& simd, Op op = Op()) {
   T ret = simd[0];
-  for (size_t i = 1; i < simd.size(); i++)
-    ret = op(ret, simd[i]);
+  for (size_t i = 1; i < simd.size(); i++) ret = op(ret, simd[i]);
   return ret;
 }
 
@@ -1100,14 +682,14 @@ typename std::enable_if<(Simd<T, Abi>::size() > 1), T>::type hmin(
   return hmin(min(arr[0], arr[1]));
 }
 
-// Returns the maximum element.
-// For floating points, if simd contains NaN, the result is undefined.
 template <typename T, typename Abi>
 typename std::enable_if<(Simd<T, Abi>::size() == 1), T>::type hmin(
     const Simd<T, Abi>& simd) {
   return simd[0];
 }
 
+// Returns the maximum element.
+// For floating points, if simd contains NaN, the result is undefined.
 template <typename T, typename Abi>
 typename std::enable_if<(Simd<T, Abi>::size() > 1), T>::type hmax(
     const Simd<T, Abi>& simd) {
@@ -1155,55 +737,12 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
   static_assert(std::is_floating_point<T>::value,
                 "Only floating point types are supported");
   Simd<T, Abi> ret;
-  for (size_t i = 0; i < a.size(); i++)
-    ret.set(i, std::fma(a[i], b[i], c[i]));
+  for (size_t i = 0; i < a.size(); i++) ret.set(i, std::fma(a[i], b[i], c[i]));
   return ret;
 }
 
 }  // namespace dimsum
 
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
-
-// The supported specializations of Simd types. InternalType means the actually
-// stored type. ExternalType means the convertible type that the user can use to
-// construct from and extract to.
-#define SIMD_SPECIALIZATION(T, STORAGE, NUM_BYTES, EXTERNAL_TYPE)     \
-  template <>                                                         \
-  struct SimdTraits<T, detail::Abi<STORAGE, NUM_BYTES / sizeof(T)>> { \
-    static_assert(NUM_BYTES % sizeof(T) == 0, "");                    \
-    using InternalType = detail::GccVecTraits<T, NUM_BYTES>::type;    \
-    using ExternalType = EXTERNAL_TYPE;                               \
-  };
-
-#define SIMD_NON_NATIVE_SPECIALIZATION(STORAGE, NUM_BYTES)      \
-  SIMD_SPECIALIZATION(int8, STORAGE, NUM_BYTES, InternalType)   \
-  SIMD_SPECIALIZATION(int16, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(int32, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(int64, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(uint8, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(uint16, STORAGE, NUM_BYTES, InternalType) \
-  SIMD_SPECIALIZATION(uint32, STORAGE, NUM_BYTES, InternalType) \
-  SIMD_SPECIALIZATION(uint64, STORAGE, NUM_BYTES, InternalType) \
-  SIMD_SPECIALIZATION(float, STORAGE, NUM_BYTES, InternalType)  \
-  SIMD_SPECIALIZATION(double, STORAGE, NUM_BYTES, InternalType)
-
-#define SIMD_NON_NATIVE_SPECIALIZATION_ALL_SMALL_BYTES(STORAGE) \
-  SIMD_SPECIALIZATION(int8, STORAGE, 4, InternalType)           \
-  SIMD_SPECIALIZATION(int16, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(int32, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(uint8, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(uint16, STORAGE, 4, InternalType)         \
-  SIMD_SPECIALIZATION(uint32, STORAGE, 4, InternalType)         \
-  SIMD_SPECIALIZATION(float, STORAGE, 4, InternalType)          \
-  SIMD_SPECIALIZATION(int8, STORAGE, 2, InternalType)           \
-  SIMD_SPECIALIZATION(int16, STORAGE, 2, InternalType)          \
-  SIMD_SPECIALIZATION(uint8, STORAGE, 2, InternalType)          \
-  SIMD_SPECIALIZATION(uint16, STORAGE, 2, InternalType)         \
-  SIMD_SPECIALIZATION(int8, STORAGE, 1, InternalType)           \
-  SIMD_SPECIALIZATION(uint8, STORAGE, 1, InternalType)
-
 #undef DIMSUM_DELETE
 
-#endif  // DIMSUM_SIMD_H_
+#endif  // DIMSUM_OPERATIONS_H_

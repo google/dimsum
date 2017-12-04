@@ -17,6 +17,18 @@
 #ifndef DIMSUM_DIMSUM_H_
 #define DIMSUM_DIMSUM_H_
 
+// On x86, when __attribute__((vector_size(32))) types are used but -mavx is not
+// enabled. GCC warnings "AVX vector return without AVX enabled changes the ABI
+// [-Werror=psabi]\nThe ABI for passing parameters with 32-byte alignment has
+// changed in GCC 4.6"
+// We have declarations of SIMD_NON_NATIVE_SPECIALIZATION of 32 bytes and
+// larger, which triggers the warning. GCC < 4.6 is not supported by dimsum,
+// so the warning can be safely ignored.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpsabi"
+#endif
+
 #ifdef DIMSUM_USE_SIMULATED
 # include "simd_simulated.h"
 #else
@@ -35,5 +47,9 @@
 #  include "simd_simulated.h"
 # endif
 #endif  // DIMSUM_USE_SIMULATED
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 #endif  // DIMSUM_DIMSUM_H_
