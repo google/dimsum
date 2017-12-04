@@ -419,10 +419,27 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     TestReduce<float>(data);
     TestReduce<double>(data);
 
-    TestHMin<int>(data);
+    TestHMin<int8>(data);
+    TestHMin<int16>(data);
+    TestHMin<int32>(data);
+    TestHMin<int64>(data);
+    TestHMin<uint8>(data);
+    TestHMin<uint16>(data);
+    TestHMin<uint32>(data);
+    TestHMin<uint64>(data);
     TestHMin<float>(data);
-    TestHMax<int>(data);
+    TestHMin<double>(data);
+
+    TestHMax<int8>(data);
+    TestHMax<int16>(data);
+    TestHMax<int32>(data);
+    TestHMax<int64>(data);
+    TestHMax<uint8>(data);
+    TestHMax<uint16>(data);
+    TestHMax<uint32>(data);
+    TestHMax<uint64>(data);
     TestHMax<float>(data);
+    TestHMax<double>(data);
 
     TestSameTypeReduceAdd<Simd128<int8>, 8>(data);
     TestSameTypeReduceAdd<Simd128<int8>, 4>(data);
