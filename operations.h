@@ -25,15 +25,8 @@
 #include <functional>
 #include <limits>
 
+#include "port.h"
 #include "types.h"
-
-// Clang with version <= 3.8 has a bug, that errors on inline specializations on
-// deleted primary function template.
-#if defined(__clang__) && __clang_major__ == 3 && __clang_minor__ <= 8
-#define DIMSUM_DELETE
-#else
-#define DIMSUM_DELETE = delete
-#endif
 
 namespace dimsum {
 template <typename T, typename Abi>

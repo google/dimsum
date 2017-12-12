@@ -22,7 +22,7 @@
 #include <type_traits>
 
 #include "index_sequence.h"
-#include "integral_types.h"
+#include "port.h"
 
 namespace dimsum {
 namespace detail {

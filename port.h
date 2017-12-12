@@ -19,6 +19,7 @@
 
 #include <cstdint>
 
+// TODO: these should be exposed. Remove them.
 using int8 = int8_t;
 using int16 = int16_t;
 using int32 = int32_t;
@@ -27,5 +28,13 @@ using uint8 = uint8_t;
 using uint16 = uint16_t;
 using uint32 = uint32_t;
 using uint64 = uint64_t;
+
+// Clang with version <= 3.8 has a bug, that errors on inline specializations on
+// deleted primary function template.
+#if defined(__clang__) && __clang_major__ == 3 && __clang_minor__ <= 8
+#define DIMSUM_DELETE
+#else
+#define DIMSUM_DELETE = delete
+#endif
 
 #endif  // DIMSUM_INTEGRAL_TYPES_H_

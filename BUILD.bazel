@@ -17,16 +17,7 @@ cc_library(
         "simd_sse.h",
         "simd_vsx.h",
         "simulated.h",
-    ],
-    deps = [
-        ":integral_types",
-    ],
-)
-
-cc_library(
-    name = "integral_types",
-    hdrs = [
-        "integral_types.h",
+        "port.h",
     ],
 )
 
