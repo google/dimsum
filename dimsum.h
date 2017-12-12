@@ -32,10 +32,14 @@
 #ifdef DIMSUM_USE_SIMULATED
 # include "simd_simulated.h"
 #else
-# if defined(__aarch64__) && defined(__ARM_NEON) && defined(USE_DIMSUM_ARM)
+# if defined(USE_DIMSUM_ARM)
+#  if defined(__aarch64__) && defined(__ARM_NEON)
 // TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
 // production ready.
-#  include "simd_neon.h"
+#   include "simd_neon.h"
+#  else
+#   error "USE_DIMSUM_ARM is defined, but target doesn't support ARMv8 NEON."
+#  endif
 # elif defined(__SSE4_1__)
 #  include "simd_sse.h"
 #  ifdef __AVX2__
@@ -44,7 +48,8 @@
 # elif defined(__VSX__)
 #  include "simd_vsx.h"
 # else
-#  include "simd_simulated.h"
+#  error \
+    "Dimsum doesn't support this target. You may try emulation mode by defining the macro USE_DIMSUM_SIMULATED before including the header, but emulation mode is as good as loops over scalars can get." // NOLINT
 # endif
 #endif  // DIMSUM_USE_SIMULATED
 
