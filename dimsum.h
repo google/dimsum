@@ -40,7 +40,7 @@
 #  else
 #   error "USE_DIMSUM_ARM is defined, but target doesn't support ARMv8 NEON."
 #  endif
-# elif defined(__SSE4_1__)
+# elif defined(__SSE3__)
 #  include "simd_sse.h"
 #  ifdef __AVX2__
 #   include "simd_avx.h"

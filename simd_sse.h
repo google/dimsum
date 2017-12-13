@@ -80,6 +80,7 @@ using Simd128 =
 template <typename T>
 using Simd64 = Simd<T, detail::Abi<detail::StoragePolicy::kXmm, 8 / sizeof(T)>>;
 
+#ifdef __SSSE3__
 template <>
 inline Simd128<int8> abs(Simd128<int8> simd) {
   return _mm_abs_epi8(simd.raw());
@@ -94,6 +95,7 @@ template <>
 inline Simd128<int32> abs(Simd128<int32> simd) {
   return _mm_abs_epi32(simd.raw());
 }
+#endif
 
 #ifdef __AVX512VL__
 template <>
@@ -175,26 +177,31 @@ inline Simd128<uint16> sub_saturated(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return _mm_subs_epu16(lhs.raw(), rhs.raw());
 }
 
+#ifdef __SSE4_1__
 template <>
 inline Simd128<int8> min(Simd128<int8> lhs, Simd128<int8> rhs) {
   return _mm_min_epi8(lhs.raw(), rhs.raw());
 }
+#endif
 
 template <>
 inline Simd128<int16> min(Simd128<int16> lhs, Simd128<int16> rhs) {
   return _mm_min_epi16(lhs.raw(), rhs.raw());
 }
 
+#ifdef __SSE4_1__
 template <>
 inline Simd128<int32> min(Simd128<int32> lhs, Simd128<int32> rhs) {
   return _mm_min_epi32(lhs.raw(), rhs.raw());
 }
+#endif
 
 template <>
 inline Simd128<uint8> min(Simd128<uint8> lhs, Simd128<uint8> rhs) {
   return _mm_min_epu8(lhs.raw(), rhs.raw());
 }
 
+#ifdef __SSE4_1__
 template <>
 inline Simd128<uint16> min(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return _mm_min_epu16(lhs.raw(), rhs.raw());
@@ -204,6 +211,7 @@ template <>
 inline Simd128<uint32> min(Simd128<uint32> lhs, Simd128<uint32> rhs) {
   return _mm_min_epu32(lhs.raw(), rhs.raw());
 }
+#endif
 
 template <>
 inline Simd128<float> min(Simd128<float> lhs, Simd128<float> rhs) {
@@ -215,26 +223,31 @@ inline Simd128<double> min(Simd128<double> lhs, Simd128<double> rhs) {
   return _mm_min_pd(lhs.raw(), rhs.raw());
 }
 
+#ifdef __SSE4_1__
 template <>
 inline Simd128<int8> max(Simd128<int8> lhs, Simd128<int8> rhs) {
   return _mm_max_epi8(lhs.raw(), rhs.raw());
 }
+#endif
 
 template <>
 inline Simd128<int16> max(Simd128<int16> lhs, Simd128<int16> rhs) {
   return _mm_max_epi16(lhs.raw(), rhs.raw());
 }
 
+#ifdef __SSE4_1__
 template <>
 inline Simd128<int32> max(Simd128<int32> lhs, Simd128<int32> rhs) {
   return _mm_max_epi32(lhs.raw(), rhs.raw());
 }
+#endif
 
 template <>
 inline Simd128<uint8> max(Simd128<uint8> lhs, Simd128<uint8> rhs) {
   return _mm_max_epu8(lhs.raw(), rhs.raw());
 }
 
+#ifdef __SSE4_1__
 template <>
 inline Simd128<uint16> max(Simd128<uint16> lhs, Simd128<uint16> rhs) {
   return _mm_max_epu16(lhs.raw(), rhs.raw());
@@ -244,6 +257,7 @@ template <>
 inline Simd128<uint32> max(Simd128<uint32> lhs, Simd128<uint32> rhs) {
   return _mm_max_epu32(lhs.raw(), rhs.raw());
 }
+#endif
 
 template <>
 inline Simd128<float> max(Simd128<float> lhs, Simd128<float> rhs) {
@@ -291,6 +305,7 @@ inline Simd128<int32> mul_sum<int32>(Simd128<int16> lhs, Simd128<int16> rhs,
   return _mm_add_epi32(acc.raw(), _mm_madd_epi16(lhs.raw(), rhs.raw()));
 }
 
+#ifdef __SSE4_1__
 // _MM_FROUND_TO_NEAREST_INT specifies round-to-even.
 template <>
 inline Simd128<float> round(Simd128<float> simd) {
@@ -303,6 +318,7 @@ inline Simd128<double> round(Simd128<double> simd) {
   return _mm_round_pd(simd.raw(),
                       _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC);
 }
+#endif
 
 template <>
 inline Simd128<int32> round_to_integer(Simd128<float> simd) {

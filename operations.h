@@ -384,7 +384,13 @@ Simd<T, Abi> reciprocal_sqrt_estimate(Simd<T, Abi>) DIMSUM_DELETE;
 // On Power, vec_rint is used which rounds floating points according to Rounding
 // Control field RN in FPSCR, which defaults to round-to-even.
 template <typename T, typename Abi>
-Simd<T, Abi> round(Simd<T, Abi>) DIMSUM_DELETE;
+Simd<T, Abi> round(Simd<T, Abi> simd) {
+  Simd<T, Abi> ret;
+  for (size_t i = 0; i < simd.size(); i++) {
+    ret.set(i, std::nearbyint(simd[i]));
+  }
+  return ret;
+}
 
 // Casts to another vector type of the same width without changing any bits.
 template <typename Dest, typename T, typename Abi>
