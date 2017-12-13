@@ -17,7 +17,15 @@
 #ifndef DIMSUM_SIMD_SSE_H_
 #define DIMSUM_SIMD_SSE_H_
 
-#include <smmintrin.h>
+#ifdef __SSE3__
+# include <pmmintrin.h>
+#endif
+#ifdef __SSSE3__
+# include <tmmintrin.h>
+#endif
+#ifdef __SSE4_1__
+# include <smmintrin.h>
+#endif
 
 #include "operations.h"
 
