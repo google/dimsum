@@ -98,7 +98,7 @@ inline detail::Simd256<int32> abs(detail::Simd256<int32> simd) {
 
 #ifdef __AVX512VL__
 template <>
-inline detail::Simd256<int64> abs(detail::Simd256<int32> simd) {
+inline detail::Simd256<int64> abs(detail::Simd256<int64> simd) {
   return _mm256_abs_epi64(simd.raw());
 }
 #endif
