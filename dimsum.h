@@ -49,7 +49,7 @@
 #  include "simd_vsx.h"
 # else
 #  error \
-    "Dimsum doesn't support this target. You may try emulation mode by defining the macro USE_DIMSUM_SIMULATED before including the header, but emulation mode is as good as loops over scalars can get." // NOLINT
+    "Dimsum doesn't support this target. You may try emulation mode by defining the macro DIMSUM_USE_SIMULATED before including the header, but emulation mode is as good as loops over scalars can get." // NOLINT
 # endif
 #endif  // DIMSUM_USE_SIMULATED
 
