@@ -273,15 +273,6 @@ class Simd<T, detail::Abi<kStorage, kNumElements>> {
     GeneratorInit(gen, dimsum::make_index_sequence<size()>{});
   }
 
-  // Initialize a Simd object by elements. Number of elements must be the same
-  // as Simd<>::size().
-  template <typename... Args>
-  static Simd list(Args... args) {
-    static_assert(sizeof...(Args) == size(), "Mismatched number of elements.");
-    T buffer[size()] = {static_cast<T>(args)...};
-    return Simd(buffer, flags::element_aligned);
-  }
-
   // Constructs a Simd object from an arch-specific raw type.
   // It exists only to help transition and refactoring.
   /* implicit */ Simd(ExternalType storage) {  // NOLINT
