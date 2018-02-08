@@ -32,13 +32,13 @@
 #ifdef DIMSUM_USE_SIMULATED
 # include "simd_simulated.h"
 #else
-# if defined(USE_DIMSUM_ARM)
+# if defined(DIMSUM_USE_ARM)
 #  if defined(__aarch64__) && defined(__ARM_NEON)
-// TODO(maskray) remove defined(USE_DIMSUM_ARM) after ARM NEON support is
+// TODO(maskray) remove defined(DIMSUM_USE_ARM) after ARM NEON support is
 // production ready.
 #   include "simd_neon.h"
 #  else
-#   error "USE_DIMSUM_ARM is defined, but target doesn't support ARMv8 NEON."
+#   error "DIMSUM_USE_ARM is defined, but target doesn't support ARMv8 NEON."
 #  endif
 # elif defined(__SSE3__)
 #  include "simd_sse.h"
