@@ -17,16 +17,16 @@ using TestedSimd = NativeSimd<T>;
 // The extern "C" functions below doesn't create instantiations of Simd<>.
 // Create them here to suppress compiler warnings about returning incomplete
 // type.
-void Foo(TestedSimd<int8>) {}
-void Foo(TestedSimd<int16>) {}
-void Foo(TestedSimd<int32>) {}
-void Foo(TestedSimd<int64>) {}
-void Foo(TestedSimd<uint8>) {}
-void Foo(TestedSimd<uint16>) {}
-void Foo(TestedSimd<uint32>) {}
-void Foo(TestedSimd<uint64>) {}
-void Foo(TestedSimd<float>) {}
-void Foo(TestedSimd<double>) {}
+TestedSimd<int8> simd_a0;
+TestedSimd<int16> simd_a2;
+TestedSimd<int32> simd_a3;
+TestedSimd<int64> simd_a4;
+TestedSimd<uint8> simd_a5;
+TestedSimd<uint16> simd_a6;
+TestedSimd<uint32> simd_a7;
+TestedSimd<uint64> simd_a8;
+TestedSimd<float> simd_a9;
+TestedSimd<double> simd_a10;
 
 extern "C" {
 
