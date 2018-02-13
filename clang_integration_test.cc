@@ -45,7 +45,7 @@ extern "C" {
 // CHECK-AVX2-128-NEXT:    vpaddb %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorADD_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_1:
@@ -63,7 +63,7 @@ TestedSimd<int8> operatorADD_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vpaddw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorADD_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_2:
@@ -81,7 +81,7 @@ TestedSimd<int16> operatorADD_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorADD_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_3:
@@ -99,7 +99,7 @@ TestedSimd<int32> operatorADD_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorADD_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_4:
@@ -117,7 +117,7 @@ TestedSimd<int64> operatorADD_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vpaddb %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorADD_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_5:
@@ -135,7 +135,7 @@ TestedSimd<uint8> operatorADD_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vpaddw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorADD_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_6:
@@ -153,7 +153,7 @@ TestedSimd<uint16> operatorADD_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorADD_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_7:
@@ -171,7 +171,7 @@ TestedSimd<uint32> operatorADD_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorADD_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_8:
@@ -189,7 +189,7 @@ TestedSimd<uint64> operatorADD_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vaddps %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> operatorADD_8(TestedSimd<float> a, TestedSimd<float> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorADD_9:
@@ -207,7 +207,7 @@ TestedSimd<float> operatorADD_8(TestedSimd<float> a, TestedSimd<float> b) {
 // CHECK-AVX2-128-NEXT:    vaddpd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> operatorADD_9(TestedSimd<double> a, TestedSimd<double> b) {
-  return operator+(a, b);
+  return a + b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_0:
@@ -225,7 +225,7 @@ TestedSimd<double> operatorADD_9(TestedSimd<double> a, TestedSimd<double> b) {
 // CHECK-AVX2-128-NEXT:    vpsubb %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorSUB_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_1:
@@ -243,7 +243,7 @@ TestedSimd<int8> operatorSUB_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vpsubw %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorSUB_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_2:
@@ -261,7 +261,7 @@ TestedSimd<int16> operatorSUB_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vpsubd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorSUB_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_3:
@@ -279,7 +279,7 @@ TestedSimd<int32> operatorSUB_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vpsubq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorSUB_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_4:
@@ -297,7 +297,7 @@ TestedSimd<int64> operatorSUB_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vpsubb %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorSUB_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_5:
@@ -315,7 +315,7 @@ TestedSimd<uint8> operatorSUB_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vpsubw %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorSUB_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_6:
@@ -333,7 +333,7 @@ TestedSimd<uint16> operatorSUB_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vpsubd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorSUB_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_7:
@@ -351,7 +351,7 @@ TestedSimd<uint32> operatorSUB_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vpsubq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorSUB_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_8:
@@ -369,7 +369,7 @@ TestedSimd<uint64> operatorSUB_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vsubps %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> operatorSUB_8(TestedSimd<float> a, TestedSimd<float> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorSUB_9:
@@ -387,7 +387,7 @@ TestedSimd<float> operatorSUB_8(TestedSimd<float> a, TestedSimd<float> b) {
 // CHECK-AVX2-128-NEXT:    vsubpd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> operatorSUB_9(TestedSimd<double> a, TestedSimd<double> b) {
-  return operator-(a, b);
+  return a - b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_0:
@@ -442,7 +442,7 @@ TestedSimd<double> operatorSUB_9(TestedSimd<double> a, TestedSimd<double> b) {
 // CHECK-AVX2-128-NEXT:    vzeroupper
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorMUL_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_1:
@@ -460,7 +460,7 @@ TestedSimd<int8> operatorMUL_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vpmullw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorMUL_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_2:
@@ -478,7 +478,7 @@ TestedSimd<int16> operatorMUL_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vpmulld %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorMUL_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_3:
@@ -519,7 +519,7 @@ TestedSimd<int32> operatorMUL_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vpaddq %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorMUL_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_4:
@@ -574,7 +574,7 @@ TestedSimd<int64> operatorMUL_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vzeroupper
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorMUL_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_5:
@@ -592,7 +592,7 @@ TestedSimd<uint8> operatorMUL_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vpmullw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorMUL_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_6:
@@ -610,7 +610,7 @@ TestedSimd<uint16> operatorMUL_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vpmulld %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorMUL_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_7:
@@ -651,7 +651,7 @@ TestedSimd<uint32> operatorMUL_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vpaddq %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorMUL_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_8:
@@ -669,7 +669,7 @@ TestedSimd<uint64> operatorMUL_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vmulps %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> operatorMUL_8(TestedSimd<float> a, TestedSimd<float> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorMUL_9:
@@ -687,7 +687,7 @@ TestedSimd<float> operatorMUL_8(TestedSimd<float> a, TestedSimd<float> b) {
 // CHECK-AVX2-128-NEXT:    vmulpd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> operatorMUL_9(TestedSimd<double> a, TestedSimd<double> b) {
-  return operator*(a, b);
+  return a * b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_0:
@@ -705,7 +705,7 @@ TestedSimd<double> operatorMUL_9(TestedSimd<double> a, TestedSimd<double> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorAND_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_1:
@@ -723,7 +723,7 @@ TestedSimd<int8> operatorAND_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorAND_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_2:
@@ -741,7 +741,7 @@ TestedSimd<int16> operatorAND_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorAND_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_3:
@@ -759,7 +759,7 @@ TestedSimd<int32> operatorAND_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorAND_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_4:
@@ -777,7 +777,7 @@ TestedSimd<int64> operatorAND_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorAND_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_5:
@@ -795,7 +795,7 @@ TestedSimd<uint8> operatorAND_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorAND_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_6:
@@ -813,7 +813,7 @@ TestedSimd<uint16> operatorAND_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorAND_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorAND_7:
@@ -831,7 +831,7 @@ TestedSimd<uint32> operatorAND_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vandps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorAND_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator&(a, b);
+  return a & b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_0:
@@ -849,7 +849,7 @@ TestedSimd<uint64> operatorAND_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorXOR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_1:
@@ -867,7 +867,7 @@ TestedSimd<int8> operatorXOR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorXOR_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_2:
@@ -885,7 +885,7 @@ TestedSimd<int16> operatorXOR_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorXOR_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_3:
@@ -903,7 +903,7 @@ TestedSimd<int32> operatorXOR_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorXOR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_4:
@@ -921,7 +921,7 @@ TestedSimd<int64> operatorXOR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorXOR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_5:
@@ -939,7 +939,7 @@ TestedSimd<uint8> operatorXOR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorXOR_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_6:
@@ -957,7 +957,7 @@ TestedSimd<uint16> operatorXOR_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorXOR_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorXOR_7:
@@ -975,7 +975,7 @@ TestedSimd<uint32> operatorXOR_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorXOR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator^(a, b);
+  return a ^ b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_0:
@@ -993,7 +993,7 @@ TestedSimd<uint64> operatorXOR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorOR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_1:
@@ -1011,7 +1011,7 @@ TestedSimd<int8> operatorOR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorOR_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_2:
@@ -1029,7 +1029,7 @@ TestedSimd<int16> operatorOR_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorOR_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_3:
@@ -1047,7 +1047,7 @@ TestedSimd<int32> operatorOR_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorOR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_4:
@@ -1065,7 +1065,7 @@ TestedSimd<int64> operatorOR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorOR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_5:
@@ -1083,7 +1083,7 @@ TestedSimd<uint8> operatorOR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorOR_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_6:
@@ -1101,7 +1101,7 @@ TestedSimd<uint16> operatorOR_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorOR_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorOR_7:
@@ -1119,7 +1119,7 @@ TestedSimd<uint32> operatorOR_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vorps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorOR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator|(a, b);
+  return a | b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_0:
@@ -1175,7 +1175,7 @@ TestedSimd<uint64> operatorOR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vpblendvb %xmm1, %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorSHL_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_1:
@@ -1233,7 +1233,7 @@ TestedSimd<int8> operatorSHL_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vzeroupper
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorSHL_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_2:
@@ -1254,7 +1254,7 @@ TestedSimd<int16> operatorSHL_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vpsllvd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorSHL_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_3:
@@ -1276,7 +1276,7 @@ TestedSimd<int32> operatorSHL_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vpsllvq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorSHL_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_4:
@@ -1332,7 +1332,7 @@ TestedSimd<int64> operatorSHL_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vpblendvb %xmm1, %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorSHL_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_5:
@@ -1390,7 +1390,7 @@ TestedSimd<uint8> operatorSHL_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vzeroupper
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorSHL_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_6:
@@ -1411,7 +1411,7 @@ TestedSimd<uint16> operatorSHL_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vpsllvd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorSHL_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_7:
@@ -1433,7 +1433,7 @@ TestedSimd<uint32> operatorSHL_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vpsllvq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorSHL_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_0:
@@ -1528,7 +1528,7 @@ TestedSimd<uint64> operatorSHL_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vpackuswb %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorSHR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_1:
@@ -1585,7 +1585,7 @@ TestedSimd<int8> operatorSHR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-AVX2-128-NEXT:    vzeroupper
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorSHR_1(TestedSimd<int16> a, TestedSimd<int16> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_2:
@@ -1619,7 +1619,7 @@ TestedSimd<int16> operatorSHR_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 // CHECK-AVX2-128-NEXT:    vpsravd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorSHR_2(TestedSimd<int32> a, TestedSimd<int32> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_3:
@@ -1656,7 +1656,7 @@ TestedSimd<int32> operatorSHR_2(TestedSimd<int32> a, TestedSimd<int32> b) {
 // CHECK-AVX2-128-NEXT:    vpsubq %xmm3, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorSHR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_4:
@@ -1715,7 +1715,7 @@ TestedSimd<int64> operatorSHR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-AVX2-128-NEXT:    vpblendvb %xmm1, %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorSHR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_5:
@@ -1773,7 +1773,7 @@ TestedSimd<uint8> operatorSHR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-AVX2-128-NEXT:    vzeroupper
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorSHR_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_6:
@@ -1807,7 +1807,7 @@ TestedSimd<uint16> operatorSHR_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 // CHECK-AVX2-128-NEXT:    vpsrlvd %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorSHR_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_7:
@@ -1829,7 +1829,7 @@ TestedSimd<uint32> operatorSHR_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
 // CHECK-AVX2-128-NEXT:    vpsrlvq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorSHR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_8:
@@ -1892,7 +1892,7 @@ TestedSimd<uint64> operatorSHR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-AVX2-128-NEXT:    vpblendvb %xmm2, %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorSHL_8(TestedSimd<int8> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_9:
@@ -1916,7 +1916,7 @@ TestedSimd<int8> operatorSHL_8(TestedSimd<int8> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsllw %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorSHL_9(TestedSimd<int16> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_10:
@@ -1937,7 +1937,7 @@ TestedSimd<int16> operatorSHL_9(TestedSimd<int16> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpslld %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorSHL_10(TestedSimd<int32> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_11:
@@ -1961,7 +1961,7 @@ TestedSimd<int32> operatorSHL_10(TestedSimd<int32> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsllq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorSHL_11(TestedSimd<int64> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_12:
@@ -2024,7 +2024,7 @@ TestedSimd<int64> operatorSHL_11(TestedSimd<int64> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpblendvb %xmm2, %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorSHL_12(TestedSimd<uint8> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_13:
@@ -2048,7 +2048,7 @@ TestedSimd<uint8> operatorSHL_12(TestedSimd<uint8> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsllw %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorSHL_13(TestedSimd<uint16> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_14:
@@ -2069,7 +2069,7 @@ TestedSimd<uint16> operatorSHL_13(TestedSimd<uint16> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpslld %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorSHL_14(TestedSimd<uint32> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHL_15:
@@ -2093,7 +2093,7 @@ TestedSimd<uint32> operatorSHL_14(TestedSimd<uint32> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsllq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorSHL_15(TestedSimd<uint64> a, int b) {
-  return operator<<(a, b);
+  return a << b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_8:
@@ -2195,7 +2195,7 @@ TestedSimd<uint64> operatorSHL_15(TestedSimd<uint64> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpackuswb %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorSHR_8(TestedSimd<int8> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_9:
@@ -2219,7 +2219,7 @@ TestedSimd<int8> operatorSHR_8(TestedSimd<int8> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsraw %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorSHR_9(TestedSimd<int16> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_10:
@@ -2240,7 +2240,7 @@ TestedSimd<int16> operatorSHR_9(TestedSimd<int16> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsrad %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorSHR_10(TestedSimd<int32> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_11:
@@ -2276,7 +2276,7 @@ TestedSimd<int32> operatorSHR_10(TestedSimd<int32> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsubq %xmm2, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorSHR_11(TestedSimd<int64> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_12:
@@ -2339,7 +2339,7 @@ TestedSimd<int64> operatorSHR_11(TestedSimd<int64> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpblendvb %xmm2, %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorSHR_12(TestedSimd<uint8> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_13:
@@ -2363,7 +2363,7 @@ TestedSimd<uint8> operatorSHR_12(TestedSimd<uint8> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsrlw %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorSHR_13(TestedSimd<uint16> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_14:
@@ -2384,7 +2384,7 @@ TestedSimd<uint16> operatorSHR_13(TestedSimd<uint16> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsrld %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorSHR_14(TestedSimd<uint32> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: operatorSHR_15:
@@ -2408,7 +2408,7 @@ TestedSimd<uint32> operatorSHR_14(TestedSimd<uint32> a, int b) {
 // CHECK-AVX2-128-NEXT:    vpsrlq %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorSHR_15(TestedSimd<uint64> a, int b) {
-  return operator>>(a, b);
+  return a >> b;
 }
 
 // CHECK-SSE42-LABEL: cmp_eq_0:
@@ -6640,7 +6640,7 @@ void copy_to_vector_9(TestedSimd<double> a, double* b) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorUNARY_ADD_0(TestedSimd<int8> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_1:
@@ -6655,7 +6655,7 @@ TestedSimd<int8> operatorUNARY_ADD_0(TestedSimd<int8> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorUNARY_ADD_1(TestedSimd<int16> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_2:
@@ -6670,7 +6670,7 @@ TestedSimd<int16> operatorUNARY_ADD_1(TestedSimd<int16> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorUNARY_ADD_2(TestedSimd<int32> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_3:
@@ -6685,7 +6685,7 @@ TestedSimd<int32> operatorUNARY_ADD_2(TestedSimd<int32> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorUNARY_ADD_3(TestedSimd<int64> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_4:
@@ -6700,7 +6700,7 @@ TestedSimd<int64> operatorUNARY_ADD_3(TestedSimd<int64> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorUNARY_ADD_4(TestedSimd<uint8> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_5:
@@ -6715,7 +6715,7 @@ TestedSimd<uint8> operatorUNARY_ADD_4(TestedSimd<uint8> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorUNARY_ADD_5(TestedSimd<uint16> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_6:
@@ -6730,7 +6730,7 @@ TestedSimd<uint16> operatorUNARY_ADD_5(TestedSimd<uint16> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorUNARY_ADD_6(TestedSimd<uint32> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_7:
@@ -6745,7 +6745,7 @@ TestedSimd<uint32> operatorUNARY_ADD_6(TestedSimd<uint32> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorUNARY_ADD_7(TestedSimd<uint64> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_8:
@@ -6760,7 +6760,7 @@ TestedSimd<uint64> operatorUNARY_ADD_7(TestedSimd<uint64> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> operatorUNARY_ADD_8(TestedSimd<float> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_ADD_9:
@@ -6775,7 +6775,7 @@ TestedSimd<float> operatorUNARY_ADD_8(TestedSimd<float> a) {
 // CHECK-AVX2-128:       # %bb.0:
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> operatorUNARY_ADD_9(TestedSimd<double> a) {
-  return operator+(a);
+  return +a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_0:
@@ -6797,7 +6797,7 @@ TestedSimd<double> operatorUNARY_ADD_9(TestedSimd<double> a) {
 // CHECK-AVX2-128-NEXT:    vpsubb %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorUNARY_SUB_0(TestedSimd<int8> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_1:
@@ -6819,7 +6819,7 @@ TestedSimd<int8> operatorUNARY_SUB_0(TestedSimd<int8> a) {
 // CHECK-AVX2-128-NEXT:    vpsubw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorUNARY_SUB_1(TestedSimd<int16> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_2:
@@ -6841,7 +6841,7 @@ TestedSimd<int16> operatorUNARY_SUB_1(TestedSimd<int16> a) {
 // CHECK-AVX2-128-NEXT:    vpsubd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorUNARY_SUB_2(TestedSimd<int32> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_3:
@@ -6863,7 +6863,7 @@ TestedSimd<int32> operatorUNARY_SUB_2(TestedSimd<int32> a) {
 // CHECK-AVX2-128-NEXT:    vpsubq %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorUNARY_SUB_3(TestedSimd<int64> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_4:
@@ -6885,7 +6885,7 @@ TestedSimd<int64> operatorUNARY_SUB_3(TestedSimd<int64> a) {
 // CHECK-AVX2-128-NEXT:    vpsubb %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorUNARY_SUB_4(TestedSimd<uint8> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_5:
@@ -6907,7 +6907,7 @@ TestedSimd<uint8> operatorUNARY_SUB_4(TestedSimd<uint8> a) {
 // CHECK-AVX2-128-NEXT:    vpsubw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorUNARY_SUB_5(TestedSimd<uint16> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_6:
@@ -6929,7 +6929,7 @@ TestedSimd<uint16> operatorUNARY_SUB_5(TestedSimd<uint16> a) {
 // CHECK-AVX2-128-NEXT:    vpsubd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorUNARY_SUB_6(TestedSimd<uint32> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_7:
@@ -6951,7 +6951,7 @@ TestedSimd<uint32> operatorUNARY_SUB_6(TestedSimd<uint32> a) {
 // CHECK-AVX2-128-NEXT:    vpsubq %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorUNARY_SUB_7(TestedSimd<uint64> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_8:
@@ -6971,7 +6971,7 @@ TestedSimd<uint64> operatorUNARY_SUB_7(TestedSimd<uint64> a) {
 // CHECK-AVX2-128-NEXT:    vxorps %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> operatorUNARY_SUB_8(TestedSimd<float> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorUNARY_SUB_9:
@@ -6990,7 +6990,7 @@ TestedSimd<float> operatorUNARY_SUB_8(TestedSimd<float> a) {
 // CHECK-AVX2-128-NEXT:    vxorps {{.*}}(%rip), %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> operatorUNARY_SUB_9(TestedSimd<double> a) {
-  return operator-(a);
+  return -a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_0:
@@ -7011,7 +7011,7 @@ TestedSimd<double> operatorUNARY_SUB_9(TestedSimd<double> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> operatorNOT_0(TestedSimd<int8> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_1:
@@ -7032,7 +7032,7 @@ TestedSimd<int8> operatorNOT_0(TestedSimd<int8> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> operatorNOT_1(TestedSimd<int16> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_2:
@@ -7053,7 +7053,7 @@ TestedSimd<int16> operatorNOT_1(TestedSimd<int16> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> operatorNOT_2(TestedSimd<int32> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_3:
@@ -7074,7 +7074,7 @@ TestedSimd<int32> operatorNOT_2(TestedSimd<int32> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int64> operatorNOT_3(TestedSimd<int64> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_4:
@@ -7095,7 +7095,7 @@ TestedSimd<int64> operatorNOT_3(TestedSimd<int64> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> operatorNOT_4(TestedSimd<uint8> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_5:
@@ -7116,7 +7116,7 @@ TestedSimd<uint8> operatorNOT_4(TestedSimd<uint8> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> operatorNOT_5(TestedSimd<uint16> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_6:
@@ -7137,7 +7137,7 @@ TestedSimd<uint16> operatorNOT_5(TestedSimd<uint16> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> operatorNOT_6(TestedSimd<uint32> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: operatorNOT_7:
@@ -7158,7 +7158,7 @@ TestedSimd<uint32> operatorNOT_6(TestedSimd<uint32> a) {
 // CHECK-AVX2-128-NEXT:    vpxor %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> operatorNOT_7(TestedSimd<uint64> a) {
-  return operator~(a);
+  return ~a;
 }
 
 // CHECK-SSE42-LABEL: test_static_simd_cast_0:
