@@ -66,9 +66,9 @@ The project is header-only, therefore no build is needed.
 For testing, use "CC=clang bazel test --copt='...' <>" to run the unit tests.
 
 For example:
-* CC=clang bazel test --copt='-msse4.1' ... # x86 host
-* CC=clang bazel test --copt='-mavx2' ... # x86 host
-* CC=clang bazel test --copt='-maltivec' ... # Power host
+* CC=clang bazel test dimsum_test --copt='-msse4.1' ... # x86 host
+* CC=clang bazel test dimsum_test --copt='-mavx2' ... # x86 host
+* CC=clang bazel test dimsum_test --copt='-maltivec' ... # Power host
 
 Cross compilation is a bit tricky, but we found the following working, as long as
 the toolchains support cross compilation:
