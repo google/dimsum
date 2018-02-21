@@ -8283,4 +8283,475 @@ TestedSimd<float> unpack_hi_8(TestedSimd<float> a, TestedSimd<float> b) { return
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> unpack_hi_9(TestedSimd<double> a, TestedSimd<double> b) { return split_by<2>(zip(a, b))[1]; }
 
+// CHECK-SSE42-LABEL: full_reduce_0:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    psrlw $8, %xmm1
+// CHECK-SSE42-NEXT:    paddw %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    psrld $16, %xmm0
+// CHECK-SSE42-NEXT:    paddd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-SSE42-NEXT:    paddq %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pextrb $0, %xmm1, %ecx
+// CHECK-SSE42-NEXT:    pextrb $8, %xmm1, %eax
+// CHECK-SSE42-NEXT:    addb %cl, %al
+// CHECK-SSE42-NEXT:    # kill: def $al killed $al killed $eax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_0:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vmovdqa {{.*#+}} xmm1 = <0,2,4,6,8,10,12,14,u,u,u,u,u,u,u,u>
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm2
+// CHECK-AVX2-NEXT:    vpshufb %xmm1, %xmm2, %xmm3
+// CHECK-AVX2-NEXT:    vpshufb %xmm1, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm1 = xmm1[0],xmm3[0]
+// CHECK-AVX2-NEXT:    vmovdqa {{.*#+}} xmm3 = <1,3,5,7,9,11,13,15,u,u,u,u,u,u,u,u>
+// CHECK-AVX2-NEXT:    vpshufb %xmm3, %xmm2, %xmm2
+// CHECK-AVX2-NEXT:    vpshufb %xmm3, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm0 = xmm0[0],xmm2[0]
+// CHECK-AVX2-NEXT:    vpaddb %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpsrlw $8, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpaddw %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpextrb $0, %xmm0, %ecx
+// CHECK-AVX2-NEXT:    vpextrb $8, %xmm0, %eax
+// CHECK-AVX2-NEXT:    addb %cl, %al
+// CHECK-AVX2-NEXT:    # kill: def $al killed $al killed $eax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_0:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpsrlw $8, %xmm0, %xmm1
+// CHECK-AVX2-128-NEXT:    vpaddw %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-128-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpextrb $0, %xmm0, %ecx
+// CHECK-AVX2-128-NEXT:    vpextrb $8, %xmm0, %eax
+// CHECK-AVX2-128-NEXT:    addb %cl, %al
+// CHECK-AVX2-128-NEXT:    # kill: def $al killed $al killed $eax
+// CHECK-AVX2-128-NEXT:    retq
+int8 full_reduce_0(TestedSimd<int8> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_1:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    psrld $16, %xmm1
+// CHECK-SSE42-NEXT:    paddd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm0 = xmm1[1,1,3,3]
+// CHECK-SSE42-NEXT:    paddq %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    movd %xmm0, %ecx
+// CHECK-SSE42-NEXT:    pextrw $4, %xmm0, %eax
+// CHECK-SSE42-NEXT:    addl %ecx, %eax
+// CHECK-SSE42-NEXT:    # kill: def $ax killed $ax killed $eax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_1:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vphaddw %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-NEXT:    vpextrw $4, %xmm0, %eax
+// CHECK-AVX2-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-NEXT:    # kill: def $ax killed $ax killed $eax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_1:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-128-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-128-NEXT:    vpextrw $4, %xmm0, %eax
+// CHECK-AVX2-128-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-128-NEXT:    # kill: def $ax killed $ax killed $eax
+// CHECK-AVX2-128-NEXT:    retq
+int16 full_reduce_1(TestedSimd<int16> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_2:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-SSE42-NEXT:    paddq %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movd %xmm1, %ecx
+// CHECK-SSE42-NEXT:    pextrd $2, %xmm1, %eax
+// CHECK-SSE42-NEXT:    addl %ecx, %eax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_2:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vphaddd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-NEXT:    vpextrd $2, %xmm0, %eax
+// CHECK-AVX2-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_2:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-128-NEXT:    vpextrd $2, %xmm0, %eax
+// CHECK-AVX2-128-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-128-NEXT:    retq
+int32 full_reduce_2(TestedSimd<int32> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_3:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movq %xmm0, %rcx
+// CHECK-SSE42-NEXT:    pextrq $1, %xmm0, %rax
+// CHECK-SSE42-NEXT:    addq %rcx, %rax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_3:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm2 = xmm0[0],xmm1[0]
+// CHECK-AVX2-NEXT:    vpunpckhqdq {{.*#+}} xmm0 = xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vpaddq %xmm2, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vmovq %xmm0, %rcx
+// CHECK-AVX2-NEXT:    vpextrq $1, %xmm0, %rax
+// CHECK-AVX2-NEXT:    addq %rcx, %rax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_3:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vmovq %xmm0, %rcx
+// CHECK-AVX2-128-NEXT:    vpextrq $1, %xmm0, %rax
+// CHECK-AVX2-128-NEXT:    addq %rcx, %rax
+// CHECK-AVX2-128-NEXT:    retq
+int64 full_reduce_3(TestedSimd<int64> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_4:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    psrlw $8, %xmm1
+// CHECK-SSE42-NEXT:    paddw %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    psrld $16, %xmm0
+// CHECK-SSE42-NEXT:    paddd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-SSE42-NEXT:    paddq %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pextrb $0, %xmm1, %ecx
+// CHECK-SSE42-NEXT:    pextrb $8, %xmm1, %eax
+// CHECK-SSE42-NEXT:    addb %cl, %al
+// CHECK-SSE42-NEXT:    # kill: def $al killed $al killed $eax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_4:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vmovdqa {{.*#+}} xmm1 = <0,2,4,6,8,10,12,14,u,u,u,u,u,u,u,u>
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm2
+// CHECK-AVX2-NEXT:    vpshufb %xmm1, %xmm2, %xmm3
+// CHECK-AVX2-NEXT:    vpshufb %xmm1, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm1 = xmm1[0],xmm3[0]
+// CHECK-AVX2-NEXT:    vmovdqa {{.*#+}} xmm3 = <1,3,5,7,9,11,13,15,u,u,u,u,u,u,u,u>
+// CHECK-AVX2-NEXT:    vpshufb %xmm3, %xmm2, %xmm2
+// CHECK-AVX2-NEXT:    vpshufb %xmm3, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm0 = xmm0[0],xmm2[0]
+// CHECK-AVX2-NEXT:    vpaddb %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpsrlw $8, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpaddw %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpextrb $0, %xmm0, %ecx
+// CHECK-AVX2-NEXT:    vpextrb $8, %xmm0, %eax
+// CHECK-AVX2-NEXT:    addb %cl, %al
+// CHECK-AVX2-NEXT:    # kill: def $al killed $al killed $eax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_4:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpsrlw $8, %xmm0, %xmm1
+// CHECK-AVX2-128-NEXT:    vpaddw %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-128-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpextrb $0, %xmm0, %ecx
+// CHECK-AVX2-128-NEXT:    vpextrb $8, %xmm0, %eax
+// CHECK-AVX2-128-NEXT:    addb %cl, %al
+// CHECK-AVX2-128-NEXT:    # kill: def $al killed $al killed $eax
+// CHECK-AVX2-128-NEXT:    retq
+uint8 full_reduce_4(TestedSimd<uint8> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_5:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    psrld $16, %xmm1
+// CHECK-SSE42-NEXT:    paddd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm0 = xmm1[1,1,3,3]
+// CHECK-SSE42-NEXT:    paddq %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    movd %xmm0, %ecx
+// CHECK-SSE42-NEXT:    pextrw $4, %xmm0, %eax
+// CHECK-SSE42-NEXT:    addl %ecx, %eax
+// CHECK-SSE42-NEXT:    # kill: def $ax killed $ax killed $eax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_5:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vphaddw %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-NEXT:    vpextrw $4, %xmm0, %eax
+// CHECK-AVX2-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-NEXT:    # kill: def $ax killed $ax killed $eax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_5:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpsrld $16, %xmm0, %xmm1
+// CHECK-AVX2-128-NEXT:    vpaddd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-128-NEXT:    vpextrw $4, %xmm0, %eax
+// CHECK-AVX2-128-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-128-NEXT:    # kill: def $ax killed $ax killed $eax
+// CHECK-AVX2-128-NEXT:    retq
+uint16 full_reduce_5(TestedSimd<uint16> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_6:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-SSE42-NEXT:    paddq %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movd %xmm1, %ecx
+// CHECK-SSE42-NEXT:    pextrd $2, %xmm1, %eax
+// CHECK-SSE42-NEXT:    addl %ecx, %eax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_6:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vphaddd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-NEXT:    vpextrd $2, %xmm0, %eax
+// CHECK-AVX2-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_6:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpshufd {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovd %xmm0, %ecx
+// CHECK-AVX2-128-NEXT:    vpextrd $2, %xmm0, %eax
+// CHECK-AVX2-128-NEXT:    addl %ecx, %eax
+// CHECK-AVX2-128-NEXT:    retq
+uint32 full_reduce_6(TestedSimd<uint32> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_7:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movq %xmm0, %rcx
+// CHECK-SSE42-NEXT:    pextrq $1, %xmm0, %rax
+// CHECK-SSE42-NEXT:    addq %rcx, %rax
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_7:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm2 = xmm0[0],xmm1[0]
+// CHECK-AVX2-NEXT:    vpunpckhqdq {{.*#+}} xmm0 = xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vpaddq %xmm2, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vmovq %xmm0, %rcx
+// CHECK-AVX2-NEXT:    vpextrq $1, %xmm0, %rax
+// CHECK-AVX2-NEXT:    addq %rcx, %rax
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_7:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vmovq %xmm0, %rcx
+// CHECK-AVX2-128-NEXT:    vpextrq $1, %xmm0, %rax
+// CHECK-AVX2-128-NEXT:    addq %rcx, %rax
+// CHECK-AVX2-128-NEXT:    retq
+uint64 full_reduce_7(TestedSimd<uint64> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_8:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movaps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movhlps {{.*#+}} xmm1 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    addps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movshdup {{.*#+}} xmm0 = xmm1[1,1,3,3]
+// CHECK-SSE42-NEXT:    addss %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movaps %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_8:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vaddps %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vhaddps %xmm0, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vaddss %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_8:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-128-NEXT:    vaddps %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vaddss %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    retq
+float full_reduce_8(TestedSimd<float> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: full_reduce_9:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movaps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movhlps {{.*#+}} xmm1 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    addsd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movapd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: full_reduce_9:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vaddpd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vaddsd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: full_reduce_9:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-128-NEXT:    vaddsd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    retq
+double full_reduce_9(TestedSimd<double> a) { return reduce(a); }
+
+// CHECK-SSE42-LABEL: hmin_8:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movaps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movhlps {{.*#+}} xmm1 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    minps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movshdup {{.*#+}} xmm0 = xmm1[1,1,3,3]
+// CHECK-SSE42-NEXT:    minss %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: hmin_8:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vminps %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vminps %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vminss %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: hmin_8:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-128-NEXT:    vminps %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vminss %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    retq
+float hmin_8(TestedSimd<float> a) { return hmin(a); }
+
+// CHECK-SSE42-LABEL: hmin_9:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movaps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movhlps {{.*#+}} xmm1 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    minsd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movapd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: hmin_9:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm1[1,0]
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm0 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vminpd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vminsd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: hmin_9:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-128-NEXT:    vminsd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    retq
+double hmin_9(TestedSimd<double> a) { return hmin(a); }
+
+// CHECK-SSE42-LABEL: hmax_8:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movaps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movhlps {{.*#+}} xmm1 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    maxps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movshdup {{.*#+}} xmm0 = xmm1[1,1,3,3]
+// CHECK-SSE42-NEXT:    maxss %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: hmax_8:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vmaxps %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vmaxps %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-NEXT:    vmaxss %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: hmax_8:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-128-NEXT:    vmaxps %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
+// CHECK-AVX2-128-NEXT:    vmaxss %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    retq
+float hmax_8(TestedSimd<float> a) { return hmax(a); }
+
+// CHECK-SSE42-LABEL: hmax_9:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movaps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movhlps {{.*#+}} xmm1 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    maxsd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movapd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: hmax_9:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
+// CHECK-AVX2-NEXT:    vmaxpd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vmaxsd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-NEXT:    vzeroupper
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: hmax_9:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-128-NEXT:    vmaxsd %xmm0, %xmm1, %xmm0
+// CHECK-AVX2-128-NEXT:    retq
+double hmax_9(TestedSimd<double> a) { return hmax(a); }
+
 }
