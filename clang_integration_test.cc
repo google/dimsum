@@ -7882,4 +7882,405 @@ TestedSimd<uint32> test_shr_imm3_6(TestedSimd<uint32> a) { return a >> 3; }
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint64> test_shr_imm3_7(TestedSimd<uint64> a) { return a >> 3; }
 
+// CHECK-SSE42-LABEL: unpack_lo_0:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_0:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpunpckhbw {{.*#+}} xmm2 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-AVX2-NEXT:    vpunpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_0:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int8> unpack_lo_0(TestedSimd<int8> a, TestedSimd<int8> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_1:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_1:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpunpckhwd {{.*#+}} xmm2 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vpunpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_1:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int16> unpack_lo_1(TestedSimd<int16> a, TestedSimd<int16> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_2:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_2:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vunpckhps {{.*#+}} xmm2 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vinsertf128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_2:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int32> unpack_lo_2(TestedSimd<int32> a, TestedSimd<int32> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_3:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movlhps {{.*#+}} xmm0 = xmm0[0],xmm1[0]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_3:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm1 = ymm1[0,0,2,1]
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[0,1,1,3]
+// CHECK-AVX2-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_3:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vmovlhps {{.*#+}} xmm0 = xmm0[0],xmm1[0]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int64> unpack_lo_3(TestedSimd<int64> a, TestedSimd<int64> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_4:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_4:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpunpckhbw {{.*#+}} xmm2 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-AVX2-NEXT:    vpunpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_4:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint8> unpack_lo_4(TestedSimd<uint8> a, TestedSimd<uint8> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_5:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_5:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpunpckhwd {{.*#+}} xmm2 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vpunpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_5:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint16> unpack_lo_5(TestedSimd<uint16> a, TestedSimd<uint16> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_6:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_6:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vunpckhps {{.*#+}} xmm2 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vinsertf128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_6:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint32> unpack_lo_6(TestedSimd<uint32> a, TestedSimd<uint32> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_7:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movlhps {{.*#+}} xmm0 = xmm0[0],xmm1[0]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_7:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm1 = ymm1[0,0,2,1]
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[0,1,1,3]
+// CHECK-AVX2-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_7:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vmovlhps {{.*#+}} xmm0 = xmm0[0],xmm1[0]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint64> unpack_lo_7(TestedSimd<uint64> a, TestedSimd<uint64> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_8:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_8:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vunpckhps {{.*#+}} xmm2 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vinsertf128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_8:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<float> unpack_lo_8(TestedSimd<float> a, TestedSimd<float> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_lo_9:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    movlhps {{.*#+}} xmm0 = xmm0[0],xmm1[0]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_lo_9:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm1 = ymm1[0,0,2,1]
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[0,1,1,3]
+// CHECK-AVX2-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_lo_9:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vmovlhps {{.*#+}} xmm0 = xmm0[0],xmm1[0]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<double> unpack_lo_9(TestedSimd<double> a, TestedSimd<double> b) { return split_by<2>(zip(a, b))[0]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_0:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm0 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_0:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vpunpckhbw {{.*#+}} xmm2 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-AVX2-NEXT:    vpunpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_0:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpckhbw {{.*#+}} xmm0 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int8> unpack_hi_0(TestedSimd<int8> a, TestedSimd<int8> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_1:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpckhwd {{.*#+}} xmm0 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_1:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vpunpckhwd {{.*#+}} xmm2 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vpunpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_1:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpckhwd {{.*#+}} xmm0 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int16> unpack_hi_1(TestedSimd<int16> a, TestedSimd<int16> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_2:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpckhps {{.*#+}} xmm0 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_2:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vunpckhps {{.*#+}} xmm2 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vinsertf128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_2:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
+// CHECK-AVX2-128-NEXT:    vinsertf128 $1, %xmm1, %ymm0, %ymm0
+// CHECK-AVX2-128-NEXT:    vmovaps {{.*#+}} ymm1 = <u,u,u,u,2,6,3,7>
+// CHECK-AVX2-128-NEXT:    vpermps %ymm0, %ymm1, %ymm0
+// CHECK-AVX2-128-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vzeroupper
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int32> unpack_hi_2(TestedSimd<int32> a, TestedSimd<int32> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_3:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpckhpd {{.*#+}} xmm0 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_3:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm1 = ymm1[0,2,2,3]
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[2,1,3,3]
+// CHECK-AVX2-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_3:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
+// CHECK-AVX2-128-NEXT:    vinsertf128 $1, %xmm1, %ymm0, %ymm0
+// CHECK-AVX2-128-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[0,1,1,3]
+// CHECK-AVX2-128-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vzeroupper
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<int64> unpack_hi_3(TestedSimd<int64> a, TestedSimd<int64> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_4:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm0 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_4:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vpunpckhbw {{.*#+}} xmm2 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-AVX2-NEXT:    vpunpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_4:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpckhbw {{.*#+}} xmm0 = xmm0[8],xmm1[8],xmm0[9],xmm1[9],xmm0[10],xmm1[10],xmm0[11],xmm1[11],xmm0[12],xmm1[12],xmm0[13],xmm1[13],xmm0[14],xmm1[14],xmm0[15],xmm1[15]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint8> unpack_hi_4(TestedSimd<uint8> a, TestedSimd<uint8> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_5:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    punpckhwd {{.*#+}} xmm0 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_5:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vpunpckhwd {{.*#+}} xmm2 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-NEXT:    vpunpcklwd {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vinserti128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_5:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    vpunpckhwd {{.*#+}} xmm0 = xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint16> unpack_hi_5(TestedSimd<uint16> a, TestedSimd<uint16> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_6:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpckhps {{.*#+}} xmm0 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_6:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vunpckhps {{.*#+}} xmm2 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vinsertf128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_6:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
+// CHECK-AVX2-128-NEXT:    vinsertf128 $1, %xmm1, %ymm0, %ymm0
+// CHECK-AVX2-128-NEXT:    vmovaps {{.*#+}} ymm1 = <u,u,u,u,2,6,3,7>
+// CHECK-AVX2-128-NEXT:    vpermps %ymm0, %ymm1, %ymm0
+// CHECK-AVX2-128-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vzeroupper
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint32> unpack_hi_6(TestedSimd<uint32> a, TestedSimd<uint32> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_7:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpckhpd {{.*#+}} xmm0 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_7:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm1 = ymm1[0,2,2,3]
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[2,1,3,3]
+// CHECK-AVX2-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_7:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
+// CHECK-AVX2-128-NEXT:    vinsertf128 $1, %xmm1, %ymm0, %ymm0
+// CHECK-AVX2-128-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[0,1,1,3]
+// CHECK-AVX2-128-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vzeroupper
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<uint64> unpack_hi_7(TestedSimd<uint64> a, TestedSimd<uint64> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_8:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpckhps {{.*#+}} xmm0 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_8:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm1, %xmm1
+// CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-NEXT:    vunpckhps {{.*#+}} xmm2 = xmm0[2],xmm1[2],xmm0[3],xmm1[3]
+// CHECK-AVX2-NEXT:    vunpcklps {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
+// CHECK-AVX2-NEXT:    vinsertf128 $1, %xmm2, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_8:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
+// CHECK-AVX2-128-NEXT:    vinsertf128 $1, %xmm1, %ymm0, %ymm0
+// CHECK-AVX2-128-NEXT:    vmovaps {{.*#+}} ymm1 = <u,u,u,u,2,6,3,7>
+// CHECK-AVX2-128-NEXT:    vpermps %ymm0, %ymm1, %ymm0
+// CHECK-AVX2-128-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vzeroupper
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<float> unpack_hi_8(TestedSimd<float> a, TestedSimd<float> b) { return split_by<2>(zip(a, b))[1]; }
+
+// CHECK-SSE42-LABEL: unpack_hi_9:
+// CHECK-SSE42:       # %bb.0:
+// CHECK-SSE42-NEXT:    unpckhpd {{.*#+}} xmm0 = xmm0[1],xmm1[1]
+// CHECK-SSE42-NEXT:    retq
+//
+// CHECK-AVX2-LABEL: unpack_hi_9:
+// CHECK-AVX2:       # %bb.0:
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm1 = ymm1[0,2,2,3]
+// CHECK-AVX2-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[2,1,3,3]
+// CHECK-AVX2-NEXT:    vblendps {{.*#+}} ymm0 = ymm0[0,1],ymm1[2,3],ymm0[4,5],ymm1[6,7]
+// CHECK-AVX2-NEXT:    retq
+//
+// CHECK-AVX2-128-LABEL: unpack_hi_9:
+// CHECK-AVX2-128:       # %bb.0:
+// CHECK-AVX2-128-NEXT:    # kill: def $xmm0 killed $xmm0 def $ymm0
+// CHECK-AVX2-128-NEXT:    vinsertf128 $1, %xmm1, %ymm0, %ymm0
+// CHECK-AVX2-128-NEXT:    vpermpd {{.*#+}} ymm0 = ymm0[0,1,1,3]
+// CHECK-AVX2-128-NEXT:    vextractf128 $1, %ymm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vzeroupper
+// CHECK-AVX2-128-NEXT:    retq
+TestedSimd<double> unpack_hi_9(TestedSimd<double> a, TestedSimd<double> b) { return split_by<2>(zip(a, b))[1]; }
+
 }

@@ -28,6 +28,12 @@
 #include "port.h"
 #include "types.h"
 
+#ifdef __clang__
+#define DIMSUM_UNROLL _Pragma("unroll")
+#else
+#define DIMSUM_UNROLL
+#endif
+
 namespace dimsum {
 template <typename T, typename Abi>
 class Simd;
@@ -127,7 +133,7 @@ template <typename T, typename Abi, size_t N>
 ResizeBy<Simd<T, Abi>, N> concat(std::array<Simd<T, Abi>, N> arr) {
   ResizeBy<Simd<T, Abi>, N> ret;
   constexpr size_t size = Simd<T, Abi>::size();
-  for (int i = 0; i < ret.size(); i++) {
+  DIMSUM_UNROLL for (int i = 0; i < ret.size(); i++) {
     ret.set(i, arr[i / size][i % size]);
   }
   return ret;
@@ -150,7 +156,7 @@ std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> split_by(Simd<T, Abi> simd) {
   using ArrayElem = ResizeBy<Simd<T, Abi>, 1, N>;
   std::array<ArrayElem, N> ret;
   constexpr size_t size = ArrayElem::size();
-  for (int i = 0; i < simd.size(); i++) {
+  DIMSUM_UNROLL for (int i = 0; i < simd.size(); i++) {
     ret[i / size].set(i % size, simd[i]);
   }
   return ret;
