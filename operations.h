@@ -746,6 +746,11 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
   return ret;
 }
 
+template <typename T, typename Abi>
+typename detail::ExternalTypeTraits<T, Abi>::type to_raw(Simd<T, Abi> v) {
+  return v.raw();
+}
+
 }  // namespace dimsum
 
 #undef DIMSUM_DELETE

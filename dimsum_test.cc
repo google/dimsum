@@ -963,6 +963,17 @@ TEST(DimsumTest, HMax) {
   EXPECT_EQ(4, hmax(SimdList<Simd128<int32>>(4, 1, 3, 2)));
 }
 
+TEST(DimsumTest, Raw) {
+#if defined(__SSE3__)
+  static_assert(std::is_same<__m128i, decltype(to_raw(Simd128<int>()))>::value, "");
+#if defined(__AVX2__)
+  static_assert(std::is_same<__m256i, decltype(to_raw(NativeSimd<int>()))>::value, "");
+#endif
+#elif defined(__VSX__)
+  static_assert(std::is_same<__vector int, decltype(to_raw(Simd128<int>()))>::value, "");
+#endif
+}
+
 #undef SIMD_BINARY_OP_ASSIGN_TEST
 #undef SIMD_BINARY_OP_TEST
 #undef SIMD_BINARY_FUNC_TEST
