@@ -392,17 +392,15 @@ TestedSimd<double> operatorSUB_9(TestedSimd<double> a, TestedSimd<double> b) {
 
 // CHECK-SSE42-LABEL: operatorMUL_0:
 // CHECK-SSE42:       # %bb.0:
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm3
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm2
-// CHECK-SSE42-NEXT:    pmullw %xmm3, %xmm2
-// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm3 = [255,255,255,255,255,255,255,255]
-// CHECK-SSE42-NEXT:    pand %xmm3, %xmm2
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm0 = xmm0[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm0
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm1[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm1
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm3 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm0 = xmm0[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm2 = xmm1[0],zero,xmm1[1],zero,xmm1[2],zero,xmm1[3],zero,xmm1[4],zero,xmm1[5],zero,xmm1[6],zero,xmm1[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm1 = xmm1[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
 // CHECK-SSE42-NEXT:    pmullw %xmm0, %xmm1
-// CHECK-SSE42-NEXT:    pand %xmm3, %xmm1
+// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm0 = [255,255,255,255,255,255,255,255]
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pmullw %xmm3, %xmm2
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm2
 // CHECK-SSE42-NEXT:    packuswb %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm0
 // CHECK-SSE42-NEXT:    retq
@@ -524,17 +522,15 @@ TestedSimd<int64> operatorMUL_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 
 // CHECK-SSE42-LABEL: operatorMUL_4:
 // CHECK-SSE42:       # %bb.0:
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm3
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm2
-// CHECK-SSE42-NEXT:    pmullw %xmm3, %xmm2
-// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm3 = [255,255,255,255,255,255,255,255]
-// CHECK-SSE42-NEXT:    pand %xmm3, %xmm2
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm0 = xmm0[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm0
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm1[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm1
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm3 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm0 = xmm0[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm2 = xmm1[0],zero,xmm1[1],zero,xmm1[2],zero,xmm1[3],zero,xmm1[4],zero,xmm1[5],zero,xmm1[6],zero,xmm1[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm1 = xmm1[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
 // CHECK-SSE42-NEXT:    pmullw %xmm0, %xmm1
-// CHECK-SSE42-NEXT:    pand %xmm3, %xmm1
+// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm0 = [255,255,255,255,255,255,255,255]
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pmullw %xmm3, %xmm2
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm2
 // CHECK-SSE42-NEXT:    packuswb %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm0
 // CHECK-SSE42-NEXT:    retq
@@ -1125,10 +1121,10 @@ TestedSimd<uint64> operatorOR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-SSE42-LABEL: operatorSHL_0:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    psllw $5, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm3
 // CHECK-SSE42-NEXT:    psllw $4, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
-// CHECK-SSE42-NEXT:    psllw $5, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm3
@@ -1186,11 +1182,11 @@ TestedSimd<int8> operatorSHL_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-SSE42-NEXT:    psllw $4, %xmm1
 // CHECK-SSE42-NEXT:    por %xmm0, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
-// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm4
 // CHECK-SSE42-NEXT:    psllw $8, %xmm4
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm2
+// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    psllw $4, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm3, %xmm0
@@ -1282,10 +1278,10 @@ TestedSimd<int64> operatorSHL_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-SSE42-LABEL: operatorSHL_4:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    psllw $5, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm3
 // CHECK-SSE42-NEXT:    psllw $4, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
-// CHECK-SSE42-NEXT:    psllw $5, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm3
@@ -1343,11 +1339,11 @@ TestedSimd<uint8> operatorSHL_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-SSE42-NEXT:    psllw $4, %xmm1
 // CHECK-SSE42-NEXT:    por %xmm0, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
-// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm4
 // CHECK-SSE42-NEXT:    psllw $8, %xmm4
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm2
+// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    psllw $4, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm3, %xmm0
@@ -1453,6 +1449,7 @@ TestedSimd<uint64> operatorSHL_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-SSE42-NEXT:    psraw $1, %xmm4
 // CHECK-SSE42-NEXT:    paddw %xmm0, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm3
+// CHECK-SSE42-NEXT:    psrlw $8, %xmm3
 // CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
 // CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm1 = xmm1[0],xmm2[0],xmm1[1],xmm2[1],xmm1[2],xmm2[2],xmm1[3],xmm2[3],xmm1[4],xmm2[4],xmm1[5],xmm2[5],xmm1[6],xmm2[6],xmm1[7],xmm2[7]
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
@@ -1466,7 +1463,6 @@ TestedSimd<uint64> operatorSHL_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-SSE42-NEXT:    psraw $1, %xmm2
 // CHECK-SSE42-NEXT:    paddw %xmm0, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
-// CHECK-SSE42-NEXT:    psrlw $8, %xmm3
 // CHECK-SSE42-NEXT:    psrlw $8, %xmm1
 // CHECK-SSE42-NEXT:    packuswb %xmm3, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
@@ -1539,11 +1535,11 @@ TestedSimd<int8> operatorSHR_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 // CHECK-SSE42-NEXT:    psllw $4, %xmm1
 // CHECK-SSE42-NEXT:    por %xmm0, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
-// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm4
 // CHECK-SSE42-NEXT:    psraw $8, %xmm4
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm2
+// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    psraw $4, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm3, %xmm0
@@ -1662,10 +1658,10 @@ TestedSimd<int64> operatorSHR_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 // CHECK-SSE42-LABEL: operatorSHR_4:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    psllw $5, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm3
 // CHECK-SSE42-NEXT:    psrlw $4, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
-// CHECK-SSE42-NEXT:    psllw $5, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm3
@@ -1726,11 +1722,11 @@ TestedSimd<uint8> operatorSHR_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 // CHECK-SSE42-NEXT:    psllw $4, %xmm1
 // CHECK-SSE42-NEXT:    por %xmm0, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
-// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm4
 // CHECK-SSE42-NEXT:    psrlw $8, %xmm4
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm2
+// CHECK-SSE42-NEXT:    paddw %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    psrlw $4, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm3, %xmm0
@@ -1838,13 +1834,13 @@ TestedSimd<uint64> operatorSHR_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 // CHECK-SSE42-NEXT:    movd %edi, %xmm0
 // CHECK-SSE42-NEXT:    pxor %xmm2, %xmm2
 // CHECK-SSE42-NEXT:    pshufb %xmm2, %xmm0
+// CHECK-SSE42-NEXT:    psllw $5, %xmm0
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    psllw $4, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
-// CHECK-SSE42-NEXT:    psllw $5, %xmm0
-// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
-// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
 // CHECK-SSE42-NEXT:    paddb %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    psllw $2, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
@@ -1970,13 +1966,13 @@ TestedSimd<int64> operatorSHL_11(TestedSimd<int64> a, int b) {
 // CHECK-SSE42-NEXT:    movd %edi, %xmm0
 // CHECK-SSE42-NEXT:    pxor %xmm2, %xmm2
 // CHECK-SSE42-NEXT:    pshufb %xmm2, %xmm0
+// CHECK-SSE42-NEXT:    psllw $5, %xmm0
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    psllw $4, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
-// CHECK-SSE42-NEXT:    psllw $5, %xmm0
-// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
-// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
 // CHECK-SSE42-NEXT:    paddb %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    psllw $2, %xmm3
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
@@ -2116,6 +2112,7 @@ TestedSimd<uint64> operatorSHL_15(TestedSimd<uint64> a, int b) {
 // CHECK-SSE42-NEXT:    psraw $1, %xmm4
 // CHECK-SSE42-NEXT:    paddw %xmm0, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm2
+// CHECK-SSE42-NEXT:    psrlw $8, %xmm2
 // CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm0 = xmm0[0],xmm3[0],xmm0[1],xmm3[1],xmm0[2],xmm3[2],xmm0[3],xmm3[3],xmm0[4],xmm3[4],xmm0[5],xmm3[5],xmm0[6],xmm3[6],xmm0[7],xmm3[7]
 // CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm1 = xmm1[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7]
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
@@ -2129,7 +2126,6 @@ TestedSimd<uint64> operatorSHL_15(TestedSimd<uint64> a, int b) {
 // CHECK-SSE42-NEXT:    psraw $1, %xmm3
 // CHECK-SSE42-NEXT:    paddw %xmm0, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
-// CHECK-SSE42-NEXT:    psrlw $8, %xmm2
 // CHECK-SSE42-NEXT:    psrlw $8, %xmm1
 // CHECK-SSE42-NEXT:    packuswb %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
@@ -2285,21 +2281,24 @@ TestedSimd<int64> operatorSHR_11(TestedSimd<int64> a, int b) {
 // CHECK-SSE42-NEXT:    movd %edi, %xmm0
 // CHECK-SSE42-NEXT:    pxor %xmm2, %xmm2
 // CHECK-SSE42-NEXT:    pshufb %xmm2, %xmm0
-// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
-// CHECK-SSE42-NEXT:    psrlw $4, %xmm2
-// CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm2
 // CHECK-SSE42-NEXT:    psllw $5, %xmm0
-// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
-// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
-// CHECK-SSE42-NEXT:    psrlw $2, %xmm2
-// CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm2
-// CHECK-SSE42-NEXT:    paddb %xmm0, %xmm0
-// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
-// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
-// CHECK-SSE42-NEXT:    psrlw $1, %xmm2
-// CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm2
-// CHECK-SSE42-NEXT:    paddb %xmm0, %xmm0
-// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
+// CHECK-SSE42-NEXT:    movdqa %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
+// CHECK-SSE42-NEXT:    psrlw $4, %xmm3
+// CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
+// CHECK-SSE42-NEXT:    paddb %xmm0, %xmm2
+// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
+// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
+// CHECK-SSE42-NEXT:    psrlw $2, %xmm3
+// CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
+// CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm0
+// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
+// CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
+// CHECK-SSE42-NEXT:    psrlw $1, %xmm3
+// CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm3
+// CHECK-SSE42-NEXT:    paddb %xmm2, %xmm2
+// CHECK-SSE42-NEXT:    movdqa %xmm2, %xmm0
+// CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    retq
 //
@@ -4189,17 +4188,15 @@ void operatorSUBEQ_9(TestedSimd<double>& a, TestedSimd<double> b) {
 // CHECK-SSE42-LABEL: operatorMULEQ_0:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa (%rdi), %xmm1
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm2
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm3
-// CHECK-SSE42-NEXT:    pmullw %xmm2, %xmm3
-// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm2 = [255,255,255,255,255,255,255,255]
-// CHECK-SSE42-NEXT:    pand %xmm2, %xmm3
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm0 = xmm0[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm0
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm1[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm1
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm2 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm0 = xmm0[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm3 = xmm1[0],zero,xmm1[1],zero,xmm1[2],zero,xmm1[3],zero,xmm1[4],zero,xmm1[5],zero,xmm1[6],zero,xmm1[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm1 = xmm1[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
 // CHECK-SSE42-NEXT:    pmullw %xmm0, %xmm1
-// CHECK-SSE42-NEXT:    pand %xmm2, %xmm1
+// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm0 = [255,255,255,255,255,255,255,255]
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pmullw %xmm2, %xmm3
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm3
 // CHECK-SSE42-NEXT:    packuswb %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm3, (%rdi)
 // CHECK-SSE42-NEXT:    retq
@@ -4341,17 +4338,15 @@ void operatorMULEQ_3(TestedSimd<int64>& a, TestedSimd<int64> b) {
 // CHECK-SSE42-LABEL: operatorMULEQ_4:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa (%rdi), %xmm1
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm2
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm3
-// CHECK-SSE42-NEXT:    pmullw %xmm2, %xmm3
-// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm2 = [255,255,255,255,255,255,255,255]
-// CHECK-SSE42-NEXT:    pand %xmm2, %xmm3
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm0 = xmm0[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm0, %xmm0
-// CHECK-SSE42-NEXT:    pshufd {{.*#+}} xmm1 = xmm1[2,3,0,1]
-// CHECK-SSE42-NEXT:    pmovsxbw %xmm1, %xmm1
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm2 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm0 = xmm0[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
+// CHECK-SSE42-NEXT:    pmovzxbw {{.*#+}} xmm3 = xmm1[0],zero,xmm1[1],zero,xmm1[2],zero,xmm1[3],zero,xmm1[4],zero,xmm1[5],zero,xmm1[6],zero,xmm1[7],zero
+// CHECK-SSE42-NEXT:    punpckhbw {{.*#+}} xmm1 = xmm1[8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15]
 // CHECK-SSE42-NEXT:    pmullw %xmm0, %xmm1
-// CHECK-SSE42-NEXT:    pand %xmm2, %xmm1
+// CHECK-SSE42-NEXT:    movdqa {{.*#+}} xmm0 = [255,255,255,255,255,255,255,255]
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    pmullw %xmm2, %xmm3
+// CHECK-SSE42-NEXT:    pand %xmm0, %xmm3
 // CHECK-SSE42-NEXT:    packuswb %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    movdqa %xmm3, (%rdi)
 // CHECK-SSE42-NEXT:    retq
@@ -4537,10 +4532,10 @@ void operatorMULEQ_9(TestedSimd<double>& a, TestedSimd<double> b) {
 // CHECK-SSE42-LABEL: operatorSHLEQ_0:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa (%rdi), %xmm1
+// CHECK-SSE42-NEXT:    psllw $5, %xmm0
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    psllw $4, %xmm2
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm2
-// CHECK-SSE42-NEXT:    psllw $5, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    psllw $2, %xmm2
@@ -4640,8 +4635,8 @@ void operatorSHLEQ_0(TestedSimd<int8>& a, TestedSimd<int8> b) {
 //
 // CHECK-AVX2-128-LABEL: operatorSHLEQ_1:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm0 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
 // CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm1 = mem[0],zero,mem[1],zero,mem[2],zero,mem[3],zero,mem[4],zero,mem[5],zero,mem[6],zero,mem[7],zero
+// CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm0 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
 // CHECK-AVX2-128-NEXT:    vpsllvd %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-128-NEXT:    vpshufb {{.*#+}} ymm0 = ymm0[0,1,4,5,8,9,12,13,8,9,12,13,12,13,14,15,16,17,20,21,24,25,28,29,24,25,28,29,28,29,30,31]
 // CHECK-AVX2-128-NEXT:    vpermq {{.*#+}} ymm0 = ymm0[0,2,2,3]
@@ -4711,10 +4706,10 @@ void operatorSHLEQ_3(TestedSimd<int64>& a, TestedSimd<int64> b) {
 // CHECK-SSE42-LABEL: operatorSHLEQ_4:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa (%rdi), %xmm1
+// CHECK-SSE42-NEXT:    psllw $5, %xmm0
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    psllw $4, %xmm2
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm2
-// CHECK-SSE42-NEXT:    psllw $5, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    psllw $2, %xmm2
@@ -4814,8 +4809,8 @@ void operatorSHLEQ_4(TestedSimd<uint8>& a, TestedSimd<uint8> b) {
 //
 // CHECK-AVX2-128-LABEL: operatorSHLEQ_5:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm0 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
 // CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm1 = mem[0],zero,mem[1],zero,mem[2],zero,mem[3],zero,mem[4],zero,mem[5],zero,mem[6],zero,mem[7],zero
+// CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm0 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
 // CHECK-AVX2-128-NEXT:    vpsllvd %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-128-NEXT:    vpshufb {{.*#+}} ymm0 = ymm0[0,1,4,5,8,9,12,13,8,9,12,13,12,13,14,15,16,17,20,21,24,25,28,29,24,25,28,29,28,29,30,31]
 // CHECK-AVX2-128-NEXT:    vpermq {{.*#+}} ymm0 = ymm0[0,2,2,3]
@@ -4900,12 +4895,12 @@ void operatorSHLEQ_7(TestedSimd<uint64>& a, TestedSimd<uint64> b) {
 // CHECK-SSE42-NEXT:    psraw $1, %xmm4
 // CHECK-SSE42-NEXT:    paddw %xmm0, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm4, %xmm2
+// CHECK-SSE42-NEXT:    psrlw $8, %xmm2
 // CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1],xmm0[2],xmm1[2],xmm0[3],xmm1[3],xmm0[4],xmm1[4],xmm0[5],xmm1[5],xmm0[6],xmm1[6],xmm0[7],xmm1[7]
 // CHECK-SSE42-NEXT:    punpcklbw {{.*#+}} xmm1 = xmm1[0],xmm3[0],xmm1[1],xmm3[1],xmm1[2],xmm3[2],xmm1[3],xmm3[3],xmm1[4],xmm3[4],xmm1[5],xmm3[5],xmm1[6],xmm3[6],xmm1[7],xmm3[7]
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    psraw $4, %xmm3
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm3, %xmm1
-// CHECK-SSE42-NEXT:    psrlw $8, %xmm2
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm3
 // CHECK-SSE42-NEXT:    psraw $2, %xmm3
 // CHECK-SSE42-NEXT:    paddw %xmm0, %xmm0
@@ -5129,10 +5124,10 @@ void operatorSHREQ_3(TestedSimd<int64>& a, TestedSimd<int64> b) {
 // CHECK-SSE42-LABEL: operatorSHREQ_4:
 // CHECK-SSE42:       # %bb.0:
 // CHECK-SSE42-NEXT:    movdqa (%rdi), %xmm1
+// CHECK-SSE42-NEXT:    psllw $5, %xmm0
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    psrlw $4, %xmm2
 // CHECK-SSE42-NEXT:    pand {{.*}}(%rip), %xmm2
-// CHECK-SSE42-NEXT:    psllw $5, %xmm0
 // CHECK-SSE42-NEXT:    pblendvb %xmm0, %xmm2, %xmm1
 // CHECK-SSE42-NEXT:    movdqa %xmm1, %xmm2
 // CHECK-SSE42-NEXT:    psrlw $2, %xmm2
@@ -5235,8 +5230,8 @@ void operatorSHREQ_4(TestedSimd<uint8>& a, TestedSimd<uint8> b) {
 //
 // CHECK-AVX2-128-LABEL: operatorSHREQ_5:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm0 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
 // CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm1 = mem[0],zero,mem[1],zero,mem[2],zero,mem[3],zero,mem[4],zero,mem[5],zero,mem[6],zero,mem[7],zero
+// CHECK-AVX2-128-NEXT:    vpmovzxwd {{.*#+}} ymm0 = xmm0[0],zero,xmm0[1],zero,xmm0[2],zero,xmm0[3],zero,xmm0[4],zero,xmm0[5],zero,xmm0[6],zero,xmm0[7],zero
 // CHECK-AVX2-128-NEXT:    vpsrlvd %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-128-NEXT:    vpshufb {{.*#+}} ymm0 = ymm0[0,1,4,5,8,9,12,13,8,9,12,13,12,13,14,15,16,17,20,21,24,25,28,29,24,25,28,29,28,29,30,31]
 // CHECK-AVX2-128-NEXT:    vpermq {{.*#+}} ymm0 = ymm0[0,2,2,3]
