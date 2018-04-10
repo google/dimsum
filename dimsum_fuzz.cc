@@ -16,7 +16,13 @@
 #include "dimsum_x86.h"
 #include "simulated.h"
 
-namespace dimsum {
+namespace {
+
+using ::dimsum::NativeSimd;
+using ::dimsum::Simd;
+using ::dimsum::Simd128;
+using dimsum::detail::CheckAddOverflow;
+using dimsum::detail::OverflowType;
 
 template <typename T, typename Abi>
 bool Equal(const Simd<T, Abi>& lhs, const Simd<T, Abi>& rhs) {
@@ -36,7 +42,7 @@ void TrapIfNotEqual(const Simd<T, Abi>& lhs, const Simd<T, Abi>& rhs) {
 }
 
 template <typename T, typename Abi>
-bool IsNormal(Simd<T, Abi> simd) {
+bool IsNormal(const Simd<T, Abi> simd) {
   if (std::is_floating_point<T>::value) {
     for (size_t i = 0; i < simd.size(); i++) {
       if (!std::isnormal(simd[i])) {
@@ -46,16 +52,6 @@ bool IsNormal(Simd<T, Abi> simd) {
   }
   return true;
 }
-
-}  // namespace dimsum
-
-namespace {
-
-using ::dimsum::Simd;
-using ::dimsum::NativeSimd;
-using ::dimsum::Simd128;
-using dimsum::detail::CheckAddOverflow;
-using dimsum::detail::OverflowType;
 
 // Returns true if a floating point is in a safe range that is guaranteed to be
 // represented precisely by an integral type in every rounding mode. Returns
@@ -94,7 +90,7 @@ bool IsInSafeBound(T f) {
 // Converts NaN to 0 and clamp non-NaN values to a safe bound that can be
 // represented precisely by Integral.
 template <typename Integral, typename T, typename Abi>
-bool IsSimdInSafeBound(Simd<T, Abi> simd) {
+bool IsSimdInSafeBound(const Simd<T, Abi> simd) {
   for (int i = 0; i < simd.size(); i++) {
     if (!IsInSafeBound<Integral>(simd[i])) return false;
   }
@@ -102,10 +98,10 @@ bool IsSimdInSafeBound(Simd<T, Abi> simd) {
 }
 
 template <typename T, typename Abi>
-void LoadFromRaw(const uint8_t* data, dimsum::Simd<T, Abi>* simd) {
-  T buffer[dimsum::Simd<T, Abi>::size()];
+void LoadFromRaw(const uint8_t* data, Simd<T, Abi>* simd) {
+  T buffer[Simd<T, Abi>::size()];
   memcpy(buffer, data, sizeof(buffer));
-  *simd = dimsum::Simd<T, Abi>(buffer, dimsum::flags::element_aligned);
+  *simd = Simd<T, Abi>(buffer, dimsum::flags::element_aligned);
 }
 
 template <typename To, typename From>
@@ -165,43 +161,43 @@ template <typename SimdType, size_t NewSize>
 void TestSameTypeReduceAdd(const uint8_t* data) {
   SimdType input;
   LoadFromRaw(data, &input);
+  const auto& v = input;
   constexpr size_t kArity = SimdType::size() / NewSize;
-  for (int i = 0; i < input.size(); i += kArity) {
+  for (int i = 0; i < v.size(); i += kArity) {
     typename SimdType::value_type sum = 0;
     for (int j = 0; j < kArity; j++) {
-      if (dimsum::detail::CheckAddOverflow(sum, input[i + j]) !=
-          OverflowType::kNoOverflow) {
+      if (CheckAddOverflow(sum, v[i + j]) != OverflowType::kNoOverflow) {
         return;
       }
-      sum += input[i + j];
+      sum += v[i + j];
     }
   }
 
   TrapIfNotEqual(
-      dimsum::simulated::reduce_add<typename SimdType::value_type, NewSize>(
-          input),
-      dimsum::reduce_add<typename SimdType::value_type, NewSize>(input));
+      dimsum::simulated::reduce_add<typename SimdType::value_type, NewSize>(v),
+      dimsum::reduce_add<typename SimdType::value_type, NewSize>(v));
 }
 
 template <typename SrcType, typename NewType>
 void TestSameTotalWidthReduceAdd(const uint8_t* data) {
   NativeSimd<SrcType> input;
   LoadFromRaw(data, &input);
+  const auto& v = input;
   constexpr size_t kArity = sizeof(NewType) / sizeof(SrcType);
   constexpr size_t NewSize = input.size() / kArity;
-  for (int i = 0; i < input.size(); i += kArity) {
+  for (int i = 0; i < v.size(); i += kArity) {
     NewType sum = 0;
     for (int j = 0; j < kArity; j++) {
-      if (dimsum::detail::CheckAddOverflow(sum, NewType{input[i + j]}) !=
+      if (CheckAddOverflow(sum, NewType{v[i + j]}) !=
           OverflowType::kNoOverflow) {
         return;
       }
-      sum += input[i + j];
+      sum += v[i + j];
     }
   }
 
-  TrapIfNotEqual(dimsum::simulated::reduce_add<NewType, NewSize>(input),
-                 dimsum::reduce_add<NewType, NewSize>(input));
+  TrapIfNotEqual(dimsum::simulated::reduce_add<NewType, NewSize>(v),
+                 dimsum::reduce_add<NewType, NewSize>(v));
 }
 
 template <typename T, typename Acc>
@@ -241,8 +237,9 @@ void TestMaddubs(const uint8_t* data) {
 
 template <typename T>
 void TestAbs(const uint8_t* data) {
-  NativeSimd<T> simd, res, sim_res;
-  LoadFromRaw(data, &simd);
+  NativeSimd<T> s, res, sim_res;
+  LoadFromRaw(data, &s);
+  const auto& simd = s;
   if (std::is_signed<T>::value) {
     for (int i = 0; i < simd.size(); i++) {
       if (simd[i] == std::numeric_limits<T>::min()) {
@@ -251,7 +248,7 @@ void TestAbs(const uint8_t* data) {
     }
   }
 
-  res = abs(simd);
+  res = dimsum::abs(simd);
   sim_res = dimsum::simulated::abs(simd);
   for (int i = 0; i < simd.size(); i++) {
     if ((std::is_integral<T>::value || !std::isnan(simd[i])) &&
@@ -367,7 +364,7 @@ void TestMulWidened(const uint8_t* data) {
   LoadFromRaw(data, &lhs);
   LoadFromRaw(data + sizeof(lhs), &rhs);
   TrapIfNotEqual(dimsum::simulated::mul_widened(lhs, rhs),
-                 mul_widened(lhs, rhs));
+                 dimsum::mul_widened(lhs, rhs));
 }
 
 template <typename T>

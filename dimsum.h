@@ -25,12 +25,14 @@
 // larger, which triggers the warning. GCC < 4.6 is not supported by dimsum,
 // so the warning can be safely ignored.
 #if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpsabi"
 #endif
 
+#include "simd"
+
 #ifdef DIMSUM_USE_SIMULATED
-# include "simd_simulated.h"
+#include "operations.h"
+#include "types.h"
 #else
 # if defined(DIMSUM_USE_ARM)
 #  if defined(__aarch64__) && defined(__ARM_NEON)
@@ -52,9 +54,5 @@
     "Dimsum doesn't support this target. You may try emulation mode by defining the macro DIMSUM_USE_SIMULATED before including the header, but emulation mode is as good as loops over scalars can get." // NOLINT
 # endif
 #endif  // DIMSUM_USE_SIMULATED
-
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
 
 #endif  // DIMSUM_DIMSUM_H_

@@ -61,13 +61,12 @@ ResizeBy<Simd<int16, Abi>, 1, 2> maddubs(Simd<uint8, Abi> lhs,
 #ifdef __SSE4_1__
 template <>
 inline Simd128<int16> maddubs(Simd128<uint8> lhs, Simd128<int8> rhs) {
-  return _mm_maddubs_epi16(lhs.raw(), rhs.raw());
+  return _mm_maddubs_epi16(to_raw(lhs), to_raw(rhs));
 }
 #ifdef __AVX2__
 template <>
-inline detail::Simd256<int16> maddubs(detail::Simd256<uint8> lhs,
-                                      detail::Simd256<int8> rhs) {
-  return _mm256_maddubs_epi16(lhs.raw(), rhs.raw());
+inline Simd256<int16> maddubs(Simd256<uint8> lhs, Simd256<int8> rhs) {
+  return _mm256_maddubs_epi16(to_raw(lhs), to_raw(rhs));
 }
 #endif  // __AVX2__
 #endif  // __SSE4_1__
@@ -86,63 +85,63 @@ int movemask(Simd<T, Abi> simd) {
 
 template <>
 inline int movemask(Simd128<int8> simd) {
-  return _mm_movemask_epi8(simd.raw());
+  return _mm_movemask_epi8(to_raw(simd));
 }
 
 template <>
 inline int movemask(Simd128<uint8> simd) {
-  return _mm_movemask_epi8(simd.raw());
+  return _mm_movemask_epi8(to_raw(simd));
 }
 
 template <>
 inline int movemask(Simd128<int32> simd) {
-  return _mm_movemask_ps(bit_cast<float>(simd).raw());
+  return _mm_movemask_ps(to_raw(bit_cast<float>(simd)));
 }
 
 template <>
 inline int movemask(Simd128<uint32> simd) {
-  return _mm_movemask_ps(bit_cast<float>(simd).raw());
+  return _mm_movemask_ps(to_raw(bit_cast<float>(simd)));
 }
 
 template <>
 inline int movemask(Simd128<int64> simd) {
-  return _mm_movemask_pd(bit_cast<double>(simd).raw());
+  return _mm_movemask_pd(to_raw(bit_cast<double>(simd)));
 }
 
 template <>
 inline int movemask(Simd128<uint64> simd) {
-  return _mm_movemask_pd(bit_cast<double>(simd).raw());
+  return _mm_movemask_pd(to_raw(bit_cast<double>(simd)));
 }
 
 # ifdef __AVX2__
 template <>
-inline int movemask(detail::Simd256<int8> simd) {
-  return _mm256_movemask_epi8(simd.raw());
+inline int movemask(Simd256<int8> simd) {
+  return _mm256_movemask_epi8(to_raw(simd));
 }
 
 template <>
-inline int movemask(detail::Simd256<uint8> simd) {
-  return _mm256_movemask_epi8(simd.raw());
+inline int movemask(Simd256<uint8> simd) {
+  return _mm256_movemask_epi8(to_raw(simd));
 }
 
 template <>
-inline int movemask(detail::Simd256<int32> simd) {
-  return _mm256_movemask_ps(bit_cast<float>(simd).raw());
+inline int movemask(Simd256<int32> simd) {
+  return _mm256_movemask_ps(to_raw(bit_cast<float>(simd)));
 }
 
 template <>
-inline int movemask(detail::Simd256<uint32> simd) {
-  return _mm256_movemask_ps(bit_cast<float>(simd).raw());
+inline int movemask(Simd256<uint32> simd) {
+  return _mm256_movemask_ps(to_raw(bit_cast<float>(simd)));
 }
 
 template <>
-inline int movemask(detail::Simd256<int64> simd) {
-  return _mm256_movemask_pd(bit_cast<double>(simd).raw());
+inline int movemask(Simd256<int64> simd) {
+  return _mm256_movemask_pd(to_raw(bit_cast<double>(simd)));
 }
 
 template <>
-inline int movemask(detail::Simd256<uint64> simd) {
-  return _mm256_movemask_pd(bit_cast<double>(simd).raw());
+inline int movemask(Simd256<uint64> simd) {
+  return _mm256_movemask_pd(to_raw(bit_cast<double>(simd)));
 }
 #endif  // __AVX2__
 #endif  // __SSE4_1__
@@ -173,7 +172,7 @@ inline int movemask(Simd128<uint8> simd) {
   // lvsl and vbpermq neutralize big-endian effect of each other, and the
   // net effect applies to both big-endian and little-endian.
   // NOLINTNEXTLINE(runtime/int)
-  __vector unsigned long long result = vec_vbpermq(simd.raw(), mask << 3);
+  __vector unsigned long long result = vec_vbpermq(to_raw(simd), mask << 3);
 
   static_assert(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__,
                 "Only PowerPC little endian is supported");

@@ -7196,12 +7196,12 @@ TestedSimd<int32> test_static_simd_cast_1(TestedSimd<float> a) {
 //
 // CHECK-AVX2-LABEL: test_min_0:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vpminsb %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vpminsb %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_0:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpminsb %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vpminsb %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int8> test_min_0(TestedSimd<int8> a, TestedSimd<int8> b) {
   return dimsum::min(a, b);
@@ -7214,12 +7214,12 @@ TestedSimd<int8> test_min_0(TestedSimd<int8> a, TestedSimd<int8> b) {
 //
 // CHECK-AVX2-LABEL: test_min_1:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vpminsw %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vpminsw %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_1:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpminsw %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vpminsw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int16> test_min_1(TestedSimd<int16> a, TestedSimd<int16> b) {
   return dimsum::min(a, b);
@@ -7232,12 +7232,12 @@ TestedSimd<int16> test_min_1(TestedSimd<int16> a, TestedSimd<int16> b) {
 //
 // CHECK-AVX2-LABEL: test_min_2:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vpminsd %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vpminsd %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_2:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpminsd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vpminsd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<int32> test_min_2(TestedSimd<int32> a, TestedSimd<int32> b) {
   return dimsum::min(a, b);
@@ -7273,12 +7273,12 @@ TestedSimd<int64> test_min_3(TestedSimd<int64> a, TestedSimd<int64> b) {
 //
 // CHECK-AVX2-LABEL: test_min_4:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vpminub %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vpminub %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_4:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpminub %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vpminub %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint8> test_min_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
   return dimsum::min(a, b);
@@ -7291,12 +7291,12 @@ TestedSimd<uint8> test_min_4(TestedSimd<uint8> a, TestedSimd<uint8> b) {
 //
 // CHECK-AVX2-LABEL: test_min_5:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vpminuw %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vpminuw %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_5:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpminuw %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vpminuw %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint16> test_min_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
   return dimsum::min(a, b);
@@ -7309,12 +7309,12 @@ TestedSimd<uint16> test_min_5(TestedSimd<uint16> a, TestedSimd<uint16> b) {
 //
 // CHECK-AVX2-LABEL: test_min_6:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vpminud %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vpminud %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_6:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vpminud %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vpminud %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<uint32> test_min_6(TestedSimd<uint32> a, TestedSimd<uint32> b) {
   return dimsum::min(a, b);
@@ -7355,17 +7355,18 @@ TestedSimd<uint64> test_min_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 
 // CHECK-SSE42-LABEL: test_min_8:
 // CHECK-SSE42:       # %bb.0:
-// CHECK-SSE42-NEXT:    minps %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    minps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movaps %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    retq
 //
 // CHECK-AVX2-LABEL: test_min_8:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vminps %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vminps %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_8:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vminps %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vminps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> test_min_8(TestedSimd<float> a, TestedSimd<float> b) {
   return dimsum::min(a, b);
@@ -7373,17 +7374,18 @@ TestedSimd<float> test_min_8(TestedSimd<float> a, TestedSimd<float> b) {
 
 // CHECK-SSE42-LABEL: test_min_9:
 // CHECK-SSE42:       # %bb.0:
-// CHECK-SSE42-NEXT:    minpd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    minpd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movapd %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    retq
 //
 // CHECK-AVX2-LABEL: test_min_9:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vminpd %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vminpd %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_min_9:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vminpd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vminpd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> test_min_9(TestedSimd<double> a, TestedSimd<double> b) {
   return dimsum::min(a, b);
@@ -7555,17 +7557,18 @@ TestedSimd<uint64> test_max_7(TestedSimd<uint64> a, TestedSimd<uint64> b) {
 
 // CHECK-SSE42-LABEL: test_max_8:
 // CHECK-SSE42:       # %bb.0:
-// CHECK-SSE42-NEXT:    maxps %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    maxps %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movaps %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    retq
 //
 // CHECK-AVX2-LABEL: test_max_8:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vmaxps %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vmaxps %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_max_8:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vmaxps %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vmaxps %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<float> test_max_8(TestedSimd<float> a, TestedSimd<float> b) {
   return dimsum::max(a, b);
@@ -7573,17 +7576,18 @@ TestedSimd<float> test_max_8(TestedSimd<float> a, TestedSimd<float> b) {
 
 // CHECK-SSE42-LABEL: test_max_9:
 // CHECK-SSE42:       # %bb.0:
-// CHECK-SSE42-NEXT:    maxpd %xmm1, %xmm0
+// CHECK-SSE42-NEXT:    maxpd %xmm0, %xmm1
+// CHECK-SSE42-NEXT:    movapd %xmm1, %xmm0
 // CHECK-SSE42-NEXT:    retq
 //
 // CHECK-AVX2-LABEL: test_max_9:
 // CHECK-AVX2:       # %bb.0:
-// CHECK-AVX2-NEXT:    vmaxpd %ymm1, %ymm0, %ymm0
+// CHECK-AVX2-NEXT:    vmaxpd %ymm0, %ymm1, %ymm0
 // CHECK-AVX2-NEXT:    retq
 //
 // CHECK-AVX2-128-LABEL: test_max_9:
 // CHECK-AVX2-128:       # %bb.0:
-// CHECK-AVX2-128-NEXT:    vmaxpd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-128-NEXT:    vmaxpd %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-128-NEXT:    retq
 TestedSimd<double> test_max_9(TestedSimd<double> a, TestedSimd<double> b) {
   return dimsum::max(a, b);
@@ -8412,9 +8416,7 @@ int32 full_reduce_2(TestedSimd<int32> a) { return reduce(a); }
 // CHECK-AVX2-LABEL: full_reduce_3:
 // CHECK-AVX2:       # %bb.0:
 // CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
-// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm2 = xmm0[0],xmm1[0]
-// CHECK-AVX2-NEXT:    vpunpckhqdq {{.*#+}} xmm0 = xmm0[1],xmm1[1]
-// CHECK-AVX2-NEXT:    vpaddq %xmm2, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-NEXT:    vmovq %xmm0, %rcx
 // CHECK-AVX2-NEXT:    vpextrq $1, %xmm0, %rax
 // CHECK-AVX2-NEXT:    addq %rcx, %rax
@@ -8567,9 +8569,7 @@ uint32 full_reduce_6(TestedSimd<uint32> a) { return reduce(a); }
 // CHECK-AVX2-LABEL: full_reduce_7:
 // CHECK-AVX2:       # %bb.0:
 // CHECK-AVX2-NEXT:    vextracti128 $1, %ymm0, %xmm1
-// CHECK-AVX2-NEXT:    vpunpcklqdq {{.*#+}} xmm2 = xmm0[0],xmm1[0]
-// CHECK-AVX2-NEXT:    vpunpckhqdq {{.*#+}} xmm0 = xmm0[1],xmm1[1]
-// CHECK-AVX2-NEXT:    vpaddq %xmm2, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpaddq %xmm0, %xmm1, %xmm0
 // CHECK-AVX2-NEXT:    vmovq %xmm0, %rcx
 // CHECK-AVX2-NEXT:    vpextrq $1, %xmm0, %rax
 // CHECK-AVX2-NEXT:    addq %rcx, %rax
@@ -8598,7 +8598,8 @@ uint64 full_reduce_7(TestedSimd<uint64> a) { return reduce(a); }
 // CHECK-AVX2:       # %bb.0:
 // CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
 // CHECK-AVX2-NEXT:    vaddps %xmm1, %xmm0, %xmm0
-// CHECK-AVX2-NEXT:    vhaddps %xmm0, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
+// CHECK-AVX2-NEXT:    vaddps %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-NEXT:    vmovshdup {{.*#+}} xmm1 = xmm0[1,1,3,3]
 // CHECK-AVX2-NEXT:    vaddss %xmm1, %xmm0, %xmm0
 // CHECK-AVX2-NEXT:    vzeroupper
@@ -8624,11 +8625,9 @@ float full_reduce_8(TestedSimd<float> a) { return reduce(a); }
 // CHECK-AVX2-LABEL: full_reduce_9:
 // CHECK-AVX2:       # %bb.0:
 // CHECK-AVX2-NEXT:    vextractf128 $1, %ymm0, %xmm1
-// CHECK-AVX2-NEXT:    vaddsd %xmm1, %xmm0, %xmm2
-// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm0 = xmm0[1,0]
-// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm1[1,0]
+// CHECK-AVX2-NEXT:    vaddpd %xmm1, %xmm0, %xmm0
+// CHECK-AVX2-NEXT:    vpermilpd {{.*#+}} xmm1 = xmm0[1,0]
 // CHECK-AVX2-NEXT:    vaddsd %xmm1, %xmm0, %xmm0
-// CHECK-AVX2-NEXT:    vaddsd %xmm0, %xmm2, %xmm0
 // CHECK-AVX2-NEXT:    vzeroupper
 // CHECK-AVX2-NEXT:    retq
 //

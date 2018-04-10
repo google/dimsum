@@ -18,40 +18,39 @@
 #include "gtest/gtest.h"
 
 namespace dimsum {
-
-template <typename T, typename Abi>
-bool operator==(const Simd<T, Abi>& lhs, const Simd<T, Abi>& rhs) {
-  for (int i = 0; i < Simd<T, Abi>::size(); i++) {
-    if (lhs[i] != rhs[i]) {
-      return false;
-    }
-  }
-  return true;
-}
-
 namespace {
 
 TEST(DimsumX86Test, Maddubs) {
-  EXPECT_EQ(NativeSimd<int16>(510),
-            simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(1)));
-  EXPECT_EQ(NativeSimd<int16>(510),
-            x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(1)));
-  EXPECT_EQ(NativeSimd<int16>(-510),
-            simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-1)));
-  EXPECT_EQ(NativeSimd<int16>(-510),
-            x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-1)));
-  EXPECT_EQ(NativeSimd<int16>(32767),
-            simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(127)));
-  EXPECT_EQ(NativeSimd<int16>(32767),
-            x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(127)));
-  EXPECT_EQ(NativeSimd<int16>(-32768),
-            simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-128)));
-  EXPECT_EQ(NativeSimd<int16>(-32768),
-            x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-128)));
-  EXPECT_EQ(NativeSimd<int16>(32258),
-            simulated::maddubs(NativeSimd<uint8>(127), NativeSimd<int8>(127)));
-  EXPECT_EQ(NativeSimd<int16>(32258),
-            x86::maddubs(NativeSimd<uint8>(127), NativeSimd<int8>(127)));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(510) ==
+             simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(1))));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(510) ==
+             x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(1))));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(-510) ==
+             simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-1))));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(-510) ==
+             x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-1))));
+  EXPECT_TRUE(all_of(
+      NativeSimd<int16>(32767) ==
+      simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(127))));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(32767) ==
+             x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(127))));
+  EXPECT_TRUE(all_of(
+      NativeSimd<int16>(-32768) ==
+      simulated::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-128))));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(-32768) ==
+             x86::maddubs(NativeSimd<uint8>(255), NativeSimd<int8>(-128))));
+  EXPECT_TRUE(all_of(
+      NativeSimd<int16>(32258) ==
+      simulated::maddubs(NativeSimd<uint8>(127), NativeSimd<int8>(127))));
+  EXPECT_TRUE(
+      all_of(NativeSimd<int16>(32258) ==
+             x86::maddubs(NativeSimd<uint8>(127), NativeSimd<int8>(127))));
 }
 
 TEST(DimsumX86Test, Movemask) {
@@ -59,10 +58,10 @@ TEST(DimsumX86Test, Movemask) {
     auto a = NativeSimd<int16>(1);
     EXPECT_EQ(0, simulated::movemask(a));
     EXPECT_EQ(0, x86::movemask(a));
-    a.set(0, -32768);
+    a[0] = -32768;
     EXPECT_EQ(1, simulated::movemask(a));
     EXPECT_EQ(1, x86::movemask(a));
-    a.set(1, -32768);
+    a[1] = -32768;
     EXPECT_EQ(3, simulated::movemask(a));
     EXPECT_EQ(3, x86::movemask(a));
   }
@@ -72,13 +71,13 @@ TEST(DimsumX86Test, Movemask) {
     if (a.size() == 16) {
       EXPECT_EQ(65536 - 1, simulated::movemask(a));
       EXPECT_EQ(65536 - 1, x86::movemask(a));
-      a.set(0, 0);
+      a[0] = 0;
       EXPECT_EQ(65536 - 2, simulated::movemask(a));
       EXPECT_EQ(65536 - 2, x86::movemask(a));
     } else if (a.size() == 32) {
       EXPECT_EQ(-1, simulated::movemask(a));
       EXPECT_EQ(-1, x86::movemask(a));
-      a.set(0, 0);
+      a[0] = 0;
       EXPECT_EQ(-2, simulated::movemask(a));
       EXPECT_EQ(-2, x86::movemask(a));
     }

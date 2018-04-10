@@ -23,69 +23,10 @@
 #include <array>
 #include <limits>
 
+#include "operations.h"
 #include "types.h"
 
 namespace dimsum {
-namespace detail {
-enum class OverflowType {
-  kNoOverflow,
-  kPositiveOverflow,
-  kNegativeOverflow,
-};
-
-template <typename T>
-OverflowType CheckAddOverflow(T lhs, T rhs) {
-  static_assert(std::is_integral<T>::value,
-                "Only integral types are supported");
-  if (lhs >= 0 && rhs >= 0) {
-    if (lhs > std::numeric_limits<T>::max() - rhs)
-      return OverflowType::kPositiveOverflow;
-  } else if (lhs < 0 && rhs < 0) {
-    if (lhs < std::numeric_limits<T>::min() - rhs)
-      return OverflowType::kNegativeOverflow;
-  }
-  return OverflowType::kNoOverflow;
-}
-
-template <typename T>
-OverflowType CheckSubOverflow(T lhs, T rhs) {
-  static_assert(std::is_integral<T>::value,
-                "Only integral types are supported");
-  if (std::is_unsigned<T>::value || (lhs < 0 && rhs >= 0)) {
-    if (lhs < std::numeric_limits<T>::min() + rhs)
-      return OverflowType::kNegativeOverflow;
-  } else if (lhs >= 0 && rhs < 0) {
-    if (lhs > std::numeric_limits<T>::max() + rhs)
-      return OverflowType::kPositiveOverflow;
-  }
-  return OverflowType::kNoOverflow;
-}
-
-template <typename T>
-T SaturatedAdd(T lhs, T rhs) {
-  switch (CheckAddOverflow(lhs, rhs)) {
-    case OverflowType::kPositiveOverflow:
-      return std::numeric_limits<T>::max();
-    case OverflowType::kNegativeOverflow:
-      return std::numeric_limits<T>::min();
-    case OverflowType::kNoOverflow:
-      return lhs + rhs;
-  }
-}
-
-template <typename T>
-T SaturatedSub(T lhs, T rhs) {
-  switch (CheckSubOverflow(lhs, rhs)) {
-    case OverflowType::kPositiveOverflow:
-      return std::numeric_limits<T>::max();
-    case OverflowType::kNegativeOverflow:
-      return std::numeric_limits<T>::min();
-    case OverflowType::kNoOverflow:
-      return lhs - rhs;
-  }
-}
-}  // namespace detail
-
 namespace simulated {
 
 // dimsum::simulated contains two kinds of functions:
@@ -98,7 +39,7 @@ namespace simulated {
 // Refers to dimsum.h for functionality.
 
 template <size_t... indices, typename T, typename Abi>
-Simd<T, Abi> shuffle(Simd<T, Abi> lhs, Simd<T, Abi> rhs = {}) {
+Simd<T, Abi> shuffle(const Simd<T, Abi> lhs, const Simd<T, Abi> rhs = {}) {
   T a[lhs.size()];
   int i = 0;
   for (auto index : {indices...}) {
@@ -326,69 +267,57 @@ Simd<T, Abi> bit_not(Simd<T, Abi> simd) {
 }
 
 template <typename T, typename Abi>
-Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_eq(
-    Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  typename Simd<T, Abi>::ComparisonResultType a[lhs.size()];
+Simd<detail::ToUnsigned<T>, Abi> cmp_eq(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  detail::ToUnsigned<T> a[lhs.size()];
   for (size_t i = 0; i < Simd<T, Abi>::size(); i++) {
     a[i] = lhs[i] == rhs[i] ? ~0 : 0;
   }
-  return Simd<typename Simd<T, Abi>::ComparisonResultType, Abi>(
-      a, flags::element_aligned);
+  return Simd<detail::ToUnsigned<T>, Abi>(a, flags::element_aligned);
 }
 
 template <typename T, typename Abi>
-Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_ne(
-    Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  typename Simd<T, Abi>::ComparisonResultType a[lhs.size()];
+Simd<detail::ToUnsigned<T>, Abi> cmp_ne(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  detail::ToUnsigned<T> a[lhs.size()];
   for (size_t i = 0; i < Simd<T, Abi>::size(); i++) {
     a[i] = lhs[i] != rhs[i] ? ~0 : 0;
   }
-  return Simd<typename Simd<T, Abi>::ComparisonResultType, Abi>(
-      a, flags::element_aligned);
+  return Simd<detail::ToUnsigned<T>, Abi>(a, flags::element_aligned);
 }
 
 template <typename T, typename Abi>
-Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_lt(
-    Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  typename Simd<T, Abi>::ComparisonResultType a[lhs.size()];
+Simd<detail::ToUnsigned<T>, Abi> cmp_lt(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  detail::ToUnsigned<T> a[lhs.size()];
   for (size_t i = 0; i < Simd<T, Abi>::size(); i++) {
     a[i] = lhs[i] < rhs[i] ? ~0 : 0;
   }
-  return Simd<typename Simd<T, Abi>::ComparisonResultType, Abi>(
-      a, flags::element_aligned);
+  return Simd<detail::ToUnsigned<T>, Abi>(a, flags::element_aligned);
 }
 
 template <typename T, typename Abi>
-Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_le(
-    Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  typename Simd<T, Abi>::ComparisonResultType a[lhs.size()];
+Simd<detail::ToUnsigned<T>, Abi> cmp_le(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  detail::ToUnsigned<T> a[lhs.size()];
   for (size_t i = 0; i < Simd<T, Abi>::size(); i++) {
     a[i] = lhs[i] <= rhs[i] ? ~0 : 0;
   }
-  return Simd<typename Simd<T, Abi>::ComparisonResultType, Abi>(
-      a, flags::element_aligned);
+  return Simd<detail::ToUnsigned<T>, Abi>(a, flags::element_aligned);
 }
 
 template <typename T, typename Abi>
-Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_gt(
-    Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  typename Simd<T, Abi>::ComparisonResultType a[lhs.size()];
+Simd<detail::ToUnsigned<T>, Abi> cmp_gt(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  detail::ToUnsigned<T> a[lhs.size()];
   for (size_t i = 0; i < Simd<T, Abi>::size(); i++) {
     a[i] = lhs[i] > rhs[i] ? ~0 : 0;
   }
-  return Simd<typename Simd<T, Abi>::ComparisonResultType, Abi>(
-      a, flags::element_aligned);
+  return Simd<detail::ToUnsigned<T>, Abi>(a, flags::element_aligned);
 }
 
 template <typename T, typename Abi>
-Simd<typename Simd<T, Abi>::ComparisonResultType, Abi> cmp_ge(
-    Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  typename Simd<T, Abi>::ComparisonResultType a[lhs.size()];
+Simd<detail::ToUnsigned<T>, Abi> cmp_ge(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  detail::ToUnsigned<T> a[lhs.size()];
   for (size_t i = 0; i < Simd<T, Abi>::size(); i++) {
     a[i] = lhs[i] >= rhs[i] ? ~0 : 0;
   }
-  return Simd<typename Simd<T, Abi>::ComparisonResultType, Abi>(
-      a, flags::element_aligned);
+  return Simd<detail::ToUnsigned<T>, Abi>(a, flags::element_aligned);
 }
 
 template <typename NewType, size_t NewSize, typename T, typename Abi>
@@ -396,7 +325,7 @@ ResizeTo<Simd<NewType, Abi>, NewSize> reduce_add(Simd<T, Abi> simd) {
   ResizeTo<Simd<NewType, Abi>, NewSize> ret = {};
   constexpr size_t kArity = simd.size() / NewSize;
   for (size_t i = 0; i < simd.size(); i++) {
-    ret.set(i / kArity, ret[i / kArity] + simd[i]);
+    ret[i / kArity] = ret[i / kArity] + simd[i];
   }
   return ret;
 }
@@ -438,7 +367,7 @@ ReinterpretTo<Simd<T, Abi>, Dest> mul_sum(
     typename std::make_unsigned<Dest1>::type t = acc[i];
     for (size_t j = 0; j < way; j++)
       t += Dest1{lhs[i * way + j]} * rhs[i * way + j];
-    ret.set(i, t);
+    ret[i] = t;
   }
   return ret;
 }
@@ -460,7 +389,7 @@ ScaleElemBy<Simd<T, Abi>, 2> mul_widened(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
   for (size_t i = 0; i < lhs.size(); i++) {
     ScaleBy<T, 2> tmp = lhs[i];
     tmp *= rhs[i];
-    ret.set(i, tmp);
+    ret[i] = tmp;
   }
   return ret;
 }

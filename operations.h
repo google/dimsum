@@ -35,9 +35,6 @@
 #endif
 
 namespace dimsum {
-template <typename T, typename Abi>
-class Simd;
-
 namespace detail {
 
 // Returns a DestType with the value clamped into its representable range.
@@ -75,24 +72,77 @@ constexpr bool IsReduceAdd() {
           std::is_same<Op, std::plus<void>>::value);
 }
 
+enum class OverflowType {
+  kNoOverflow,
+  kPositiveOverflow,
+  kNegativeOverflow,
+};
+
+template <typename T>
+OverflowType CheckAddOverflow(T lhs, T rhs) {
+  static_assert(std::is_integral<T>::value,
+                "Only integral types are supported");
+  if (lhs >= 0 && rhs >= 0) {
+    if (lhs > std::numeric_limits<T>::max() - rhs)
+      return OverflowType::kPositiveOverflow;
+  } else if (lhs < 0 && rhs < 0) {
+    if (lhs < std::numeric_limits<T>::min() - rhs)
+      return OverflowType::kNegativeOverflow;
+  }
+  return OverflowType::kNoOverflow;
+}
+
+template <typename T>
+OverflowType CheckSubOverflow(T lhs, T rhs) {
+  static_assert(std::is_integral<T>::value,
+                "Only integral types are supported");
+  if (std::is_unsigned<T>::value || (lhs < 0 && rhs >= 0)) {
+    if (lhs < std::numeric_limits<T>::min() + rhs)
+      return OverflowType::kNegativeOverflow;
+  } else if (lhs >= 0 && rhs < 0) {
+    if (lhs > std::numeric_limits<T>::max() + rhs)
+      return OverflowType::kPositiveOverflow;
+  }
+  return OverflowType::kNoOverflow;
+}
+
+template <typename T>
+T SaturatedAdd(T lhs, T rhs) {
+  switch (CheckAddOverflow(lhs, rhs)) {
+    case OverflowType::kPositiveOverflow:
+      return std::numeric_limits<T>::max();
+    case OverflowType::kNegativeOverflow:
+      return std::numeric_limits<T>::min();
+    case OverflowType::kNoOverflow:
+      return lhs + rhs;
+  }
+}
+
+template <typename T>
+T SaturatedSub(T lhs, T rhs) {
+  switch (CheckSubOverflow(lhs, rhs)) {
+    case OverflowType::kPositiveOverflow:
+      return std::numeric_limits<T>::max();
+    case OverflowType::kNegativeOverflow:
+      return std::numeric_limits<T>::min();
+    case OverflowType::kNoOverflow:
+      return lhs - rhs;
+  }
+}
+
 }  // namespace detail
 
-// Here defines NativeSimd. It's actual definition varies on platforms. See
-// simd_*.h files for all of them. NativeSimd is for the "most efficient" ABI on
-// the current architecuture.
-//   template <typename T>
-//   using NativeSimd = ...
-
-// Here defines Simd128. It's actual definition varies on platforms. See
-// simd_*.h files for all of them. Simd128 is guaranteed to have 128 bits.
-//   template <typename T>
-//   using Simd128 = ...
-
-// Here defines Simd64. It's actual definition varies on platforms. See simd_*.h
-// files for all of them.
-// Simd64 is guaranteed to have 64 bits.
-//   template <typename T>
-//   using Simd64 = ...
+using std::experimental::all_of;
+using std::experimental::concat;
+using std::experimental::hmax;
+using std::experimental::hmin;
+using std::experimental::max;
+using std::experimental::min;
+using std::experimental::reduce;
+using std::experimental::simd_cast;
+using std::experimental::split_by;
+using std::experimental::static_simd_cast;
+using std::experimental::to_fixed_size;
 
 // Unlike p0214r5, we don't provide compatible for now. Anything related to
 // cross-module calling should be interfaced with a template ABI type, e.g.:
@@ -105,95 +155,21 @@ constexpr bool IsReduceAdd() {
 // a default implementation for common types and have
 // instantiations in simd_*.h files.
 //
-// TODO(timshen): eliminate all DIMSUM_DELETE. Use less efficient
-// implementations for those.
-//
 // TODO(timshen): change all pass-by-value parameters to pass-by-const-ref, to
 // be compliant to P0214.
 //
 // ----------------- Primitive Operations -----------------
-// Returns the concatenated result of the input parameters.
-//
-// The result type is a Simd<> object, with the size of the total number of T
-// objects in the input parameters.
-//
-// Example: concat(Simd64<int32>, Simd64<int32>) returns Simd128<int32>.
-// However, not all return types can be written directly. Therefore it's
-// represented through `ResizeBy`.
-template <typename T, typename Abi, typename... Abis>
-ResizeBy<Simd<T, Abi>, 1 + sizeof...(Abis)> concat(Simd<T, Abi> simd,
-                                                   Simd<T, Abis>... simds) {
-  return concat(
-      std::array<Simd<T, Abi>, 1 + sizeof...(Abis)>{{simd, simds...}});
+// Returns r, where r[i] = simd[indices[i]].
+template <size_t... indices, typename T, typename SrcAbi>
+ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)> shuffle(Simd<T, SrcAbi> simd) {
+  return std::experimental::__simd_shuffle<indices...>(simd, simd);
 }
 
-// Similar to the above variadic template version, but all input Simd objects
-// are in an array.
-template <typename T, typename Abi, size_t N>
-ResizeBy<Simd<T, Abi>, N> concat(std::array<Simd<T, Abi>, N> arr) {
-  ResizeBy<Simd<T, Abi>, N> ret;
-  constexpr size_t size = Simd<T, Abi>::size();
-  DIMSUM_UNROLL for (int i = 0; i < ret.size(); i++) {
-    ret.set(i, arr[i / size][i % size]);
-  }
-  return ret;
-}
-
-// Partitions the input Simd object into equaly-long N parts, and pack
-// all partitions into an array, then return it. The partition doesn't change
-// the relative order of the elements.
-//
-// Formally, for the returned array a, a[i][j] is initialized by
-//     simd[i * (Simd<T, Abi>::size() / N) + j].
-//
-// By default, it's split into two smaller Simd objects.
-//
-// Example: split_by(Simd128<int32>) returns std::array<Simd64<int32>, 2>.
-template <size_t N, typename T, typename Abi>
-std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> split_by(Simd<T, Abi> simd) {
-  static_assert(simd.size() % N == 0, "");
-
-  using ArrayElem = ResizeBy<Simd<T, Abi>, 1, N>;
-  std::array<ArrayElem, N> ret;
-  constexpr size_t size = ArrayElem::size();
-  DIMSUM_UNROLL for (int i = 0; i < simd.size(); i++) {
-    ret[i / size].set(i % size, simd[i]);
-  }
-  return ret;
-}
-
-template <size_t N = 2, typename T, typename Abi>
-std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> __attribute__((
-    deprecated("Use split_by instead."))) split(Simd<T, Abi> simd) {
-  return split_by<N>(simd);
-}
-
-// Hypothetically concatenates lhs and rhs, index them from 0 to 2N-1, and then
-// returns a Simd object with elements in the concatenated result, pointed by
-// `indices`. An index of -1 indicates the corresponding element is not cared
-// and can be optimized by the compiler.
-//
 // Example: shuffle<5, 1, 6, -1>({0,1,2,3}, {4,5,6,7}) returns {5,1,6,any}.
-template <int... indices, typename T, typename SrcAbi>
-ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)> shuffle(
-    Simd<T, SrcAbi> lhs, Simd<T, SrcAbi> rhs = {}) {
-  using DestSimd = ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)>;
-#if defined(__clang__)
-  return DestSimd::from_storage(
-      __builtin_shufflevector(lhs.storage_, rhs.storage_, indices...));
-#else
-  // TODO(dimsum): GCC intrinsic doesn't support when sizeof...(indices) !=
-  // lhs.size(), so we have to simulate it. Still, we can invoke the intrinsic
-  // __builtin_shuffle when the input/output sizes are the same.
-  T a[sizeof...(indices)];
-  int i = 0;
-  for (auto index : {indices...}) {
-    a[i++] = index < 0
-                 ? lhs[0]
-                 : index < lhs.size() ? lhs[index] : rhs[index - lhs.size()];
-  }
-  return DestSimd(a, flags::element_aligned);
-#endif
+template <size_t... indices, typename T, typename SrcAbi>
+ResizeTo<Simd<T, SrcAbi>, sizeof...(indices)> shuffle(Simd<T, SrcAbi> lhs,
+                                                      Simd<T, SrcAbi> rhs) {
+  return shuffle<indices...>(concat(lhs, rhs));
 }
 
 namespace detail {
@@ -208,85 +184,26 @@ ResizeBy<Simd<T, Abi>, 2> zip_impl(Simd<T, Abi> lhs, Simd<T, Abi> rhs,
 }  // namespace detail
 
 // Returns the element-wise saturated sum of two Simd objects.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> add_saturated(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs);
+template <typename T, typename Abi>
+Simd<T, Abi> add_saturated(const Simd<T, Abi> lhs, const Simd<T, Abi> rhs) {
+  T a[lhs.size()];
+  for (size_t i = 0; i < lhs.size(); i++) {
+    a[i] = detail::SaturatedAdd(lhs[i], rhs[i]);
+  }
+  return Simd<T, Abi>(a, flags::element_aligned);
+}
 
 // Returns the element-wise saturated difference of two Simd objects.
-template <typename Tp, typename Abi>
-Simd<Tp, Abi> sub_saturated(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs);
-
-// Returns the element-wise comparison result.
-// Each element in the result is 0 for false and non-zero for true.
-// The result in each lane is undefined if either of the argument is NaN.
-// TODO(maskray) define NaN comparison if it is needed.
-//
-// On x86_64, powerpc64le and aarch64, there is a stronger commitment that
-// each element is either 0 for false or ~0 for true.
-//
-// For integral element types (e.g. int16), the result element type is the
-// corresponding unsigned type (e.g. Simd<uint16>).
-// For floating point types, the result element type is the integral type
-// with the exact width (float => uint32, double => uint64).
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_eq(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ == rhs.storage_);
-}
-
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_ne(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ != rhs.storage_);
-}
-
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_lt(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ < rhs.storage_);
-}
-
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_le(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ <= rhs.storage_);
-}
-
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_gt(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ > rhs.storage_);
-}
-
-template <typename Tp, typename Abi>
-Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi> cmp_ge(
-    Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
-  return Simd<typename Simd<Tp, Abi>::ComparisonResultType, Abi>::from_storage(
-      lhs.storage_ >= rhs.storage_);
-}
-
-// For input lhs[0], lhs[1], ..., lhs[n-1], rhs[0], rhs[1], ..., rhs[n-1],
-// returns lhs[0], rhs[0], lhs[1], rhs[1], ..., lhs[n-1], rhs[n-1].
 template <typename T, typename Abi>
-ResizeBy<Simd<T, Abi>, 2> zip(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  return zip_impl(lhs, rhs,
-                  dimsum::make_index_sequence<Simd<T, Abi>::size() * 2>{});
+Simd<T, Abi> sub_saturated(const Simd<T, Abi> lhs, const Simd<T, Abi> rhs) {
+  T a[lhs.size()];
+  for (size_t i = 0; i < lhs.size(); i++) {
+    a[i] = detail::SaturatedSub(lhs[i], rhs[i]);
+  }
+  return Simd<T, Abi>(a, flags::element_aligned);
 }
 
 namespace detail {
-
-template <typename T, typename Abi, typename Flags>
-struct LoadImpl {
-  static Simd<T, Abi> Apply(const T* buffer) {
-    Simd<T, Abi> ret;
-    memcpy(&ret.storage_, buffer, sizeof(ret));
-    return ret;
-  }
-};
 
 template <size_t kArity>
 struct ReduceAddImpl;
@@ -324,50 +241,12 @@ struct ReduceAddImpl {
 
 }  // namespace detail
 
-template <typename T, detail::StoragePolicy kStorage, size_t kNumElements>
-template <typename Flags>
-void Simd<T, detail::Abi<kStorage, kNumElements>>::copy_from(const T* buffer,
-                                                             Flags flags) {
-  *this = detail::LoadImpl<T, abi_type, Flags>::Apply(buffer);
-}
-
-template <typename T, detail::StoragePolicy kStorage, size_t kNumElements>
-template <typename Generator, size_t... indices>
-void Simd<T, detail::Abi<kStorage, kNumElements>>::GeneratorInit(
-    const Generator& gen, dimsum::index_sequence<indices...>) {
-  T buffer[size()] = {
-      static_cast<T>(gen(std::integral_constant<size_t, indices>{}))...};
-  copy_from(buffer, flags::element_aligned);
-}
-
 // Returns the element-wise, widening multiplication. For input
 // Simd<(u)intn>, returns a Simd object with element type (u)int2n, and with the
 // same amount of elements as lhs/rhs.
 template <typename T, typename Abi>
 ScaleElemBy<Simd<T, Abi>, 2> mul_widened(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  auto ls = split_by<2>(lhs);
-  auto rs = split_by<2>(rhs);
-  return concat(mul_widened(ls[0], rs[0]), mul_widened(ls[1], rs[1]));
-}
-
-// Returns the element-wise min result. Elements should not contain NaN.
-template <typename T, typename Abi>
-Simd<T, Abi> min(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  Simd<T, Abi> ret;
-  for (size_t i = 0; i < lhs.size(); i++) {
-    ret.set(i, std::min(lhs[i], rhs[i]));
-  }
-  return ret;
-}
-
-// Returns the element-wise max result. Elements should not contain NaN.
-template <typename T, typename Abi>
-Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
-  Simd<T, Abi> ret;
-  for (size_t i = 0; i < lhs.size(); i++) {
-    ret.set(i, std::max(lhs[i], rhs[i]));
-  }
-  return ret;
+  return simd_cast<ScaleBy<T, 2>>(lhs) * simd_cast<ScaleBy<T, 2>>(rhs);
 }
 
 // Returns the element-wise estimate of reciprocal.
@@ -375,15 +254,33 @@ Simd<T, Abi> max(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
 // On POWER, the relative error is less or equal than 1/16384.
 // On ARM, the relative error may be slightly greater than 1/512.
 template <typename T, typename Abi>
-Simd<T, Abi> reciprocal_estimate(Simd<T, Abi>) DIMSUM_DELETE;
+Simd<T, Abi> reciprocal_estimate(Simd<T, Abi> v) {
+  Simd<T, Abi> ret;
+  for (int i = 0; i < v.size(); i++) {
+    ret[i] = T(1) / v[i];
+  }
+  return ret;
+}
 
 // Returns the element-wise square root.
 template <typename T, typename Abi>
-Simd<T, Abi> sqrt(Simd<T, Abi>) DIMSUM_DELETE;
+Simd<T, Abi> sqrt(Simd<T, Abi> v) {
+  Simd<T, Abi> ret;
+  for (int i = 0; i < v.size(); i++) {
+    ret[i] = std::sqrt(v[i]);
+  }
+  return ret;
+}
 
 // Returns the element-wise estimate of reciprocal square root.
 template <typename T, typename Abi>
-Simd<T, Abi> reciprocal_sqrt_estimate(Simd<T, Abi>) DIMSUM_DELETE;
+Simd<T, Abi> reciprocal_sqrt_estimate(Simd<T, Abi> v) {
+  Simd<T, Abi> ret;
+  for (int i = 0; i < v.size(); i++) {
+    ret[i] = T(1) / std::sqrt(v[i]);
+  }
+  return ret;
+}
 
 // Element-wise round to integral floating points using the round-toeven rule.
 // On x86 and ARM, specific instructions are used to guarantee round-to-even.
@@ -393,7 +290,7 @@ template <typename T, typename Abi>
 Simd<T, Abi> round(Simd<T, Abi> simd) {
   Simd<T, Abi> ret;
   for (size_t i = 0; i < simd.size(); i++) {
-    ret.set(i, std::nearbyint(simd[i]));
+    ret[i] = std::nearbyint(simd[i]);
   }
   return ret;
 }
@@ -402,36 +299,159 @@ Simd<T, Abi> round(Simd<T, Abi> simd) {
 template <typename Dest, typename T, typename Abi>
 ReinterpretTo<Simd<T, Abi>, Dest> bit_cast(Simd<T, Abi> simd) {
   ReinterpretTo<Simd<T, Abi>, Dest> ret;
-  static_assert(sizeof(ret.storage_) == sizeof(simd.storage_),
-                "Simd width mismatch");
-  memcpy(&ret.storage_, &simd.storage_, sizeof(ret.storage_));
-  return ret;
+  T src_arr[simd.size()];
+  simd.copy_to(src_arr, flags::element_aligned_tag());
+  Dest dest_arr[ret.size()];
+  static_assert(sizeof(dest_arr) == sizeof(src_arr), "");
+  memcpy(dest_arr, src_arr, sizeof(dest_arr));
+  return ReinterpretTo<Simd<T, Abi>, Dest>(dest_arr,
+                                           flags::element_aligned_tag());
 }
 
-// Element-wise static_cast<Dest>().
-template <typename Dest, typename Src, typename Abi>
-Simd<Dest, Abi> static_simd_cast(Simd<Src, Abi> simd) {
-  using DestSimd = Simd<Dest, Abi>;
-#if defined(__clang__)
-  return DestSimd(
-      __builtin_convertvector(simd.storage_, typename DestSimd::InternalType));
-#else
-  DestSimd ret;
+// Convert input Simd or SimdMask to the non-portable native type.
+template <typename T, typename Abi>
+typename Simd<T, Abi>::__native_type to_raw(Simd<T, Abi> v) {
+  return v.__raw();
+}
+
+template <typename T, typename Abi>
+typename SimdMask<T, Abi>::__native_type to_raw(SimdMask<T, Abi> v) {
+  return v.__raw();
+}
+
+// Returns the element-wise comparison result.
+// Each element in the result is 0 for false and non-zero for true.
+// The result in each lane is undefined if either of the argument is NaN.
+// TODO(maskray) define NaN comparison if it is needed.
+//
+// On x86_64, powerpc64le and aarch64, there is a stronger commitment that
+// each element is either 0 for false or ~0 for true.
+//
+// For integral element types (e.g. int16), the result element type is the
+// corresponding unsigned type (e.g. Simd<uint16>).
+// For floating point types, the result element type is the integral type
+// with the exact width (float => uint32, double => uint64).
+template <typename Tp, typename Abi>
+Simd<detail::ToUnsigned<Tp>, Abi> cmp_eq(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<Tp>;
+  Simd<Unsigned, Abi> ret;
   for (int i = 0; i < ret.size(); i++) {
-    ret.storage_[i] = static_cast<Dest>(simd.storage_[i]);
+    ret[i] = lhs[i] == rhs[i] ? ~Unsigned() : 0;
   }
   return ret;
-#endif
 }
 
-// Element-wise static_cast<Dest>() prohibiting narrowing cast, e.g. every
-// possible value of the element type can be represented with Dest.
-template <typename Dest, typename Src, typename Abi>
-Simd<Dest, Abi> simd_cast(Simd<Src, Abi> simd) {
-  static_assert(!detail::IsNarrowingConversion<Dest, Src>(),
-                "simd_cast does not support narrowing cast. Use "
-                "static_simd_cast instead.");
-  return static_simd_cast<Dest, Src, Abi>(simd);
+template <typename Tp, typename Abi>
+Simd<detail::ToUnsigned<Tp>, Abi> cmp_ne(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<Tp>;
+  Simd<Unsigned, Abi> ret;
+  for (int i = 0; i < ret.size(); i++) {
+    ret[i] = lhs[i] != rhs[i] ? ~Unsigned() : 0;
+  }
+  return ret;
+}
+
+template <typename Tp, typename Abi>
+Simd<detail::ToUnsigned<Tp>, Abi> cmp_lt(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<Tp>;
+  Simd<Unsigned, Abi> ret;
+  for (int i = 0; i < ret.size(); i++) {
+    ret[i] = lhs[i] < rhs[i] ? ~Unsigned() : 0;
+  }
+  return ret;
+}
+
+template <typename Tp, typename Abi>
+Simd<detail::ToUnsigned<Tp>, Abi> cmp_le(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<Tp>;
+  Simd<Unsigned, Abi> ret;
+  for (int i = 0; i < ret.size(); i++) {
+    ret[i] = lhs[i] <= rhs[i] ? ~Unsigned() : 0;
+  }
+  return ret;
+}
+
+template <typename Tp, typename Abi>
+Simd<detail::ToUnsigned<Tp>, Abi> cmp_gt(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<Tp>;
+  Simd<Unsigned, Abi> ret;
+  for (int i = 0; i < ret.size(); i++) {
+    ret[i] = lhs[i] > rhs[i] ? ~Unsigned() : 0;
+  }
+  return ret;
+}
+
+template <typename Tp, typename Abi>
+Simd<detail::ToUnsigned<Tp>, Abi> cmp_ge(Simd<Tp, Abi> lhs, Simd<Tp, Abi> rhs) {
+  using Unsigned = detail::ToUnsigned<Tp>;
+  Simd<Unsigned, Abi> ret;
+  for (int i = 0; i < ret.size(); i++) {
+    ret[i] = lhs[i] >= rhs[i] ? ~Unsigned() : 0;
+  }
+  return ret;
+}
+
+template <typename Tp, int N>
+NativeSimd<detail::ToUnsigned<Tp>, N> cmp_eq(NativeSimd<Tp, N> lhs,
+                                             NativeSimd<Tp, N> rhs) {
+  return to_raw(lhs == rhs);
+}
+
+template <typename Tp, int N>
+NativeSimd<detail::ToUnsigned<Tp>, N> cmp_ne(NativeSimd<Tp, N> lhs,
+                                             NativeSimd<Tp, N> rhs) {
+  return to_raw(lhs != rhs);
+}
+
+template <typename Tp, int N>
+NativeSimd<detail::ToUnsigned<Tp>, N> cmp_lt(NativeSimd<Tp, N> lhs,
+                                             NativeSimd<Tp, N> rhs) {
+  return to_raw(lhs < rhs);
+}
+
+template <typename Tp, int N>
+NativeSimd<detail::ToUnsigned<Tp>, N> cmp_le(NativeSimd<Tp, N> lhs,
+                                             NativeSimd<Tp, N> rhs) {
+  return to_raw(lhs <= rhs);
+}
+
+template <typename Tp, int N>
+NativeSimd<detail::ToUnsigned<Tp>, N> cmp_gt(NativeSimd<Tp, N> lhs,
+                                             NativeSimd<Tp, N> rhs) {
+  // Somehow GCC 4.9.4 on powerpc-linux-gnu decides to warn about "GCC vector
+  // returned by reference: non-standard ABI extension with no compatibility
+  // guarantee", which is not true. Use __raw instead of to_raw as a workaround.
+  //
+  // Also, surprisingly, GCC 4.9.4 only warns about cmp_gt, not other comparison
+  // functions. It looks like a compiler bug.
+  return (lhs > rhs).__raw();
+}
+
+template <typename Tp, int N>
+NativeSimd<detail::ToUnsigned<Tp>, N> cmp_ge(NativeSimd<Tp, N> lhs,
+                                             NativeSimd<Tp, N> rhs) {
+  return to_raw(lhs >= rhs);
+}
+
+template <size_t N, typename T, typename Abi>
+std::array<ResizeBy<Simd<T, Abi>, 1, N>, N> SplitBy(Simd<T, Abi> simd) {
+  static_assert(simd.size() % N == 0, "");
+
+  using ArrayElem = ResizeBy<Simd<T, Abi>, 1, N>;
+  std::array<ArrayElem, N> ret;
+  constexpr size_t size = ArrayElem::size();
+  DIMSUM_UNROLL for (int i = 0; i < simd.size(); i++) {
+    ret[i / size][i % size] = simd[i];
+  }
+  return ret;
+}
+
+// For input lhs[0], lhs[1], ..., lhs[n-1], rhs[0], rhs[1], ..., rhs[n-1],
+// returns lhs[0], rhs[0], lhs[1], rhs[1], ..., lhs[n-1], rhs[n-1].
+template <typename T, typename Abi>
+ResizeBy<Simd<T, Abi>, 2> zip(Simd<T, Abi> lhs, Simd<T, Abi> rhs) {
+  return detail::zip_impl(
+      lhs, rhs, dimsum::make_index_sequence<Simd<T, Abi>::size() * 2>{});
 }
 
 // Returns the element-wise absolute value.
@@ -453,163 +473,10 @@ template <typename T, typename Abi>
 typename std::enable_if<std::is_floating_point<T>::value, Simd<T, Abi>>::type
 abs(Simd<T, Abi> simd) {
   using Unsigned = detail::ToUnsigned<T>;
-  return bit_cast<T>(bit_cast<Unsigned>(simd) &
-                     ~Simd<Unsigned, Abi>(Unsigned(1) << (sizeof(T) - 1)));
+  return bit_cast<T>(bit_cast<Unsigned>(simd) & bit_cast<Unsigned>(-simd));
 }
 
 // TODO(timshen): Add simd_cast_saturated.
-
-// Overloaded operators.
-
-// Returns simd unchanged.
-template <typename T, typename Abi>
-Simd<T, Abi> operator+(Simd<T, Abi> simd) {
-  return simd;
-}
-
-// Returns the element-wise negation.
-// For signed Tp, overflow (e.g. negation of INT32_MIN) is undefined.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator-(Simd<Tp, Ap> simd) {
-  return Simd<Tp, Ap>::from_storage(-simd.storage_);
-}
-
-// Returns the element-wise bit not result.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator~(Simd<Tp, Ap> simd) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integer types are supported");
-  // GCC 4.9 reports `simd` set but not used. Make it happy.
-  (void)simd;
-  return Simd<Tp, Ap>::from_storage(~simd.storage_);
-}
-
-// Returns the element-wise sum of two Simd objects.
-// For signed Tp, overflow is undefined.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator+(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ + rhs.storage_);
-}
-
-// Returns the element-wise difference of two Simd objects.
-// For signed Tp, overflow is undefined.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator-(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ - rhs.storage_);
-}
-
-// Returns the element-wise products of two objects.
-// For signed Tp, overflow is undefined.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator*(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ * rhs.storage_);
-}
-
-// Left shifts each lane by the number of bits specified in count.
-// If count is negative or greater than or equal to the number of bits,
-// the result is undefined.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator<<(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integral types are supported");
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ << rhs.storage_);
-}
-
-// Returns shl_simd(Simd(count)).
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator<<(Simd<Tp, Ap> simd, int count) {
-  return simd << Simd<Tp, Ap>(count);
-}
-
-// Right shifts each lane by the number of bits specified in count.
-// If the left operand is negative or greater than or equal to the number of
-// bits, the result is undefined.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator>>(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integral types are supported");
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ >> rhs.storage_);
-}
-
-// Returns shr_simd(Simd(count)).
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator>>(Simd<Tp, Ap> simd, int count) {
-  return simd >> Simd<Tp, Ap>(count);
-}
-
-// Returns the element-wise bit and result.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator&(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integer types are supported");
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ & rhs.storage_);
-}
-
-// Returns the element-wise bit or result.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator|(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integer types are supported");
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ | rhs.storage_);
-}
-
-// Returns the element-wise bit xor result.
-template <typename Tp, typename Ap>
-Simd<Tp, Ap> operator^(Simd<Tp, Ap> lhs, Simd<Tp, Ap> rhs) {
-  static_assert(std::is_integral<Tp>::value,
-                "Only integer types are supported");
-  return Simd<Tp, Ap>::from_storage(lhs.storage_ ^ rhs.storage_);
-}
-
-template <typename T, typename Abi>
-void operator+=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs + rhs;
-}
-
-template <typename T, typename Abi>
-void operator-=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs - rhs;
-}
-
-template <typename T, typename Abi>
-void operator*=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs * rhs;
-}
-
-template <typename T, typename Abi>
-void operator<<=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs << rhs;
-}
-
-template <typename T, typename Abi>
-void operator<<=(Simd<T, Abi>& simd, int count) {
-  simd = simd << count;
-}
-
-template <typename T, typename Abi>
-void operator>>=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs >> rhs;
-}
-
-template <typename T, typename Abi>
-void operator>>=(Simd<T, Abi>& simd, int count) {
-  simd = simd >> count;
-}
-
-template <typename T, typename Abi>
-void operator&=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs & rhs;
-}
-
-template <typename T, typename Abi>
-void operator|=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs | rhs;
-}
-
-template <typename T, typename Abi>
-void operator^=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
-  lhs = lhs ^ rhs;
-}
 
 // ----------------- Compound Operations -----------------
 
@@ -619,7 +486,13 @@ void operator^=(Simd<T, Abi>& lhs, Simd<T, Abi> rhs) {
 // accepted. On Power, vec_rint is used which rounds floating points according
 // to Rounding Control field RN in FPSCR, which defaults to round-to-even.
 template <typename Dest, typename T, typename Abi>
-Simd<Dest, Abi> round_to_integer(Simd<T, Abi>) DIMSUM_DELETE;
+Simd<Dest, Abi> round_to_integer(Simd<T, Abi> v) {
+  Simd<Dest, Abi> ret;
+  for (int i = 0; i < v.size(); i++) {
+    ret[i] = static_cast<Dest>(std::nearbyint(v[i]));
+  }
+  return ret;
+}
 
 // Partitions the input elements into NewSize groups. For each group, sums up
 // the elements in it, and produces a NewType. Return all sums in a Simd object.
@@ -653,59 +526,6 @@ reduce_add(Simd<T, Abi> simd) {
 template <typename T, typename Abi>
 ResizeTo<Simd<T, Abi>, 1> reduce_add(Simd<T, Abi> simd) {
   return reduce_add<T, 1>(simd);
-}
-
-// Returns the generalized sum with operation Op. The components may be grouped
-// and arranged in arbitrary order.
-//
-// Ideally, T and Op should form a commutative monoid. Associativity is not
-// satisified by floating point addition, but this function may also be used if
-// the addition order is not cared.
-// TODO(maskray) After dropping C++11 support, change plus<T> to plus<>.
-//
-// Example: reduce(a); reduce(a, std::bit_xor<int32>());
-template <typename T, typename Abi, class Op = std::plus<T>>
-typename std::enable_if<!detail::IsReduceAdd<T, Op>(), T>::type reduce(
-    const Simd<T, Abi>& simd, Op op = Op()) {
-  T ret = simd[0];
-  for (size_t i = 1; i < simd.size(); i++) ret = op(ret, simd[i]);
-  return ret;
-}
-
-template <typename T, typename Abi, class Op = std::plus<T>>
-typename std::enable_if<detail::IsReduceAdd<T, Op>(), T>::type reduce(
-    const Simd<T, Abi>& simd, Op op = Op()) {
-  return reduce_add<T, 1>(simd)[0];
-}
-
-// Returns the minimum element.
-// For floating points, if simd contains NaN, the result is undefined.
-template <typename T, typename Abi>
-typename std::enable_if<(Simd<T, Abi>::size() > 1), T>::type hmin(
-    const Simd<T, Abi>& simd) {
-  auto arr = split_by<2>(simd);
-  return hmin(min(arr[0], arr[1]));
-}
-
-template <typename T, typename Abi>
-typename std::enable_if<(Simd<T, Abi>::size() == 1), T>::type hmin(
-    const Simd<T, Abi>& simd) {
-  return simd[0];
-}
-
-// Returns the maximum element.
-// For floating points, if simd contains NaN, the result is undefined.
-template <typename T, typename Abi>
-typename std::enable_if<(Simd<T, Abi>::size() > 1), T>::type hmax(
-    const Simd<T, Abi>& simd) {
-  auto arr = split_by<2>(simd);
-  return hmax(max(arr[0], arr[1]));
-}
-
-template <typename T, typename Abi>
-typename std::enable_if<(Simd<T, Abi>::size() == 1), T>::type hmax(
-    const Simd<T, Abi>& simd) {
-  return simd[0];
 }
 
 // Equivalent to acc + reduce_add<NewType, acc.size()>(mul_widened(lhs, rhs)),
@@ -742,17 +562,10 @@ Simd<T, Abi> fma(Simd<T, Abi> a, Simd<T, Abi> b, Simd<T, Abi> c) {
   static_assert(std::is_floating_point<T>::value,
                 "Only floating point types are supported");
   Simd<T, Abi> ret;
-  for (size_t i = 0; i < a.size(); i++) ret.set(i, std::fma(a[i], b[i], c[i]));
+  for (size_t i = 0; i < a.size(); i++) ret[i] = std::fma(a[i], b[i], c[i]);
   return ret;
 }
 
-template <typename T, typename Abi>
-typename detail::ExternalTypeTraits<T, Abi>::type to_raw(Simd<T, Abi> v) {
-  return v.raw();
-}
-
 }  // namespace dimsum
-
-#undef DIMSUM_DELETE
 
 #endif  // DIMSUM_OPERATIONS_H_
