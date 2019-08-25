@@ -49,7 +49,7 @@ Build system:
 Compiler:
 * Clang 3.8 or newer
 
-The following sub-architectures are planed to be supported:
+The following sub-architectures are planned to be supported:
 * x86 SSE 4.1 or newer
 * x86 AVX2
 * Power v2.07 VSX
